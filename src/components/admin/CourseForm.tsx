@@ -17,6 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { GolfCourse } from "@/types";
+import { addCourse, updateCourse } from "@/lib/data";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(3, "Course name must be at least 3 characters."),
@@ -34,6 +36,7 @@ interface CourseFormProps {
 
 export function CourseForm({ course }: CourseFormProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,13 +48,33 @@ export function CourseForm({ course }: CourseFormProps) {
     },
   });
 
-  function onSubmit(values: CourseFormValues) {
-    // Here we'll connect to firebase to save the data
-    console.log(values);
-    toast({
-      title: course ? "Course Updated" : "Course Created",
-      description: `The course "${values.name}" has been saved successfully.`,
-    });
+  async function onSubmit(values: CourseFormValues) {
+    try {
+      if (course) {
+        // Update existing course
+        await updateCourse(course.id, values);
+        toast({
+          title: "Course Updated",
+          description: `The course "${values.name}" has been saved successfully.`,
+        });
+      } else {
+        // Create new course
+        const newCourseId = await addCourse({ ...values, imageUrls: [] });
+        toast({
+          title: "Course Created",
+          description: `The course "${values.name}" has been created successfully.`,
+        });
+      }
+      router.push('/admin/courses');
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to save course:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save the course. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -139,7 +162,9 @@ export function CourseForm({ course }: CourseFormProps) {
                     />
 
                     <div className="flex justify-end">
-                        <Button type="submit">{course ? 'Save Changes' : 'Create Course'}</Button>
+                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                            {form.formState.isSubmitting ? 'Saving...' : (course ? 'Save Changes' : 'Create Course')}
+                        </Button>
                     </div>
                 </form>
             </Form>

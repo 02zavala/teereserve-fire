@@ -16,14 +16,19 @@ export interface TeeTime {
   price: number;
 }
 
-export interface GolfCourse {
-  id: string;
+// This represents the data stored in the main "courses" collection document
+export interface GolfCourseInput {
   name: string;
   location: string;
   description: string;
   rules: string;
   basePrice: number;
   imageUrls: string[];
-  reviews: Review[]; // This will be fetched separately later
-  teeTimes: TeeTime[]; // This will be fetched separately later
+}
+
+// This is the full course object, including related data that might be fetched separately
+export interface GolfCourse extends GolfCourseInput {
+  id: string;
+  reviews: Review[];
+  teeTimes: TeeTime[];
 }
