@@ -15,6 +15,7 @@ import { createBooking } from '@/lib/data';
 import { format } from 'date-fns';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { Locale } from '@/i18n-config';
+import { Skeleton } from './ui/skeleton';
 
 export default function CheckoutForm() {
     const stripe = useStripe();
@@ -177,7 +178,7 @@ export default function CheckoutForm() {
                                     </div>
                                     <div className="flex items-center">
                                         <Calendar className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span>Date: <span className="font-semibold">{formattedDate || '...'}</span></span>
+                                        <span>Date: <span className="font-semibold">{formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}</span></span>
                                     </div>
                                     <div className="flex items-center">
                                         <Clock className="h-4 w-4 mr-3 text-muted-foreground" />

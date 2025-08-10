@@ -5,7 +5,7 @@ import { useState }from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Phone, Clock, CheckCircle, Zap, Shield } from "lucide-react";
+import { Phone, Clock, CheckCircle, Zap, Shield, X } from "lucide-react";
 
 function WhatsAppIcon() {
     return (
@@ -26,13 +26,14 @@ function WhatsAppIcon() {
 
 
 export function WhatsAppButton() {
+    const [open, setOpen] = useState(false);
     const phoneNumber = "5216241352986";
     const message = "Hola TeeReserve Golf, me gustaría obtener más información para reservar un tee time.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     const telUrl = `tel:+${phoneNumber}`;
     
     return (
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
                     size="icon"
@@ -43,6 +44,10 @@ export function WhatsAppButton() {
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 mr-4 mb-2" side="top" align="end">
+                <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setOpen(false)}>
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                </Button>
                 <div className="space-y-4">
                      <div className="flex items-start gap-3">
                          <div className="mt-1">
