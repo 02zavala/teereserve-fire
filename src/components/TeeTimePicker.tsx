@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
@@ -11,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { TeeTime } from "@/types"
 import { cn } from "@/lib/utils"
 import { getTeeTimesForCourse } from "@/lib/data"
+import Link from "next/link"
 
 interface TeeTimePickerProps {
     courseId: string
@@ -40,7 +42,7 @@ export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
             if (selectedTimeOfDay === 'afternoon' && hour >= 12 && hour < 17) return true;
             if (selectedTimeOfDay === 'evening' && hour >= 17 && hour < 21) return true;
             return false;
-        }).filter(t => t.status === 'available');
+        });
     }
     
     const availableTimes = filterTeeTimes(teeTimes, timeOfDay);
@@ -112,12 +114,18 @@ export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
                         </div>
                     ) : availableTimes.length > 0 ? (
                         <div className="grid grid-cols-3 gap-2">
-                            {availableTimes.map(teeTime => (
-                                <Button key={teeTime.time} variant="outline" className="flex flex-col h-auto">
-                                    <span className="font-semibold text-base">{teeTime.time}</span>
-                                    <span className="text-xs text-muted-foreground">${teeTime.price * players}</span>
-                                </Button>
-                            ))}
+                            {availableTimes.map(teeTime => {
+                                const totalPrice = teeTime.price * players;
+                                const bookingUrl = `/book/confirm?courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${teeTime.time}&players=${players}&price=${totalPrice}&teeTimeId=${teeTime.id}`;
+                                return (
+                                    <Button key={teeTime.id} variant={teeTime.status === 'available' ? 'outline' : 'secondary'} className="flex flex-col h-auto" asChild disabled={teeTime.status !== 'available'}>
+                                        <Link href={bookingUrl}>
+                                            <span className="font-semibold text-base">{teeTime.time}</span>
+                                            <span className="text-xs text-muted-foreground">${totalPrice}</span>
+                                        </Link>
+                                    </Button>
+                                )
+                            })}
                         </div>
                     ) : (
                         <div className="text-center py-8 text-muted-foreground">
@@ -125,10 +133,6 @@ export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
                         </div>
                     )}
                 </div>
-
-                 <Button className="w-full text-lg font-bold py-6" size="lg">
-                    Proceed to Book
-                </Button>
             </CardContent>
         </Card>
     )

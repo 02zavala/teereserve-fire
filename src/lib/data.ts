@@ -1,6 +1,6 @@
-import type { GolfCourse, Review, TeeTime } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput } from '@/types';
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { format, startOfDay } from 'date-fns';
 
@@ -65,7 +65,6 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
   return courseList.map(course => ({
       ...course,
       reviews: generateReviews(),
-      // teeTimes are now fetched separately
   }));
 };
 
@@ -76,9 +75,7 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
 
     if (courseSnap.exists()) {
         const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-        // Still adding mock data for reviews for now
         courseData.reviews = generateReviews();
-        // teeTimes are now fetched separately
         return courseData;
     } else {
         console.log("No such document!");
@@ -104,7 +101,7 @@ export const addCourse = async (courseData: CourseDataInput): Promise<string> =>
       description: restOfData.description,
       rules: restOfData.rules || "",
       basePrice: restOfData.basePrice,
-      imageUrls: newImageUrls,
+      imageUrls: [...restOfData.existingImageUrls, ...newImageUrls],
     });
     return docRef.id;
 }
@@ -128,8 +125,8 @@ export const updateCourse = async (courseId: string, courseData: CourseDataInput
 
 // *** Tee Time Functions ***
 
-const generateDefaultTeeTimes = (basePrice: number): Omit<TeeTime, 'id'>[] => {
-    const times: Omit<TeeTime, 'id'>[] = [];
+const generateDefaultTeeTimes = (basePrice: number): Omit<TeeTime, 'id' | 'date'>[] => {
+    const times: Omit<TeeTime, 'id' | 'date'>[] = [];
     for (let i = 7; i <= 17; i++) {
         for (let j = 0; j < 60; j += 15) { // e.g. every 15 minutes
             const hour = i.toString().padStart(2, '0');
@@ -147,7 +144,7 @@ const generateDefaultTeeTimes = (basePrice: number): Omit<TeeTime, 'id'>[] => {
 
 export const getTeeTimesForCourse = async (courseId: string, date: Date, basePrice: number): Promise<TeeTime[]> => {
     const dateString = format(startOfDay(date), 'yyyy-MM-dd');
-    const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes') as CollectionReference<TeeTime>;
+    const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes');
     const q = query(teeTimesCol, where('date', '==', dateString));
     
     const snapshot = await getDocs(q);
@@ -155,37 +152,69 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
     if (snapshot.empty) {
         // No tee times for this date, so let's generate and save them
         const defaultTimes = generateDefaultTeeTimes(basePrice);
-        const batch = [];
+        const batch = writeBatch(db);
         const newTimes: TeeTime[] = [];
 
         for (const timeData of defaultTimes) {
             const timeDocRef = doc(teeTimesCol);
-            const newTeeTime = {
+            const newTeeTime: TeeTime = {
                 ...timeData,
                 id: timeDocRef.id,
                 date: dateString,
             };
-            batch.push(setDoc(timeDocRef, newTeeTime));
+            batch.set(timeDocRef, newTeeTime);
             newTimes.push(newTeeTime);
         }
-        await Promise.all(batch);
+        await batch.commit();
         return newTimes.sort((a,b) => a.time.localeCompare(b.time));
     } else {
-        return snapshot.docs.map(doc => doc.data() as TeeTime).sort((a,b) => a.time.localeCompare(b.time));
+        return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as TeeTime)).sort((a,b) => a.time.localeCompare(b.time));
     }
 };
 
 export const updateTeeTimesForCourse = async (courseId: string, date: Date, teeTimes: TeeTime[]): Promise<void> => {
-    const dateString = format(startOfDay(date), 'yyyy-MM-dd');
     const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes');
     
-    const batch = teeTimes.map(tt => {
+    const batch = writeBatch(db);
+    teeTimes.forEach(tt => {
         const docRef = doc(teeTimesCol, tt.id);
-        return updateDoc(docRef, {
+        batch.update(docRef, {
             price: tt.price,
             status: tt.status,
         });
     });
 
-    await Promise.all(batch);
+    await batch.commit();
 };
+
+
+// *** Booking Functions ***
+
+export async function createBooking(bookingData: BookingInput): Promise<string> {
+    const batch = writeBatch(db);
+
+    // 1. Create a new booking document
+    const bookingsCol = collection(db, 'bookings');
+    const bookingDocRef = doc(bookingsCol);
+    batch.set(bookingDocRef, { ...bookingData, createdAt: new Date().toISOString() });
+    
+    // 2. Update the tee time status to 'booked'
+    const teeTimeDocRef = doc(db, 'courses', bookingData.courseId, 'teeTimes', bookingData.teeTimeId);
+    batch.update(teeTimeDocRef, { status: 'booked' });
+
+    await batch.commit();
+    return bookingDocRef.id;
+}
+
+export async function getBookings(): Promise<Booking[]> {
+    const bookingsCol = collection(db, 'bookings');
+    const snapshot = await getDocs(bookingsCol);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
+}
+
+export async function getUserBookings(userId: string): Promise<Booking[]> {
+    const bookingsCol = collection(db, 'bookings');
+    const q = query(bookingsCol, where('userId', '==', userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
+}

@@ -32,6 +32,22 @@ export interface GolfCourseInput {
 export interface GolfCourse extends GolfCourseInput {
   id: string;
   reviews: Review[];
-  // Tee times are now loaded on demand based on the selected date
-  // teeTimes: TeeTime[]; 
+}
+
+export interface BookingInput {
+    userId: string;
+    userName: string;
+    courseId: string;
+    courseName: string;
+    date: string; // YYYY-MM-DD
+    time: string; // HH:mm
+    players: number;
+    totalPrice: number;
+    status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
+    teeTimeId: string;
+}
+
+export interface Booking extends BookingInput {
+    id: string;
+    createdAt: string; // ISO String
 }
