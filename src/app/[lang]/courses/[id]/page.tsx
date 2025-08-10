@@ -251,9 +251,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                         <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">You Might Also Like</h2>
                         <p className="mt-2 text-lg text-muted-foreground">Other courses you may enjoy</p>
                     </div>
-                    <Suspense fallback={<RecommendationSkeleton />}>
-                        <Recommendations courseId={course.id} dictionary={dictionary.courseCard} lang={params.lang} />
-                    </Suspense>
+                    <Recommendations courseId={course.id} dictionary={dictionary.courseCard} lang={params.lang} />
                 </div>
             </div>
         </div>

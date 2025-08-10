@@ -8,8 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button'
 import { MapPin, Star } from 'lucide-react'
 import { StarRating } from './StarRating'
-import { getDictionary } from '@/lib/get-dictionary'
-import { usePathname } from 'next/navigation'
+import type { getDictionary } from '@/lib/get-dictionary'
 import type { Locale } from '@/i18n-config'
 
 interface CourseCardProps {
