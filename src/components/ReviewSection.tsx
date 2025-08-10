@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { GolfCourse, Review } from '@/types';
 import { StarRating } from './StarRating';
 import { Button } from './ui/button';
@@ -20,6 +21,36 @@ import { useRouter } from 'next/navigation';
 
 interface ReviewSectionProps {
     course: GolfCourse;
+}
+
+function ReviewCard({ review }: { review: Review }) {
+    const [timeAgo, setTimeAgo] = useState('');
+
+    useEffect(() => {
+        // This ensures the relative time is only calculated on the client, avoiding hydration mismatch.
+        setTimeAgo(formatDistanceToNow(new Date(review.createdAt)) + ' ago');
+    }, [review.createdAt]);
+
+    return (
+        <Card>
+            <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                    <Avatar>
+                        <AvatarImage src={review.user.avatarUrl} alt={review.user.name} />
+                        <AvatarFallback>{review.user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                            <p className="font-semibold">{review.user.name}</p>
+                            <p className="text-xs text-muted-foreground">{timeAgo}</p>
+                        </div>
+                        <StarRating rating={review.rating} className="my-1" starClassName='h-4 w-4' />
+                        <p className="text-sm text-foreground/80">{review.text}</p>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
 }
 
 export function ReviewSection({ course }: ReviewSectionProps) {
@@ -62,24 +93,7 @@ export function ReviewSection({ course }: ReviewSectionProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     {reviews.length > 0 ? reviews.slice(0, 3).map(review => (
-                        <Card key={review.id}>
-                            <CardContent className="p-6">
-                                <div className="flex items-start space-x-4">
-                                    <Avatar>
-                                        <AvatarImage src={review.user.avatarUrl} alt={review.user.name} />
-                                        <AvatarFallback>{review.user.name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <p className="font-semibold">{review.user.name}</p>
-                                            <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(review.createdAt))} ago</p>
-                                        </div>
-                                        <StarRating rating={review.rating} className="my-1" starClassName='h-4 w-4' />
-                                        <p className="text-sm text-foreground/80">{review.text}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <ReviewCard key={review.id} review={review} />
                     )) : (
                         <p className="text-muted-foreground text-center py-8">Be the first to review this course!</p>
                     )}

@@ -1,3 +1,4 @@
+
 {
     "header": {
         "home": "Inicio",
@@ -55,5 +56,29 @@
         "bookNow": "Reservar Ahora",
         "viewTimes": "Ver Horarios",
         "reviews": "reseñas"
+    },
+    "cookieConsent": {
+        "title": "Uso de Cookies en TeeReserve Golf",
+        "description": "Utilizamos cookies y tecnologías similares para mejorar tu experiencia de navegación, personalizar contenido y analizar el tráfico. Al hacer clic en 'Aceptar todas', consientes el uso de todas las cookies. Puedes gestionar tus preferencias individualmente.",
+        "acceptAll": "Aceptar Todas",
+        "rejectAll": "Rechazar Todas",
+        "configure": "Configurar",
+        "privacyPolicy": "Ver Aviso de Privacidad",
+        "close": "Cerrar",
+        "preferencesTitle": "Preferencias de Cookies",
+        "necessary": {
+            "title": "Necesarias",
+            "description": "Siempre activas, requeridas para el funcionamiento básico del sitio."
+        },
+        "analytics": {
+            "title": "Analíticas",
+            "description": "Ayudan a medir el uso y mejorar el rendimiento."
+        },
+        "marketing": {
+            "title": "Marketing",
+            "description": "Personalización y anuncios relevantes."
+        },
+        "cancel": "Cancelar",
+        "savePreferences": "Guardar Preferencias"
     }
 }
