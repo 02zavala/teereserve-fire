@@ -83,10 +83,10 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     }
 
     return (
-        <Card className="bg-card/80 backdrop-blur-sm border-border/60">
+        <Card className="bg-card/90 backdrop-blur-sm border-border/60 shadow-lg">
             <CardContent className="p-4 md:p-6">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 lg:gap-2">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 lg:items-end">
                         <FormField
                             control={form.control}
                             name="location"
@@ -191,12 +191,11 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                 </FormItem>
                             )}
                         />
-                        <div className="lg:self-end">
-                            <Button type="submit" className="w-full text-base font-bold">{dictionary.search}</Button>
+                        <div className="lg:col-span-1">
+                            <Button type="submit" className="w-full text-base font-bold h-10">{dictionary.search}</Button>
                         </div>
                     </form>
                 </Form>
             </CardContent>
         </Card>
     )
-}

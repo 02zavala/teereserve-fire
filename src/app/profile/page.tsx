@@ -13,7 +13,9 @@ import type { Booking } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
-interface FormattedBooking extends Booking {
+interface FormattedBooking extends Omit<Booking, 'createdAt'> {
+    id: string;
+    createdAt?: string; // Make createdAt optional as it's not always present in the same way
     formattedDate: string;
 }
 

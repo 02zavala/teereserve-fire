@@ -19,11 +19,11 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
     <>
       <HeroSection dictionary={dictionary.heroSection} lang={lang} />
 
-      <div className="relative">
-          <div className="absolute left-1/2 z-20 w-full max-w-6xl -translate-x-1/2 -translate-y-[calc(50%)] px-4">
+      <div className="relative bg-background z-10">
+          <div className="absolute left-1/2 z-20 w-full max-w-6xl -translate-x-1/2 -translate-y-1/2 px-4">
             <CourseSearchForm dictionary={dictionary.courseSearch} />
           </div>
-          <div className="h-24 bg-background"></div>
+          <div className="h-24"></div>
       </div>
       
       <HowItWorks dictionary={dictionary.howItWorks} lang={lang} />
