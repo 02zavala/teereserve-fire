@@ -2,23 +2,11 @@ import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, Globe, MapPin } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
 import { ProtectedDashboardLink } from "./ProtectedDashboardLink";
+import { Logo } from "../Logo";
 
-
-const GolfIcon = ({ className }: { className?: string }) => (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-    >
-      <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
-      <path d="M12 7a1 1 0 0 0-1 1v4a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1z"/>
-      <circle cx="12" cy="15" r="1"/>
-    </svg>
-  );
 
 interface FooterProps {
-    dictionary: Awaited<ReturnType<typeof getDictionary>>['footer'];
+    dictionary: Awaited<ReturnType<typeof getDictionary>>;
 }
 
 
@@ -29,13 +17,10 @@ export function Footer({ dictionary }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
              <div className="flex items-center space-x-2 mb-4">
-                <GolfIcon className="h-10 w-10 text-primary" />
-                <span className="text-xl font-bold font-headline text-primary">
-                  TeeReserve Golf
-                </span>
+                <Logo className="h-20 w-auto" />
             </div>
             <p className="text-muted-foreground text-sm">
-              {dictionary.platformDescription}
+              {dictionary.footer.platformDescription}
             </p>
           </div>
 

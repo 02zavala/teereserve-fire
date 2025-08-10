@@ -6,20 +6,8 @@ import { UserNav } from "@/components/auth/UserNav";
 import type { Locale } from "@/i18n-config";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { Logo } from "../Logo";
 
-
-const GolfIcon = ({ className }: { className?: string }) => (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-    >
-      <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
-      <path d="M12 7a1 1 0 0 0-1 1v4a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1z"/>
-      <circle cx="12" cy="15" r="1"/>
-    </svg>
-  );
 
 interface HeaderProps {
     dictionary: {
@@ -41,10 +29,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
             <div className="container flex h-16 max-w-screen-2xl items-center">
                 <div className="mr-4 hidden md:flex">
                     <Link href={`/${lang}`} className="mr-6 flex items-center space-x-2">
-                        <GolfIcon className="h-6 w-6 text-primary" />
-                        <span className="hidden font-bold sm:inline-block font-headline text-lg">
-                            TeeReserve
-                        </span>
+                        <Logo className="h-10 w-auto" />
                     </Link>
                     <nav className="flex items-center gap-6 text-sm">
                         {navLinks.map(link => (
@@ -72,10 +57,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
                     </SheetTrigger>
                     <SheetContent side="left" className="pr-0">
                         <Link href={`/${lang}`} className="flex items-center space-x-2">
-                            <GolfIcon className="h-6 w-6 text-primary" />
-                            <span className="font-bold font-headline text-lg">
-                                TeeReserve
-                            </span>
+                           <Logo className="h-10 w-auto" />
                         </Link>
                         <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
                             <div className="flex flex-col space-y-3">
