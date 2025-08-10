@@ -1,4 +1,4 @@
-import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -255,7 +255,7 @@ export const updateCourse = async (courseId: string, courseData: CourseDataInput
 const generateDefaultTeeTimes = (basePrice: number): Omit<TeeTime, 'id' | 'date'>[] => {
     const times: Omit<TeeTime, 'id' | 'date'>[] = [];
     for (let i = 7; i <= 17; i++) {
-        for (let j = 0; j < 60; j += 15) { // e.g. every 15 minutes
+        for (let j = 0; j < 60; j += 15) { // e.g., every 15 minutes
             const hour = i.toString().padStart(2, '0');
             const minute = j.toString().padStart(2, '0');
             const priceMultiplier = (i < 9 || i > 15) ? 0.9 : 1.2; // Cheaper in early morning/late afternoon
@@ -425,4 +425,13 @@ export async function getAllReviews(): Promise<Review[]> {
 export async function updateReviewStatus(courseId: string, reviewId: string, approved: boolean): Promise<void> {
     const reviewDocRef = doc(db, 'courses', courseId, 'reviews', reviewId);
     await updateDoc(reviewDocRef, { approved });
+}
+
+
+// *** User Functions ***
+export async function getUsers(): Promise<UserProfile[]> {
+    const usersCol = collection(db, 'users');
+    const q = query(usersCol, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data() as UserProfile);
 }

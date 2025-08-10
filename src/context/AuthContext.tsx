@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -10,10 +11,12 @@ import {
     signOut,
     updateProfile,
     GoogleAuthProvider,
-    signInWithPopup
+    signInWithPopup,
+    UserCredential
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType {
     user: User | null;
@@ -25,6 +28,25 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const createUserInFirestore = async (userCredential: UserCredential) => {
+    const user = userCredential.user;
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    // Only create a new document if one doesn't already exist (e.g., for Google Sign-In)
+    if (!userDoc.exists()) {
+        await setDoc(userDocRef, {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            role: 'Customer', // Default role for new users
+            createdAt: new Date().toISOString(),
+        });
+    }
+}
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -47,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signup = async (email: string, pass: string, displayName: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         await updateProfile(userCredential.user, { displayName });
+        await createUserInFirestore(userCredential);
         // Manually update the user state because onAuthStateChanged might be slow
         setUser({ ...userCredential.user, displayName });
         return userCredential;
@@ -57,9 +80,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push('/');
     };
 
-    const googleSignIn = () => {
+    const googleSignIn = async () => {
         const provider = new GoogleAuthProvider();
-        return signInWithPopup(auth, provider);
+        const userCredential = await signInWithPopup(auth, provider);
+        await createUserInFirestore(userCredential);
+        return userCredential;
     };
 
     const value = {

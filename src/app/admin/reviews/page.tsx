@@ -63,7 +63,7 @@ function ReviewCard({ review }: { review: Review }) {
                 <StarRating rating={review.rating} className="mb-2" />
                 <p className="text-muted-foreground mb-4">{review.text}</p>
 
-                {isLoadingModeration && <p className="text-sm text-muted-foreground">Analyzing review...</p>}
+                {isLoadingModeration && <div className="flex items-center text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Analyzing review...</div>}
                 
                 {isFlagged && moderationResult && (
                      <div className="bg-yellow-50 border border-yellow-200 text-sm text-yellow-800 rounded-lg p-3 mb-4 flex items-start gap-3">
