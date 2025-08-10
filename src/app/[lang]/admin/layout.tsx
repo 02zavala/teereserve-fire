@@ -3,12 +3,16 @@ import { Home, GanttChartSquare, BookMarked, Users, Settings, MessageSquareQuote
 import Link from "next/link";
 import { UserNav } from "@/components/auth/UserNav";
 import { Header } from "@/components/layout/Header";
+import { type Locale } from "@/i18n-config";
 
 export default function AdminLayout({
   children,
+  params,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode,
+  params: { lang: Locale }
 }) {
+  const lang = params.lang;
   return (
     <SidebarProvider>
         <div className="flex h-screen w-full">
@@ -20,7 +24,7 @@ export default function AdminLayout({
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild tooltip="Dashboard">
-                                <Link href="/admin/dashboard">
+                                <Link href={`/${lang}/admin/dashboard`}>
                                     <Home />
                                     <span>Dashboard</span>
                                 </Link>
@@ -28,7 +32,7 @@ export default function AdminLayout({
                         </SidebarMenuItem>
                          <SidebarMenuItem>
                             <SidebarMenuButton asChild tooltip="Courses">
-                                <Link href="/admin/courses">
+                                <Link href={`/${lang}/admin/courses`}>
                                     <GanttChartSquare />
                                     <span>Courses</span>
                                 </Link>
@@ -36,7 +40,7 @@ export default function AdminLayout({
                         </SidebarMenuItem>
                          <SidebarMenuItem>
                             <SidebarMenuButton asChild tooltip="Bookings">
-                                <Link href="/admin/bookings">
+                                <Link href={`/${lang}/admin/bookings`}>
                                     <BookMarked />
                                     <span>Bookings</span>
                                 </Link>
@@ -44,7 +48,7 @@ export default function AdminLayout({
                         </SidebarMenuItem>
                          <SidebarMenuItem>
                             <SidebarMenuButton asChild tooltip="Reviews">
-                                <Link href="/admin/reviews">
+                                <Link href={`/${lang}/admin/reviews`}>
                                     <MessageSquareQuote />
                                     <span>Reviews</span>
                                 </Link>
@@ -52,7 +56,7 @@ export default function AdminLayout({
                         </SidebarMenuItem>
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild tooltip="Users">
-                                <Link href="/admin/users">
+                                <Link href={`/${lang}/admin/users`}>
                                     <Users />
                                     <span>Users</span>
                                 </Link>

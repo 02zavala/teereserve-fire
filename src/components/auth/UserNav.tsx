@@ -20,10 +20,13 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { UserProfile } from "@/types";
+import { usePathname } from "next/navigation";
 
 export function UserNav() {
   const { user, loading, logout } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1] || 'en';
   
   useEffect(() => {
     if (user) {
@@ -48,10 +51,10 @@ export function UserNav() {
     return (
       <div className="flex items-center gap-2">
         <Button variant="ghost" asChild>
-          <Link href="/login">Log In</Link>
+          <Link href={`/${lang}/login`}>Log In</Link>
         </Button>
         <Button asChild>
-            <Link href="/signup">Sign Up</Link>
+            <Link href={`/${lang}/signup`}>Sign Up</Link>
         </Button>
       </div>
     );
@@ -79,20 +82,20 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/profile">
+            <Link href={`/${lang}/profile`}>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-             <Link href="/profile#bookings">
+             <Link href={`/${lang}/profile#bookings`}>
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 <span>My Bookings</span>
              </Link>
           </DropdownMenuItem>
           {isAdmin && (
             <DropdownMenuItem asChild>
-                <Link href="/admin/dashboard">
+                <Link href={`/${lang}/admin/dashboard`}>
                     <GanttChartSquare className="mr-2 h-4 w-4" />
                     <span>Admin Panel</span>
                 </Link>
