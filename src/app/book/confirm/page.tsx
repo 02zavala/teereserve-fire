@@ -23,6 +23,7 @@ function ConfirmationPageContent() {
     const [course, setCourse] = useState<GolfCourse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isBooking, setIsBooking] = useState(false);
+    const [formattedDate, setFormattedDate] = useState('');
 
     const courseId = searchParams.get('courseId');
     const date = searchParams.get('date');
@@ -46,6 +47,10 @@ function ConfirmationPageContent() {
             return;
         }
 
+        if (date) {
+            setFormattedDate(format(new Date(date), "PPP"));
+        }
+
         getCourseById(courseId).then(fetchedCourse => {
             if (fetchedCourse) {
                 setCourse(fetchedCourse);
@@ -53,7 +58,7 @@ function ConfirmationPageContent() {
             setIsLoading(false);
         });
 
-    }, [courseId, router, user, authLoading, searchParams, toast]);
+    }, [courseId, router, user, authLoading, searchParams, toast, date]);
 
     const handleConfirmBooking = async () => {
         if (!user || !courseId || !date || !time || !players || !price || !teeTimeId || !course) return;
@@ -125,7 +130,7 @@ function ConfirmationPageContent() {
                             </div>
                             <div className="flex items-center">
                                 <Calendar className="h-4 w-4 mr-3 text-muted-foreground" />
-                                <span>Date: <span className="font-semibold">{date ? format(new Date(date), "PPP") : ''}</span></span>
+                                <span>Date: <span className="font-semibold">{formattedDate}</span></span>
                             </div>
                              <div className="flex items-center">
                                 <Clock className="h-4 w-4 mr-3 text-muted-foreground" />

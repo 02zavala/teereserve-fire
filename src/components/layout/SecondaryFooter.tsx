@@ -1,6 +1,6 @@
 
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Clock, Star } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Clock, Star, Sparkles } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
 import { ProtectedDashboardLink } from "./ProtectedDashboardLink";
 import { Logo } from "../Logo";
@@ -68,10 +68,10 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
               </li>
               <li>
                 <Link 
-                  href="/" 
+                  href="/recommendations" 
                   className="text-background/80 hover:text-white transition-colors flex items-center group"
                 >
-                  <span className="w-1 h-1 bg-primary/80 rounded-full mr-3 group-hover:bg-primary transition-colors"></span>
+                   <Sparkles className="w-4 h-4 mr-3 text-primary/80 group-hover:text-primary" />
                   {dictionary.aiRecommendations}
                 </Link>
               </li>
