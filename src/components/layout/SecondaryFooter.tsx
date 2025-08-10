@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Clock, Star, Sparkles } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
@@ -10,6 +13,12 @@ interface FooterProps {
 }
 
 export function SecondaryFooter({ dictionary }: FooterProps) {
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+  
   return (
     <footer className="bg-gradient-to-br from-foreground to-[#05442F] text-background mt-16">
       <div className="container mx-auto px-4 py-12">
@@ -141,7 +150,7 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
         <div className="border-t border-white/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="text-background/80 text-sm">
-              © {new Date().getFullYear()} TeeReserve Golf. {dictionary.allRightsReserved}
+              © {currentYear} TeeReserve Golf. {dictionary.allRightsReserved}
             </div>
             <div className="flex flex-wrap gap-6">
               <Link 

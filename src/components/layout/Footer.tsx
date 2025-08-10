@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, Globe, MapPin } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
@@ -12,6 +15,12 @@ interface FooterProps {
 
 
 export function Footer({ dictionary }: FooterProps) {
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
   return (
     <footer className="bg-card text-card-foreground border-t">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -102,7 +111,7 @@ export function Footer({ dictionary }: FooterProps) {
                   href="tel:+526241352986"
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  +52 624 135 2986
+                  +52 624 135 29 86
                 </a>
               </div>
               <div className="flex items-center space-x-2">
@@ -154,7 +163,7 @@ export function Footer({ dictionary }: FooterProps) {
         <div className="border-t border-border mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">
-              © {new Date().getFullYear()} TeeReserve Golf. {dictionary.footer.allRightsReserved}
+              © {currentYear} TeeReserve Golf. {dictionary.footer.allRightsReserved}
             </p>
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <Link 

@@ -341,5 +341,77 @@
             "subtitle": "Explora nuestra selección de campos de clase mundial y reserva tu próximo tee time con TeeReserve.",
             "button": "Explorar Campos"
         }
+    },
+    "privacyPage": {
+        "title": "Aviso de Privacidad",
+        "subtitle": "Tu privacidad es de suma importancia para nosotros.",
+        "lastUpdated": "Última actualización: 24 de Mayo de 2024",
+        "introduction": "Este Aviso de Privacidad describe cómo TeeReserve Golf ('nosotros', 'nuestro') recopila, usa y protege tu información personal cuando utilizas nuestro sitio web y servicios. Al acceder a nuestra plataforma, aceptas las prácticas descritas en este aviso.",
+        "sections": [
+            {
+                "title": "1. Información que Recopilamos",
+                "content": "Podemos recopilar varios tipos de información, incluyendo: <ul><li><strong>Información Personal:</strong> Nombre, correo electrónico, número de teléfono que proporcionas al registrarte o reservar.</li><li><strong>Información de Pago:</strong> Datos de tarjeta de crédito procesados de forma segura por nuestro proveedor de pagos (Stripe). No almacenamos los detalles completos de tu tarjeta.</li><li><strong>Información de Uso:</strong> Detalles sobre cómo interactúas con nuestro sitio, como campos vistos, reservas realizadas y páginas visitadas.</li><li><strong>Información del Dispositivo:</strong> Dirección IP, tipo de navegador e sistema operativo.</li></ul>"
+            },
+            {
+                "title": "2. Cómo Usamos tu Información",
+                "content": "Tu información se utiliza para: <ul><li>Procesar tus reservas de tee time.</li><li>Personalizar tu experiencia y recomendarte campos de golf.</li><li>Comunicarnos contigo sobre tus reservas y ofertas especiales.</li><li>Mejorar la seguridad y funcionalidad de nuestra plataforma.</li><li>Cumplir con nuestras obligaciones legales.</li></ul>"
+            },
+            {
+                "title": "3. Uso de Cookies",
+                "content": "Utilizamos cookies para mejorar tu experiencia. Las cookies esenciales son necesarias para la funcionalidad del sitio, mientras que las cookies de análisis y marketing nos ayudan a mejorar nuestros servicios y ofrecerte contenido relevante. Puedes gestionar tus preferencias de cookies en cualquier momento a través de nuestro banner de consentimiento de cookies."
+            },
+            {
+                "title": "4. Intercambio y Divulgación de Datos",
+                "content": "No vendemos tu información personal. Podemos compartir tus datos con: <ul><li><strong>Campos de Golf:</strong> Para confirmar y gestionar tu reserva.</li><li><strong>Proveedores de Servicios:</strong> Como procesadores de pago y herramientas de análisis que nos asisten en nuestras operaciones.</li><li><strong>Autoridades Legales:</strong> Si la ley lo exige o para proteger nuestros derechos legales.</li></ul>"
+            },
+            {
+                "title": "5. Seguridad de los Datos",
+                "content": "Implementamos medidas de seguridad técnicas y organizativas para proteger tu información personal contra el acceso no autorizado, la alteración o la destrucción. Utilizamos cifrado SSL y trabajamos con socios de confianza que cumplen con altos estándares de seguridad."
+            },
+            {
+                "title": "6. Tus Derechos de Privacidad",
+                "content": "Dependiendo de tu ubicación, puedes tener derecho a acceder, corregir o eliminar tu información personal. Para ejercer estos derechos, por favor contáctanos en <a href='mailto:privacy@teereserve.golf' class='text-primary hover:underline'>privacy@teereserve.golf</a>."
+            },
+            {
+                "title": "7. Cambios a este Aviso",
+                "content": "Podemos actualizar este Aviso de Privacidad periódicamente. Te notificaremos de cualquier cambio significativo publicando el nuevo aviso en nuestro sitio web. Tu uso continuado de la plataforma después de dichos cambios constituye tu aceptación del nuevo aviso."
+            }
+        ]
+    },
+     "termsPage": {
+        "title": "Términos y Condiciones",
+        "subtitle": "Por favor, lee estos términos detenidamente antes de usar nuestros servicios.",
+        "lastUpdated": "Última actualización: 24 de Mayo de 2024",
+        "introduction": "Bienvenido a TeeReserve Golf. Estos Términos y Condiciones rigen tu uso de nuestro sitio web y servicios. Al acceder o utilizar nuestra plataforma, aceptas quedar vinculado por estos términos. Si no estás de acuerdo con alguna parte de los términos, no puedes utilizar nuestros servicios.",
+        "sections": [
+            {
+                "title": "1. Servicios de Reserva",
+                "content": "TeeReserve Golf proporciona una plataforma en línea para que los usuarios busquen y reserven tee times en varios campos de golf. Actuamos como intermediarios entre tú y el campo de golf. Todas las reservas están sujetas a la disponibilidad y a los términos específicos del campo de golf."
+            },
+            {
+                "title": "2. Cuentas de Usuario",
+                "content": "Debes crear una cuenta para acceder a algunas funciones de nuestro servicio. Eres responsable de mantener la confidencialidad de tu cuenta y contraseña y de todas las actividades que ocurran bajo tu cuenta. Aceptas notificarnos inmediatamente de cualquier uso no autorizado."
+            },
+            {
+                "title": "3. Pagos y Cancelaciones",
+                "content": "<ul><li><strong>Pagos:</strong> Todos los pagos de las reservas deben realizarse a través de nuestra plataforma utilizando uno de nuestros métodos de pago aceptados. Los precios están sujetos a cambios sin previo aviso.</li><li><strong>Política de Cancelación:</strong> Las políticas de cancelación varían según el campo de golf. La política específica para tu reserva se mostrará durante el proceso de reserva y en tu correo electrónico de confirmación. Generalmente, las cancelaciones hechas con más de 24 horas de antelación son elegibles para un reembolso completo.</li></ul>"
+            },
+            {
+                "title": "4. Conducta del Usuario",
+                "content": "Aceptas no utilizar la plataforma para ningún propósito ilegal o prohibido. Eres responsable de tu conducta en el campo de golf y debes cumplir con todas las reglas y la etiqueta del campo, incluyendo los códigos de vestimenta y el ritmo de juego."
+            },
+            {
+                "title": "5. Propiedad Intelectual",
+                "content": "Todo el contenido de este sitio web, incluyendo texto, gráficos, logotipos e imágenes, es propiedad de TeeReserve Golf o sus proveedores de contenido y está protegido por las leyes de derechos de autor internacionales. No puedes reproducir, distribuir o crear obras derivadas sin nuestro consentimiento expreso por escrito."
+            },
+            {
+                "title": "6. Limitación de Responsabilidad",
+                "content": "TeeReserve Golf no será responsable de ningún daño directo, indirecto, incidental, especial o consecuente que resulte del uso o la incapacidad de usar nuestros servicios, incluyendo, entre otros, cualquier lesión o daño a la propiedad que ocurra en el campo de golf."
+            },
+            {
+                "title": "7. Ley Aplicable",
+                "content": "Estos Términos se regirán e interpretarán de acuerdo con las leyes de México, sin tener en cuenta sus disposiciones sobre conflicto de leyes. Cualquier disputa que surja de estos términos se resolverá en los tribunales de Los Cabos, B.C.S., México."
+            }
+        ]
     }
 }
