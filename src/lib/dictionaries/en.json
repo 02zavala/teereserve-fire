@@ -89,6 +89,40 @@
             "exploreButton": "Browse Courses"
         }
     },
+    "testimonials": {
+        "title": "What Our Golfers Say",
+        "subtitle": "Don't just take our word for it. Hear from thousands of satisfied golfers who have experienced the best of Los Cabos golf through TeeReserve.",
+        "testimonials": [
+          {
+            "name": "Michael Rodriguez",
+            "location": "California, USA",
+            "avatar": "https://i.pravatar.cc/100?u=michael",
+            "course": "Cabo del Sol Ocean Course",
+            "comment": "Absolutely incredible experience! TeeReserve made booking so easy, and the course was spectacular. The oceanfront holes are unforgettable. Will definitely book again."
+          },
+          {
+            "name": "Sarah Johnson",
+            "location": "Texas, USA",
+            "avatar": "https://i.pravatar.cc/100?u=sarah",
+            "course": "Diamante El Cardonal",
+            "comment": "Tiger Woods designed course was amazing! The booking process was seamless, and the customer service was top-notch. Best golf vacation we've ever had."
+          },
+          {
+            "name": "David Chen",
+            "location": "Vancouver, Canada",
+            "avatar": "https://i.pravatar.cc/100?u=david",
+            "course": "Palmilla Golf Club",
+            "comment": "The One&Only Palmilla course exceeded all expectations. TeeReserve's platform made it easy to compare options and book at the best rate. Highly recommended!"
+          },
+          {
+            "name": "Jennifer Williams",
+            "location": "Florida, USA",
+            "avatar": "https://i.pravatar.cc/100?u=jennifer",
+            "course": "Puerto Los Cabos Golf Club",
+            "comment": "Fantastic service from start to finish. The course was in perfect condition, and the views were breathtaking. TeeReserve made our group booking effortless."
+          }
+        ]
+    },
     "home": {
         "heroSubtitle": "Your specialized platform to book the best golf courses.",
         "featuredCoursesTitle": "Featured Courses",

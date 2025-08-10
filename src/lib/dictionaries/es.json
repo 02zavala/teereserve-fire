@@ -89,6 +89,40 @@
             "exploreButton": "Explorar Campos"
         }
     },
+    "testimonials": {
+        "title": "Lo que Dicen Nuestros Golfistas",
+        "subtitle": "No te fíes solo de nuestra palabra. Escucha a miles de golfistas satisfechos que han experimentado lo mejor del golf en Los Cabos a través de TeeReserve.",
+        "testimonials": [
+          {
+            "name": "Miguel Rodríguez",
+            "location": "California, USA",
+            "avatar": "https://i.pravatar.cc/100?u=michael",
+            "course": "Cabo del Sol Ocean Course",
+            "comment": "¡Una experiencia absolutamente increíble! TeeReserve hizo la reserva súper fácil, y el campo fue espectacular. Los hoyos frente al mar son inolvidables. Definitivamente reservaré de nuevo."
+          },
+          {
+            "name": "Sofía Johnson",
+            "location": "Texas, USA",
+            "avatar": "https://i.pravatar.cc/100?u=sarah",
+            "course": "Diamante El Cardonal",
+            "comment": "¡El campo diseñado por Tiger Woods fue asombroso! El proceso de reserva fue impecable y el servicio al cliente de primera. Las mejores vacaciones de golf que hemos tenido."
+          },
+          {
+            "name": "David Chen",
+            "location": "Vancouver, Canada",
+            "avatar": "https://i.pravatar.cc/100?u=david",
+            "course": "Palmilla Golf Club",
+            "comment": "El campo de One&Only Palmilla superó todas las expectativas. La plataforma de TeeReserve facilitó la comparación de opciones y la reserva al mejor precio. ¡Muy recomendable!"
+          },
+          {
+            "name": "Jennifer Williams",
+            "location": "Florida, USA",
+            "avatar": "https://i.pravatar.cc/100?u=jennifer",
+            "course": "Puerto Los Cabos Golf Club",
+            "comment": "Servicio fantástico de principio a fin. El campo estaba en perfectas condiciones y las vistas eran impresionantes. TeeReserve hizo que nuestra reserva grupal fuera sencilla."
+          }
+        ]
+    },
     "home": {
         "heroSubtitle": "Tu plataforma especializada para reservar los mejores campos de golf.",
         "featuredCoursesTitle": "Campos Destacados",
