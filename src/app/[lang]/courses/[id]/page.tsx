@@ -117,7 +117,7 @@ function WeatherPlaceholder() {
 }
 
 
-export default function CourseDetailPage({ params }: { params: CourseDetailPageProps['params']}) {
+export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     const [course, setCourse] = useState<GolfCourse | null>(null);
     const [dictionary, setDictionary] = useState<any>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);

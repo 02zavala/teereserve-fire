@@ -3,6 +3,7 @@ import { Locale, i18n } from "@/i18n-config";
 import { CookieConsent } from "@/components/CookieConsent";
 import { getDictionary } from "@/lib/get-dictionary";
 import { Header } from "@/components/layout/Header";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }));
@@ -22,6 +23,7 @@ export default async function RootLayout({
         <Header dictionary={dictionary.header} lang={params.lang} />
        <main className="flex-1">{children}</main>
        <CookieConsent dictionary={dictionary.cookieConsent} />
+       <WhatsAppButton />
     </div>
   );
 }

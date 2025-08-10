@@ -197,26 +197,26 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
     if (!id) return undefined;
     
     // Find the course in our static data
-    const course = initialCourses.find(c => c.id === id);
+    const courseFromStatic = initialCourses.find(c => c.id === id);
 
-    if (course) {
+    if (courseFromStatic) {
         // Attach reviews
-        const courseData = { ...course, reviews: await getReviewsForCourse(id) };
+        const courseData = { ...courseFromStatic, reviews: await getReviewsForCourse(id) };
         return courseData;
-    } else {
-        // Fallback to Firestore for dynamically added courses
-        const courseDocRef = doc(db, 'courses', id);
-        const courseSnap = await getDoc(courseDocRef);
+    } 
+    
+    // Fallback to Firestore for dynamically added courses if not found in static list
+    const courseDocRef = doc(db, 'courses', id);
+    const courseSnap = await getDoc(courseDocRef);
 
-        if (courseSnap.exists()) {
-            const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-            courseData.reviews = await getReviewsForCourse(id);
-            return courseData;
-        } else {
-            console.log("No such document!");
-            return undefined;
-        }
-    }
+    if (courseSnap.exists()) {
+        const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
+        courseData.reviews = await getReviewsForCourse(id);
+        return courseData;
+    } 
+    
+    console.log("No such document!");
+    return undefined;
 };
 
 export const getCourseLocations = async (): Promise<string[]> => {
@@ -433,7 +433,7 @@ export async function getAllReviews(): Promise<Review[]> {
 
 export async function updateReviewStatus(courseId: string, reviewId: string, approved: boolean): Promise<void> {
     const reviewDocRef = doc(db, 'courses', courseId, 'reviews', reviewId);
-    await updateDoc(reviewDocRef, { approved });
+    await updateDoc(reviewDocRef, { approved: approved });
 }
 
 export async function checkIfUserHasPlayed(userId: string, courseId: string): Promise<boolean> {
@@ -463,4 +463,3 @@ export async function updateUserRole(uid: string, role: UserProfile['role']): Pr
     const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, { role });
 }
-

@@ -1,0 +1,42 @@
+
+"use client";
+
+import Link from "next/link";
+import { Button } from "./ui/button";
+
+function WhatsAppIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="h-8 w-8"
+        >
+            <path
+                d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.61 15.35 3.5 16.82L2.1 21.9L7.29 20.53C8.75 21.36 10.37 21.82 12.04 21.82C17.5 21.82 21.95 17.37 21.95 11.91C21.95 6.45 17.5 2 12.04 2M12.04 3.67C16.56 3.67 20.28 7.38 20.28 11.91C20.28 16.44 16.56 20.15 12.04 20.15C10.56 20.15 9.14 19.74 7.9 19L7.23 18.63L3.81 19.44L4.65 16.11L4.26 15.4C3.4 14.07 2.95 12.53 2.95 11.91C2.95 7.38 6.66 3.67 12.04 3.67M9.21 7.64C8.95 7.64 8.71 7.72 8.52 7.91C8.33 8.1 8.08 8.41 8.08 8.89C8.08 9.38 8.52 9.92 8.65 10.08C8.77 10.25 10.13 12.63 12.44 13.56C14.75 14.5 15.17 14.32 15.52 14.29C15.87 14.26 16.86 13.68 17.02 13.1C17.18 12.52 17.18 12.06 17.1 11.91C17.02 11.76 16.86 11.68 16.59 11.55C16.31 11.42 15.17 10.86 14.92 10.77C14.66 10.68 14.49 10.63 14.32 10.86C14.15 11.09 13.64 11.68 13.48 11.85C13.31 12.02 13.14 12.04 12.88 11.91C12.62 11.78 11.78 11.51 10.77 10.59C10.02 9.9 9.5 9.07 9.37 8.84C9.24 8.61 9.37 8.45 9.5 8.32C9.62 8.2 9.77 8.02 9.91 7.87C10.05 7.72 10.11 7.64 10.25 7.41C10.38 7.18 10.31 6.99 10.25 6.86C10.18 6.72 9.77 5.72 9.59 5.34C9.41 4.96 9.24 5.02 9.09 5.02"
+            />
+        </svg>
+    );
+}
+
+
+export function WhatsAppButton() {
+    const phoneNumber = "5216241352986"; // Your number without '+' or special characters
+    const message = "Hola TeeReserve Golf, me gustaría obtener más información.";
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+    return (
+        <Button
+            asChild
+            size="icon"
+            className="fixed bottom-6 right-6 h-16 w-16 rounded-full bg-green-500 text-white shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 z-50 animate-bounce"
+        >
+            <Link href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+                <WhatsAppIcon />
+            </Link>
+        </Button>
+    );
+}
+
