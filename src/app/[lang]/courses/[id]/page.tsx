@@ -2,7 +2,7 @@
 "use client";
 
 import { getCourseById } from '@/lib/data';
-import { notFound } from 'next/navigation';
+import { notFound, useParams, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { MapPin, ShieldCheck, Star, Sun, Wind, Droplets, Eye, Gauge, CheckCircle } from 'lucide-react';
 import { TeeTimePicker } from '@/components/TeeTimePicker';
@@ -16,13 +16,6 @@ import { getDictionary } from '@/lib/get-dictionary';
 import type { Locale } from '@/i18n-config';
 import type { GolfCourse } from '@/types';
 import { Badge } from '@/components/ui/badge';
-
-interface CourseDetailPageProps {
-    params: {
-        id: string;
-        lang: Locale;
-    }
-}
 
 function WeatherPlaceholder() {
     return (
@@ -117,16 +110,23 @@ function WeatherPlaceholder() {
 }
 
 
-export default function CourseDetailPage({ params }: CourseDetailPageProps) {
+export default function CourseDetailPage() {
+    const params = useParams();
+    const pathname = usePathname();
     const [course, setCourse] = useState<GolfCourse | null>(null);
     const [dictionary, setDictionary] = useState<any>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+    const courseId = Array.isArray(params.id) ? params.id[0] : params.id;
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
+
     useEffect(() => {
+        if (!courseId || !lang) return;
+
         const fetchCourseAndDict = async () => {
             const [courseData, dictData] = await Promise.all([
-                getCourseById(params.id),
-                getDictionary(params.lang)
+                getCourseById(courseId),
+                getDictionary(lang)
             ]);
             
             if (!courseData) {
@@ -138,7 +138,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             setSelectedImage(courseData.imageUrls[0]);
         };
         fetchCourseAndDict();
-    }, [params.id, params.lang]);
+    }, [courseId, lang]);
 
     if (!course || !dictionary) {
         return (
@@ -235,7 +235,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     <aside className="lg:col-span-1">
                         <div className="sticky top-24 space-y-8">
                             <WeatherPlaceholder />
-                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} lang={params.lang} />
+                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} lang={lang} />
                         </div>
                     </aside>
                 </div>
@@ -251,7 +251,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                         <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">You Might Also Like</h2>
                         <p className="mt-2 text-lg text-muted-foreground">Other courses you may enjoy</p>
                     </div>
-                    <Recommendations courseId={course.id} dictionary={dictionary.courseCard} lang={params.lang} />
+                    <Recommendations courseId={course.id} dictionary={dictionary.courseCard} lang={lang} />
                 </div>
             </div>
         </div>
