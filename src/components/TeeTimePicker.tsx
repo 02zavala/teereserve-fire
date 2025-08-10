@@ -62,7 +62,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-3xl text-primary">Book Your Round</CardTitle>
+                    <CardTitle className="font-headline text-3xl text-primary">Reservar Tee Time</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="flex justify-center items-center py-8">
@@ -76,7 +76,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-3xl text-primary">Book Your Round</CardTitle>
+                <CardTitle className="font-headline text-3xl text-primary">Reservar Tee Time</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

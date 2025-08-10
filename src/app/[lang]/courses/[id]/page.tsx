@@ -1,18 +1,21 @@
 
+"use client";
+
 import { getCourseById } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { MapPin, ShieldCheck, Star, Sun, Wind, Droplets } from 'lucide-react';
+import { MapPin, ShieldCheck, Star, Sun, Wind, Droplets, Eye, Gauge, CheckCircle } from 'lucide-react';
 import { TeeTimePicker } from '@/components/TeeTimePicker';
 import { ReviewSection } from '@/components/ReviewSection';
 import { Recommendations } from '@/components/Recommendations';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CourseMap } from '@/components/CourseMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getDictionary } from '@/lib/get-dictionary';
 import type { Locale } from '@/i18n-config';
+import type { GolfCourse } from '@/types';
+import { Badge } from '@/components/ui/badge';
 
 interface CourseDetailPageProps {
     params: {
@@ -21,56 +24,147 @@ interface CourseDetailPageProps {
     }
 }
 
-export async function generateMetadata({ params }: CourseDetailPageProps) {
-    const course = await getCourseById(params.id);
-    if (!course) {
-        return {
-            title: 'Course Not Found'
-        }
-    }
-    return {
-        title: `${course.name} - TeeReserve`,
-        description: course.description.substring(0, 160),
-    }
-}
-
 function WeatherPlaceholder() {
     return (
-        <Card>
+        <Card className="bg-card/90 backdrop-blur-sm border-border/60 shadow-lg">
             <CardHeader>
                 <CardTitle className="font-headline text-2xl text-primary">Today's Forecast</CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-around items-center text-center">
-                <div className="flex flex-col items-center gap-1">
-                    <Sun className="h-8 w-8 text-yellow-500" />
-                    <span className="font-bold text-xl">78°F</span>
-                    <span className="text-sm text-muted-foreground">Sunny</span>
+            <CardContent className="space-y-6">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <p className="text-5xl font-bold">28°C</p>
+                        <p className="font-semibold text-foreground">Sunny</p>
+                        <p className="text-sm text-muted-foreground">Feels like 31°C</p>
+                    </div>
+                    <Sun className="h-16 w-16 text-yellow-500" />
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                    <Wind className="h-8 w-8 text-gray-400" />
-                    <span className="font-bold text-xl">12 mph</span>
-                    <span className="text-sm text-muted-foreground">Wind</span>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                        <Droplets className="h-5 w-5 text-blue-400" />
+                        <div>
+                            <p className="text-muted-foreground">Humidity</p>
+                            <p className="font-bold">65%</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <Wind className="h-5 w-5 text-gray-400" />
+                        <div>
+                            <p className="text-muted-foreground">Wind</p>
+                            <p className="font-bold">12 km/h</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <Eye className="h-5 w-5 text-gray-400" />
+                        <div>
+                            <p className="text-muted-foreground">Visibility</p>
+                            <p className="font-bold">10 km</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <Gauge className="h-5 w-5 text-gray-400" />
+                        <div>
+                            <p className="text-muted-foreground">Pressure</p>
+                            <p className="font-bold">1013 hPa</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                    <Droplets className="h-8 w-8 text-blue-400" />
-                    <span className="font-bold text-xl">15%</span>
-                    <span className="text-sm text-muted-foreground">Humidity</span>
+
+                <div>
+                    <p className="font-semibold mb-2">UV Index</p>
+                    <div className="flex items-center gap-2">
+                         <Badge variant="destructive">8 Very High</Badge>
+                    </div>
                 </div>
+
+                <div>
+                    <p className="font-semibold mb-2">Hourly Forecast</p>
+                    <div className="flex justify-around text-center">
+                        <div>
+                            <p className="text-sm text-muted-foreground">12:00</p>
+                            <Sun className="h-6 w-6 text-yellow-500 mx-auto my-1"/>
+                            <p className="font-bold">28°</p>
+                        </div>
+                         <div>
+                            <p className="text-sm text-muted-foreground">15:00</p>
+                            <Sun className="h-6 w-6 text-yellow-500 mx-auto my-1"/>
+                            <p className="font-bold">30°</p>
+                        </div>
+                         <div>
+                            <p className="text-sm text-muted-foreground">18:00</p>
+                            <Sun className="h-6 w-6 text-yellow-500 mx-auto my-1"/>
+                            <p className="font-bold">27°</p>
+                        </div>
+                         <div>
+                            <p className="text-sm text-muted-foreground">21:00</p>
+                            <Sun className="h-6 w-6 text-yellow-500 mx-auto my-1"/>
+                            <p className="font-bold">24°</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-green-100 dark:bg-green-900/50 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                    <h4 className="font-semibold text-green-800 dark:text-green-300 flex items-center gap-2"><CheckCircle className="h-5 w-5" /> Golf Conditions</h4>
+                    <p className="text-sm text-green-700 dark:text-green-400 mt-1">Excellent conditions for a round of golf!</p>
+                </div>
+                
+                 <p className="text-xs text-muted-foreground text-center">Updated 5 minutes ago</p>
+
             </CardContent>
         </Card>
     )
 }
 
 
-export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
-    const course = await getCourseById(params.id);
-    const dictionary = await getDictionary(params.lang);
+export default function CourseDetailPage({ params }: { params: CourseDetailPageProps['params']}) {
+    const [course, setCourse] = useState<GolfCourse | null>(null);
+    const [dictionary, setDictionary] = useState<any>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+    useEffect(() => {
+        const fetchCourseAndDict = async () => {
+            const [courseData, dictData] = await Promise.all([
+                getCourseById(params.id),
+                getDictionary(params.lang)
+            ]);
+            
+            if (!courseData) {
+                notFound();
+            }
 
-    if (!course) {
-        notFound();
+            setCourse(courseData);
+            setDictionary(dictData);
+            setSelectedImage(courseData.imageUrls[0]);
+        };
+        fetchCourseAndDict();
+    }, [params.id, params.lang]);
+
+    if (!course || !dictionary) {
+        return (
+             <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-4">
+                        <Skeleton className="h-12 w-3/4" />
+                        <Skeleton className="h-6 w-1/2" />
+                        <Skeleton className="aspect-video w-full rounded-lg" />
+                        <div className="flex gap-2">
+                           <Skeleton className="h-20 w-28 rounded-md" />
+                           <Skeleton className="h-20 w-28 rounded-md" />
+                           <Skeleton className="h-20 w-28 rounded-md" />
+                        </div>
+                        <Skeleton className="h-8 w-1/4 mt-4" />
+                        <Skeleton className="h-24 w-full" />
+                    </div>
+                    <div className="lg:col-span-1 space-y-8">
+                        <Skeleton className="h-96 w-full" />
+                        <Skeleton className="h-64 w-full" />
+                    </div>
+                </div>
+            </div>
+        );
     }
-
+    
     const avgRating = course.reviews.length > 0
     ? (course.reviews.reduce((acc, r) => acc + r.rating, 0) / course.reviews.length).toFixed(1)
     : 'No reviews';
@@ -95,22 +189,23 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
                 {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column (or Main) */}
-                    <div className="lg:col-span-2">
-                        {/* Image Carousel */}
-                        <Carousel className="w-full mb-8 rounded-lg overflow-hidden">
-                            <CarouselContent>
-                                {course.imageUrls.map((url, index) => (
-                                    <CarouselItem key={index}>
-                                        <div className="relative aspect-video">
-                                            <Image src={url} alt={`${course.name} view ${index + 1}`} data-ai-hint="golf course scene" fill className="object-cover" />
-                                        </div>
-                                    </CarouselItem>
-                                ))}
-                            </CarouselContent>
-                            <CarouselPrevious className="left-4" />
-                            <CarouselNext className="right-4" />
-                        </Carousel>
+                    {/* Left Column (Main) */}
+                    <div className="lg:col-span-2 space-y-8">
+                        
+                        {/* Image Gallery */}
+                        <div>
+                             <div className="relative aspect-video w-full rounded-lg overflow-hidden mb-4">
+                                {selectedImage && <Image src={selectedImage} alt={`${course.name} view`} data-ai-hint="golf course scene" fill className="object-cover" />}
+                            </div>
+                            <div className="flex gap-2 overflow-x-auto pb-2">
+                               {course.imageUrls.map((url, index) => (
+                                   <div key={index} className="relative aspect-video w-28 h-20 flex-shrink-0 cursor-pointer rounded-md overflow-hidden" onClick={() => setSelectedImage(url)}>
+                                       <Image src={url} alt={`${course.name} thumbnail ${index + 1}`} fill className="object-cover" />
+                                        {selectedImage === url && <div className="absolute inset-0 border-2 border-primary rounded-md" />}
+                                   </div>
+                               ))}
+                           </div>
+                        </div>
                         
                         {/* Description & Rules */}
                         <div className="space-y-8">
@@ -118,10 +213,6 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                                 <h2 className="font-headline text-3xl font-semibold text-primary mb-4">About the Course</h2>
                                 <p className="text-base text-foreground/80 leading-relaxed">{course.description}</p>
                             </div>
-                             <div className="my-8">
-                                <h2 className="font-headline text-3xl font-semibold text-primary mb-4">Weather</h2>
-                                <WeatherPlaceholder />
-                             </div>
                             
                             {/* Map Section */}
                             {course.latLng && (
@@ -143,6 +234,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                     {/* Right Column (Sidebar) */}
                     <aside className="lg:col-span-1">
                         <div className="sticky top-24 space-y-8">
+                            <WeatherPlaceholder />
                              <TeeTimePicker courseId={course.id} basePrice={course.basePrice} lang={params.lang} />
                         </div>
                     </aside>
