@@ -22,13 +22,19 @@ interface TeeTimePickerProps {
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
 export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
-    const [date, setDate] = useState<Date>(new Date())
+    const [date, setDate] = useState<Date | undefined>(undefined);
     const [players, setPlayers] = useState(2)
     const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning')
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
+        // Set initial date on client to avoid hydration mismatch
+        setDate(new Date());
+    }, []);
+
+    useEffect(() => {
+        if (!date) return;
         startTransition(async () => {
             const fetchedTeeTimes = await getTeeTimesForCourse(courseId, date, basePrice);
             setTeeTimes(fetchedTeeTimes);
@@ -46,6 +52,21 @@ export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
     }
     
     const availableTimes = filterTeeTimes(teeTimes, timeOfDay);
+
+    if (!date) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-3xl text-primary">Book Your Round</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="flex justify-center items-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
 
     return (
         <Card>

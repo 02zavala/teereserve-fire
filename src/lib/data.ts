@@ -435,3 +435,8 @@ export async function getUsers(): Promise<UserProfile[]> {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => doc.data() as UserProfile);
 }
+
+export async function updateUserRole(uid: string, role: UserProfile['role']): Promise<void> {
+    const userDocRef = doc(db, 'users', uid);
+    await updateDoc(userDocRef, { role });
+}
