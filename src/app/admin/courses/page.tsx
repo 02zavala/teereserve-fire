@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCourses } from "@/lib/data";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+
 
 export default async function CoursesAdminPage() {
     const courses = await getCourses({});
@@ -12,9 +15,11 @@ export default async function CoursesAdminPage() {
         <div>
             <div className="flex items-center justify-between mb-6">
                  <h1 className="text-3xl font-bold font-headline text-primary">Manage Courses</h1>
-                 <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add New Course
+                 <Button asChild>
+                    <Link href="/admin/courses/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add New Course
+                    </Link>
                  </Button>
             </div>
 
@@ -51,10 +56,18 @@ export default async function CoursesAdminPage() {
                                     <TableCell>{course.location}</TableCell>
                                     <TableCell className="hidden md:table-cell">${course.basePrice}</TableCell>
                                     <TableCell>
-                                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                                            <MoreHorizontal className="h-4 w-4" />
-                                            <span className="sr-only">Toggle menu</span>
-                                        </Button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">Toggle menu</span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))}
