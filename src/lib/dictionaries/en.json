@@ -48,6 +48,19 @@
         "madeIn": "Made with ❤️ in Mexico",
         "contact": "Contact"
     },
+    "heroSection": {
+        "title": "Premium Golf Reservations in",
+        "titleHighlight": "Los Cabos",
+        "subtitle": "Book your perfect round at the finest golf courses in Los Cabos. Real-time availability, instant confirmation, and exclusive access.",
+        "stats": {
+            "courses": { "value": "15+", "label": "Premium Courses" },
+            "golfers": { "value": "10K+", "label": "Happy Golfers" },
+            "rating": { "value": "4.9", "label": "Rating" },
+            "support": { "value": "24/7", "label": "Support" }
+        },
+        "bookButton": "Book Your Round",
+        "exploreButton": "Explore Courses"
+    },
     "home": {
         "heroSubtitle": "Your specialized platform to book the best golf courses.",
         "featuredCoursesTitle": "Featured Courses",

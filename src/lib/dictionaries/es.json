@@ -48,6 +48,19 @@
         "madeIn": "Hecho con ❤️ en México",
         "contact": "Contacto"
     },
+    "heroSection": {
+        "title": "Reservas de Golf Premium en",
+        "titleHighlight": "Los Cabos",
+        "subtitle": "Reserva tu ronda perfecta en los mejores campos de golf de Los Cabos. Disponibilidad en tiempo real, confirmación instantánea y acceso exclusivo.",
+        "stats": {
+            "courses": { "value": "15+", "label": "Campos Premium" },
+            "golfers": { "value": "10K+", "label": "Golfistas Felices" },
+            "rating": { "value": "4.9", "label": "Calificación" },
+            "support": { "value": "24/7", "label": "Soporte" }
+        },
+        "bookButton": "Reserva tu Ronda",
+        "exploreButton": "Explora los Campos"
+    },
     "home": {
         "heroSubtitle": "Tu plataforma especializada para reservar los mejores campos de golf.",
         "featuredCoursesTitle": "Campos Destacados",

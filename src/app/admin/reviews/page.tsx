@@ -10,19 +10,22 @@ import { ReviewActions } from "./ReviewActions";
 import { StarRating } from "@/components/StarRating";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import type { Review } from "@/types";
 
-function ReviewCard({ review }: { review: any }) {
+function ReviewCard({ review }: { review: Review }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [formattedDate, setFormattedDate] = useState('');
 
     useEffect(() => {
         assistReviewModeration({ reviewText: review.text }).then(setModerationResult);
+    }, [review.text]);
+
+    useEffect(() => {
         if (review.createdAt) {
             setFormattedDate(format(new Date(review.createdAt), "PPP"));
         }
-    }, [review.text, review.createdAt]);
+    }, [review.createdAt]);
 
-    const isFlagged = moderationResult && (moderationResult.isSpam || moderationResult.isToxic);
 
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';
@@ -42,7 +45,7 @@ function ReviewCard({ review }: { review: any }) {
                     <div>
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
-                            Review by {review.userName} on {formattedDate}
+                            Review by {review.userName} {formattedDate && `on ${formattedDate}`}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>
@@ -74,7 +77,7 @@ function ReviewCard({ review }: { review: any }) {
 
 
 export default function ReviewsAdminPage() {
-    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviews, setReviews] = useState<Review[]>([]);
     
     useEffect(() => {
         getAllReviews().then(setReviews);
