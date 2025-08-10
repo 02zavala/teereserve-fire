@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { format } from "date-fns"
 import { MapPin, Calendar as CalendarIcon, Users, Clock } from "lucide-react"
 
@@ -33,6 +33,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { getCourseLocations } from "@/lib/data"
 import { useEffect, useState } from "react"
+import { getDictionary } from "@/lib/get-dictionary"
 
 const formSchema = z.object({
   location: z.string().min(1, "Location is required"),
@@ -43,8 +44,14 @@ const formSchema = z.object({
   time: z.string().optional(),
 })
 
-export function CourseSearchForm() {
+interface CourseSearchFormProps {
+    dictionary: Awaited<ReturnType<typeof getDictionary>>['courseSearch'];
+}
+
+
+export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     const router = useRouter()
+    const pathname = usePathname()
     const [locations, setLocations] = useState<string[]>([]);
     
     useEffect(() => {
@@ -70,7 +77,9 @@ export function CourseSearchForm() {
         if (values.time) {
             params.set("time", values.time)
         }
-        router.push(`/courses?${params.toString()}`)
+
+        const lang = pathname.split('/')[1] || 'en';
+        router.push(`/${lang}/courses?${params.toString()}`)
     }
 
     return (
@@ -83,7 +92,7 @@ export function CourseSearchForm() {
                             name="location"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><MapPin className="mr-1 h-3 w-3" /> Location</FormLabel>
+                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><MapPin className="mr-1 h-3 w-3" /> {dictionary.location}</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
@@ -91,7 +100,7 @@ export function CourseSearchForm() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="all">All Locations</SelectItem>
+                                            <SelectItem value="all">{dictionary.allLocations}</SelectItem>
                                             {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
@@ -104,7 +113,7 @@ export function CourseSearchForm() {
                             name="date"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><CalendarIcon className="mr-1 h-3 w-3" /> Date</FormLabel>
+                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><CalendarIcon className="mr-1 h-3 w-3" /> {dictionary.date}</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                         <FormControl>
@@ -118,7 +127,7 @@ export function CourseSearchForm() {
                                             {field.value ? (
                                                 format(field.value, "PPP")
                                             ) : (
-                                                <span>Pick a date</span>
+                                                <span>{dictionary.pickDate}</span>
                                             )}
                                             </Button>
                                         </FormControl>
@@ -144,7 +153,7 @@ export function CourseSearchForm() {
                             name="players"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><Users className="mr-1 h-3 w-3" /> Players</FormLabel>
+                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><Users className="mr-1 h-3 w-3" /> {dictionary.players}</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
@@ -152,7 +161,7 @@ export function CourseSearchForm() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {[1, 2, 3, 4].map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
+                                            {[1, 2, 3, 4].map(p => <SelectItem key={p} value={p.toString()}>{p} {p > 1 ? dictionary.multiplePlayers : dictionary.onePlayer}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -164,7 +173,7 @@ export function CourseSearchForm() {
                             name="time"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><Clock className="mr-1 h-3 w-3" /> Time</FormLabel>
+                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><Clock className="mr-1 h-3 w-3" /> {dictionary.time}</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
@@ -172,10 +181,10 @@ export function CourseSearchForm() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="any">Any Time</SelectItem>
-                                            <SelectItem value="morning">Morning (6am - 12pm)</SelectItem>
-                                            <SelectItem value="afternoon">Afternoon (12pm - 5pm)</SelectItem>
-                                            <SelectItem value="evening">Evening (5pm - 9pm)</SelectItem>
+                                            <SelectItem value="any">{dictionary.anyTime}</SelectItem>
+                                            <SelectItem value="morning">{dictionary.morning}</SelectItem>
+                                            <SelectItem value="afternoon">{dictionary.afternoon}</SelectItem>
+                                            <SelectItem value="evening">{dictionary.evening}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -183,7 +192,7 @@ export function CourseSearchForm() {
                             )}
                         />
                         <div className="lg:self-end">
-                            <Button type="submit" className="w-full text-base font-bold">Search</Button>
+                            <Button type="submit" className="w-full text-base font-bold">{dictionary.search}</Button>
                         </div>
                     </form>
                 </Form>

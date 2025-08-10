@@ -1,0 +1,41 @@
+{
+    "header": {
+        "home": "Inicio",
+        "findCourse": "Buscar Campo",
+        "about": "Sobre Nosotros"
+    },
+    "footer": {
+        "builtBy": "Creado por",
+        "privacyPolicy": "Política de Privacidad",
+        "termsOfService": "Términos de Servicio",
+        "allRightsReserved": "Todos los derechos reservados"
+    },
+    "home": {
+        "heroSubtitle": "Tu plataforma especializada para reservar los mejores campos de golf.",
+        "featuredCoursesTitle": "Campos Destacados",
+        "featuredCoursesSubtitle": "Descubre los campos mejor valorados de la zona",
+        "recommendationsTitle": "Recomendado para Ti",
+        "recommendationsSubtitle": "Recomendaciones de IA basadas en tus preferencias"
+    },
+    "courseSearch": {
+        "location": "Ubicación",
+        "allLocations": "Todas las Ubicaciones",
+        "date": "Fecha",
+        "pickDate": "Elige una fecha",
+        "players": "Jugadores",
+        "onePlayer": "1 Jugador",
+        "multiplePlayers": "Jugadores",
+        "time": "Hora",
+        "anyTime": "Cualquier Hora",
+        "morning": "Mañana (6am - 12pm)",
+        "afternoon": "Tarde (12pm - 5pm)",
+        "evening": "Noche (5pm - 9pm)",
+        "search": "Buscar"
+    },
+    "courseCard": {
+        "from": "Desde",
+        "bookNow": "Reservar Ahora",
+        "viewTimes": "Ver Horarios",
+        "reviews": "reseñas"
+    }
+}

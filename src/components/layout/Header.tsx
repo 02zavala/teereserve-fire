@@ -3,12 +3,10 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { UserNav } from "@/components/auth/UserNav";
+import type { Locale } from "@/i18n-config";
+import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
-const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/courses", label: "Find a Course" },
-    { href: "/#about", label: "About Us" },
-];
 
 const GolfIcon = ({ className }: { className?: string }) => (
     <svg
@@ -23,12 +21,26 @@ const GolfIcon = ({ className }: { className?: string }) => (
     </svg>
   );
 
-export function Header() {
+interface HeaderProps {
+    dictionary: {
+        home: string;
+        findCourse: string;
+        about: string;
+    },
+    lang: Locale;
+}
+
+export function Header({ dictionary, lang }: HeaderProps) {
+    const navLinks = [
+        { href: `/${lang}`, label: dictionary.home },
+        { href: `/${lang}/courses`, label: dictionary.findCourse },
+        { href: `/${lang}/#about`, label: dictionary.about },
+    ];
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 max-w-screen-2xl items-center">
                 <div className="mr-4 hidden md:flex">
-                    <Link href="/" className="mr-6 flex items-center space-x-2">
+                    <Link href={`/${lang}`} className="mr-6 flex items-center space-x-2">
                         <GolfIcon className="h-6 w-6 text-primary" />
                         <span className="hidden font-bold sm:inline-block font-headline text-lg">
                             TeeReserve
@@ -59,7 +71,7 @@ export function Header() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="pr-0">
-                        <Link href="/" className="flex items-center space-x-2">
+                        <Link href={`/${lang}`} className="flex items-center space-x-2">
                             <GolfIcon className="h-6 w-6 text-primary" />
                             <span className="font-bold font-headline text-lg">
                                 TeeReserve
@@ -79,9 +91,10 @@ export function Header() {
                 
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
                     <div className="w-full flex-1 md:w-auto md:flex-none">
-                        {/* Future search bar can go here */}
+                       <LanguageSwitcher lang={lang} />
                     </div>
-                    <nav className="flex items-center">
+                    <nav className="flex items-center gap-2">
+                        <ThemeToggle />
                         <UserNav />
                     </nav>
                 </div>

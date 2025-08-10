@@ -1,0 +1,41 @@
+{
+    "header": {
+        "home": "Home",
+        "findCourse": "Find a Course",
+        "about": "About Us"
+    },
+    "footer": {
+        "builtBy": "Built by",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service",
+        "allRightsReserved": "All rights reserved"
+    },
+    "home": {
+        "heroSubtitle": "Your specialized platform to book the best golf courses.",
+        "featuredCoursesTitle": "Featured Courses",
+        "featuredCoursesSubtitle": "Discover the top-rated courses in the area",
+        "recommendationsTitle": "Recommended for You",
+        "recommendationsSubtitle": "AI recommendations based on your preferences"
+    },
+    "courseSearch": {
+        "location": "Location",
+        "allLocations": "All Locations",
+        "date": "Date",
+        "pickDate": "Pick a date",
+        "players": "Players",
+        "onePlayer": "1 Player",
+        "multiplePlayers": "Players",
+        "time": "Time",
+        "anyTime": "Any Time",
+        "morning": "Morning (6am - 12pm)",
+        "afternoon": "Afternoon (12pm - 5pm)",
+        "evening": "Evening (5pm - 9pm)",
+        "search": "Search"
+    },
+    "courseCard": {
+        "from": "From",
+        "bookNow": "Book Now",
+        "viewTimes": "View Times",
+        "reviews": "reviews"
+    }
+}

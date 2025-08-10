@@ -5,12 +5,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button'
 import { MapPin, Star } from 'lucide-react'
 import { StarRating } from './StarRating'
+import { getDictionary } from '@/lib/get-dictionary'
 
 interface CourseCardProps {
-  course: GolfCourse
+  course: GolfCourse,
+  dictionary: Awaited<ReturnType<typeof getDictionary>>['courseCard']
 }
 
-export function CourseCard({ course }: CourseCardProps) {
+export function CourseCard({ course, dictionary }: CourseCardProps) {
   const avgRating = course.reviews.length > 0
     ? course.reviews.reduce((acc, r) => acc + r.rating, 0) / course.reviews.length
     : 0;
@@ -40,15 +42,15 @@ export function CourseCard({ course }: CourseCardProps) {
         </div>
         <div className="flex items-center gap-2">
             <StarRating rating={avgRating} />
-            <span className="text-sm text-muted-foreground">({course.reviews.length} reviews)</span>
+            <span className="text-sm text-muted-foreground">({course.reviews.length} {dictionary.reviews})</span>
         </div>
       </CardContent>
       <CardFooter className="flex items-center justify-between bg-card p-4">
         <div className="text-lg font-bold">
-            From <span className="text-accent">${course.basePrice}</span>
+            {dictionary.from} <span className="text-accent">${course.basePrice}</span>
         </div>
         <Button asChild>
-          <Link href={`/courses/${course.id}`}>Book Now</Link>
+          <Link href={`/courses/${course.id}`}>{dictionary.bookNow}</Link>
         </Button>
       </CardFooter>
     </Card>

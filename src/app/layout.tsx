@@ -2,10 +2,9 @@ import type { Metadata } from 'next'
 import { Playfair_Display, PT_Sans } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/context/AuthContext'
+import { ThemeProvider } from '@/components/layout/ThemeProvider'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -26,13 +25,24 @@ export const metadata: Metadata = {
   },
 }
 
+interface RootLayoutProps {
+  children: React.ReactNode;
+  params: {
+    lang: string;
+  };
+}
+
+export async function generateStaticParams() {
+  return [{ lang: 'en' }, { lang: 'es' }]
+}
+
+
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+  params
+}: RootLayoutProps) {
   return (
-    <html lang="es" className="dark">
+    <html lang={params.lang} suppressHydrationWarning>
       <body
         className={cn(
           'min-h-screen bg-background font-body antialiased',
@@ -40,14 +50,17 @@ export default function RootLayout({
           fontBody.variable
         )}
       >
-        <AuthProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -21,7 +21,16 @@ const GolfIcon = ({ className }: { className?: string }) => (
     </svg>
   );
 
-export function Footer() {
+interface FooterProps {
+    dictionary: {
+        builtBy: string;
+        privacyPolicy: string;
+        termsOfService: string;
+        allRightsReserved: string;
+    }
+}
+
+export function Footer({ dictionary }: FooterProps) {
     return (
         <footer className="border-t border-border/40 py-6 md:py-8">
             <div className="container mx-auto px-4">
@@ -29,16 +38,16 @@ export function Footer() {
                     <div className="flex items-center space-x-2">
                          <GolfIcon className="h-6 w-6 text-primary" />
                         <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                            Built by TeeReserve.
+                            {dictionary.builtBy} TeeReserve.
                         </p>
                     </div>
                     <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
-                        <Link href="/terms" className="hover:text-primary">Terms of Service</Link>
+                        <Link href="/privacy" className="hover:text-primary">{dictionary.privacyPolicy}</Link>
+                        <Link href="/terms" className="hover:text-primary">{dictionary.termsOfService}</Link>
                     </div>
                 </div>
                 <div className="mt-4 text-center text-xs text-muted-foreground">
-                    © {new Date().getFullYear()} TeeReserve. All rights reserved.
+                    © {new Date().getFullYear()} TeeReserve. {dictionary.allRightsReserved}.
                 </div>
             </div>
         </footer>

@@ -5,12 +5,18 @@ import { CourseCard } from '@/components/CourseCard'
 import { Recommendations } from '@/components/Recommendations'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getDictionary } from '@/lib/get-dictionary'
+import { Locale } from '@/i18n-config'
+import { Header } from '@/components/layout/Header'
+import { Footer } from '@/components/layout/Footer'
 
-export default async function Home() {
+export default async function Home({ params: { lang } }: { params: { lang: Locale }}) {
+  const dictionary = await getDictionary(lang)
   const courses = await getCourses({})
 
   return (
     <div className="flex flex-col">
+        <Header dictionary={dictionary.header} lang={lang} />
       <section className="relative h-[50vh] min-h-[400px] w-full">
         <Image
           src="https://placehold.co/1920x1080.png"
@@ -26,23 +32,23 @@ export default async function Home() {
             TeeReserve
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-primary-foreground/90 md:text-xl">
-            Tu plataforma especializada para reservar los mejores campos de golf.
+            {dictionary.home.heroSubtitle}
           </p>
         </div>
         <div className="absolute bottom-0 left-1/2 z-20 w-full max-w-6xl -translate-x-1/2 translate-y-1/2 px-4">
-          <CourseSearchForm />
+          <CourseSearchForm dictionary={dictionary.courseSearch} />
         </div>
       </section>
 
       <section className="mt-[120px] bg-background py-16 md:mt-[80px] lg:py-24">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">Featured Courses</h2>
-            <p className="mt-2 text-lg text-muted-foreground">Discover the top-rated courses in the area</p>
+            <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">{dictionary.home.featuredCoursesTitle}</h2>
+            <p className="mt-2 text-lg text-muted-foreground">{dictionary.home.featuredCoursesSubtitle}</p>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {courses.slice(0, 3).map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard key={course.id} course={course} dictionary={dictionary.courseCard} />
             ))}
           </div>
         </div>
@@ -51,14 +57,15 @@ export default async function Home() {
       <section className="bg-card py-16 lg:py-24">
          <div className="container mx-auto px-4">
            <div className="mb-12 text-center">
-             <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">Recomendado para ti</h2>
-             <p className="mt-2 text-lg text-muted-foreground">Recomendaciones de IA basadas en tus preferencias</p>
+             <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">{dictionary.home.recommendationsTitle}</h2>
+             <p className="mt-2 text-lg text-muted-foreground">{dictionary.home.recommendationsSubtitle}</p>
            </div>
            <Suspense fallback={<RecommendationSkeleton />}>
-             <Recommendations />
+             <Recommendations dictionary={dictionary.courseCard} />
            </Suspense>
          </div>
        </section>
+       <Footer dictionary={dictionary.footer} />
     </div>
   )
 }

@@ -5,13 +5,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { MapPin } from 'lucide-react';
+import { getDictionary } from '@/lib/get-dictionary';
 
 interface RecommendationsProps {
   courseId?: string;
   userId?: string;
+  dictionary: Awaited<ReturnType<typeof getDictionary>>['courseCard']
 }
 
-export async function Recommendations({ courseId, userId }: RecommendationsProps) {
+export async function Recommendations({ courseId, userId, dictionary }: RecommendationsProps) {
   const recommendationInput = {
     userId: userId || 'anonymous-user-123',
     courseId: courseId,
@@ -70,10 +72,10 @@ export async function Recommendations({ courseId, userId }: RecommendationsProps
           </CardContent>
           <CardFooter className="flex items-center justify-between bg-card p-4">
             <div className="text-lg font-bold">
-                From <span className="text-accent">${rec.price}</span>
+                {dictionary.from} <span className="text-accent">${rec.price}</span>
             </div>
             <Button asChild>
-              <Link href={`/courses/${rec.courseId}`}>View Times</Link>
+              <Link href={`/courses/${rec.courseId}`}>{dictionary.viewTimes}</Link>
             </Button>
           </CardFooter>
         </Card>
