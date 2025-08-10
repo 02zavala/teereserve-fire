@@ -27,9 +27,9 @@ const GolfCourseRecommendationSchema = z.object({
   name: z.string().describe('The name of the recommended golf course.'),
   description: z.string().describe('A short, personalized description of why this course is recommended for the user.'),
   price: z.number().describe('The price to play at this golf course.'),
-  imageUrl: z.string().describe('URL of an image of the golf course.'),
+  imageUrl: z.string().url().describe("URL of an image of the golf course. It must be a placeholder image from 'https://placehold.co/800x600.png'"),
   reason: z.string().describe('The reasons this course is recommended to the user, based on their past preferences or current context.'),
-  tags: z.array(z.string()).describe('Descriptive tags such as \'best value today\' or \'recommended for your style of play\'.'),
+  tags: z.array(z.string()).describe("Descriptive tags such as 'best value today' or 'recommended for your style of play'."),
 });
 
 const RecommendGolfCoursesOutputSchema = z.object({
@@ -61,6 +61,7 @@ const prompt = ai.definePrompt({
   Format your recommendations in JSON format.
   Include a personalized description of why each course is recommended for the user.
   Include the price, image URL and descriptive tags as well.
+  The imageUrl must be a placeholder image from 'https://placehold.co/800x600.png'.
   The tags are used to highlight reasons or special offers such as "best value today" or "recommended for your style of play".
   `,
 });
