@@ -26,6 +26,7 @@ function ReviewCard({ review }: { review: Review }) {
     const [timeAgo, setTimeAgo] = useState('');
 
     useEffect(() => {
+        // This effect runs only on the client, after hydration
         if (review.createdAt) {
           setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true }));
         }
@@ -42,7 +43,7 @@ function ReviewCard({ review }: { review: Review }) {
                     <div className="flex-1">
                         <div className="flex items-center justify-between">
                             <p className="font-semibold">{review.user.name}</p>
-                            {timeAgo && <p className="text-xs text-muted-foreground">{timeAgo}</p>}
+                            <p className="text-xs text-muted-foreground">{timeAgo || '...'}</p>
                         </div>
                         <StarRating rating={review.rating} className="my-1" starClassName='h-4 w-4' />
                         <p className="text-sm text-foreground/80">{review.text}</p>

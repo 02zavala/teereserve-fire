@@ -397,5 +397,34 @@
             "title": "No hay Recomendaciones Especiales Ahora",
             "subtitle": "Estamos trabajando para encontrar la opción perfecta. ¡Intenta refrescar!"
         }
+    },
+    "contactPage": {
+        "title": "Ponte en Contacto",
+        "subtitle": "Estamos aquí para ayudarte. Contáctanos con cualquier pregunta o para asistencia con tu reserva.",
+        "form": {
+            "title": "Envíanos un Mensaje",
+            "description": "Completa el formulario a continuación y nos pondremos en contacto contigo lo antes posible.",
+            "nameLabel": "Tu Nombre",
+            "namePlaceholder": "Juan Pérez",
+            "emailLabel": "Tu Correo Electrónico",
+            "emailPlaceholder": "tu@ejemplo.com",
+            "messageLabel": "Tu Mensaje",
+            "messagePlaceholder": "Escribe tu mensaje aquí...",
+            "submit": "Enviar Mensaje",
+            "submitting": "Enviando...",
+            "successMessage": "¡Gracias! Tu mensaje ha sido enviado.",
+            "errorMessage": "Lo sentimos, hubo un error al enviar tu mensaje. Por favor, inténtalo de nuevo.",
+            "errors": {
+                "name": "El nombre debe tener al menos 2 caracteres.",
+                "email": "Por favor, introduce una dirección de correo válida.",
+                "message": "El mensaje debe tener al menos 10 caracteres."
+            }
+        },
+        "info": {
+            "title": "Información de Contacto",
+            "emailLabel": "Correo",
+            "phoneLabel": "Teléfono",
+            "addressLabel": "Dirección"
+        }
     }
 }

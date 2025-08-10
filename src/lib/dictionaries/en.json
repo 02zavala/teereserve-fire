@@ -379,6 +379,35 @@
             ]
         }
     },
+    "contactPage": {
+        "title": "Get in Touch",
+        "subtitle": "We're here to help. Contact us with any questions or for assistance with your booking.",
+        "form": {
+            "title": "Send us a Message",
+            "description": "Fill out the form below and we'll get back to you as soon as possible.",
+            "nameLabel": "Your Name",
+            "namePlaceholder": "John Doe",
+            "emailLabel": "Your Email",
+            "emailPlaceholder": "you@example.com",
+            "messageLabel": "Your Message",
+            "messagePlaceholder": "Type your message here...",
+            "submit": "Send Message",
+            "submitting": "Sending...",
+            "successMessage": "Thank you! Your message has been sent.",
+            "errorMessage": "Sorry, there was an error sending your message. Please try again.",
+            "errors": {
+                "name": "Name must be at least 2 characters.",
+                "email": "Please enter a valid email address.",
+                "message": "Message must be at least 10 characters."
+            }
+        },
+        "info": {
+            "title": "Contact Information",
+            "emailLabel": "Email",
+            "phoneLabel": "Phone",
+            "addressLabel": "Address"
+        }
+    },
     "recommendationsPage": {
         "title": "Your Personalized Recommendations",
         "subtitle": "Based on your preferences, we've found {count} perfect courses for you.",
