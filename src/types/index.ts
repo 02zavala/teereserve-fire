@@ -11,8 +11,10 @@ export interface Review {
 }
 
 export interface TeeTime {
-  time: string; // e.g., "07:00"
-  status: 'available' | 'held' | 'booked';
+  id: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:mm
+  status: 'available' | 'booked' | 'blocked';
   price: number;
 }
 
@@ -30,5 +32,6 @@ export interface GolfCourseInput {
 export interface GolfCourse extends GolfCourseInput {
   id: string;
   reviews: Review[];
-  teeTimes: TeeTime[];
+  // Tee times are now loaded on demand based on the selected date
+  // teeTimes: TeeTime[]; 
 }

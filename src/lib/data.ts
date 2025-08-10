@@ -1,7 +1,8 @@
 import type { GolfCourse, Review, TeeTime } from '@/types';
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { format, startOfDay } from 'date-fns';
 
 interface CourseDataInput {
     name: string;
@@ -12,25 +13,6 @@ interface CourseDataInput {
     newImages: File[];
     existingImageUrls: string[];
 }
-
-const generateTeeTimes = (basePrice: number): TeeTime[] => {
-  const times: TeeTime[] = [];
-  for (let i = 7; i <= 17; i++) {
-    for (let j = 0; j < 60; j += 10) {
-      const hour = i.toString().padStart(2, '0');
-      const minute = j.toString().padStart(2, '0');
-      const isAvailable = Math.random() > 0.3;
-      // Price variation based on time of day
-      const priceMultiplier = (i < 9 || i > 15) ? 0.9 : 1.2;
-      times.push({
-        time: `${hour}:${minute}`,
-        status: isAvailable ? 'available' : 'booked',
-        price: Math.round(basePrice * priceMultiplier),
-      });
-    }
-  }
-  return times;
-};
 
 const generateReviews = (): Review[] => {
     const reviews: Review[] = [];
@@ -58,7 +40,9 @@ const generateReviews = (): Review[] => {
 
 const uploadImages = async (courseName: string, files: File[]): Promise<string[]> => {
     const uploadPromises = files.map(file => {
-        const storageRef = ref(storage, `courses/${courseName.toLowerCase().replace(/\s+/g, '-')}/${file.name}`);
+        // Sanitize file name
+        const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+        const storageRef = ref(storage, `courses/${courseName.toLowerCase().replace(/\s+/g, '-')}/${Date.now()}-${cleanFileName}`);
         return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
     });
     return Promise.all(uploadPromises);
@@ -77,11 +61,11 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
   const courseSnapshot = await getDocs(coursesQuery);
   const courseList = courseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GolfCourse));
 
-  // Still adding mock data for reviews and tee times for now
+  // Still adding mock data for reviews for now
   return courseList.map(course => ({
       ...course,
       reviews: generateReviews(),
-      teeTimes: generateTeeTimes(course.basePrice)
+      // teeTimes are now fetched separately
   }));
 };
 
@@ -92,9 +76,9 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
 
     if (courseSnap.exists()) {
         const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-        // Still adding mock data for reviews and tee times for now
+        // Still adding mock data for reviews for now
         courseData.reviews = generateReviews();
-        courseData.teeTimes = generateTeeTimes(courseData.basePrice);
+        // teeTimes are now fetched separately
         return courseData;
     } else {
         console.log("No such document!");
@@ -141,3 +125,67 @@ export const updateCourse = async (courseId: string, courseData: CourseDataInput
         imageUrls: allImageUrls
     });
 }
+
+// *** Tee Time Functions ***
+
+const generateDefaultTeeTimes = (basePrice: number): Omit<TeeTime, 'id'>[] => {
+    const times: Omit<TeeTime, 'id'>[] = [];
+    for (let i = 7; i <= 17; i++) {
+        for (let j = 0; j < 60; j += 15) { // e.g. every 15 minutes
+            const hour = i.toString().padStart(2, '0');
+            const minute = j.toString().padStart(2, '0');
+            const priceMultiplier = (i < 9 || i > 15) ? 0.9 : 1.2; // Cheaper in early morning/late afternoon
+            times.push({
+                time: `${hour}:${minute}`,
+                status: 'available',
+                price: Math.round(basePrice * priceMultiplier),
+            });
+        }
+    }
+    return times;
+};
+
+export const getTeeTimesForCourse = async (courseId: string, date: Date, basePrice: number): Promise<TeeTime[]> => {
+    const dateString = format(startOfDay(date), 'yyyy-MM-dd');
+    const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes') as CollectionReference<TeeTime>;
+    const q = query(teeTimesCol, where('date', '==', dateString));
+    
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+        // No tee times for this date, so let's generate and save them
+        const defaultTimes = generateDefaultTeeTimes(basePrice);
+        const batch = [];
+        const newTimes: TeeTime[] = [];
+
+        for (const timeData of defaultTimes) {
+            const timeDocRef = doc(teeTimesCol);
+            const newTeeTime = {
+                ...timeData,
+                id: timeDocRef.id,
+                date: dateString,
+            };
+            batch.push(setDoc(timeDocRef, newTeeTime));
+            newTimes.push(newTeeTime);
+        }
+        await Promise.all(batch);
+        return newTimes.sort((a,b) => a.time.localeCompare(b.time));
+    } else {
+        return snapshot.docs.map(doc => doc.data() as TeeTime).sort((a,b) => a.time.localeCompare(b.time));
+    }
+};
+
+export const updateTeeTimesForCourse = async (courseId: string, date: Date, teeTimes: TeeTime[]): Promise<void> => {
+    const dateString = format(startOfDay(date), 'yyyy-MM-dd');
+    const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes');
+    
+    const batch = teeTimes.map(tt => {
+        const docRef = doc(teeTimesCol, tt.id);
+        return updateDoc(docRef, {
+            price: tt.price,
+            status: tt.status,
+        });
+    });
+
+    await Promise.all(batch);
+};

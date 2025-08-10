@@ -1,26 +1,37 @@
 "use client"
 
-import { useState } from "react"
-import { format, addDays } from "date-fns"
-import { Calendar as CalendarIcon, Users, Clock, Sun, Moon, Zap } from "lucide-react"
+import { useState, useEffect, useTransition } from "react"
+import { format } from "date-fns"
+import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { GolfCourse, TeeTime } from "@/types"
+import type { TeeTime } from "@/types"
 import { cn } from "@/lib/utils"
+import { getTeeTimesForCourse } from "@/lib/data"
 
 interface TeeTimePickerProps {
-    course: GolfCourse
+    courseId: string
+    basePrice: number
 }
 
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
-export function TeeTimePicker({ course }: TeeTimePickerProps) {
+export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date>(new Date())
     const [players, setPlayers] = useState(2)
     const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning')
+    const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
+    const [isPending, startTransition] = useTransition();
+
+    useEffect(() => {
+        startTransition(async () => {
+            const fetchedTeeTimes = await getTeeTimesForCourse(courseId, date, basePrice);
+            setTeeTimes(fetchedTeeTimes);
+        });
+    }, [courseId, date, basePrice]);
 
     const filterTeeTimes = (times: TeeTime[], selectedTimeOfDay: TimeOfDay): TeeTime[] => {
         return times.filter(t => {
@@ -32,7 +43,7 @@ export function TeeTimePicker({ course }: TeeTimePickerProps) {
         }).filter(t => t.status === 'available');
     }
     
-    const availableTimes = filterTeeTimes(course.teeTimes, timeOfDay);
+    const availableTimes = filterTeeTimes(teeTimes, timeOfDay);
 
     return (
         <Card>
@@ -95,7 +106,11 @@ export function TeeTimePicker({ course }: TeeTimePickerProps) {
                              </Button>
                         ))}
                     </div>
-                    {availableTimes.length > 0 ? (
+                    {isPending ? (
+                        <div className="flex justify-center items-center py-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : availableTimes.length > 0 ? (
                         <div className="grid grid-cols-3 gap-2">
                             {availableTimes.map(teeTime => (
                                 <Button key={teeTime.time} variant="outline" className="flex flex-col h-auto">

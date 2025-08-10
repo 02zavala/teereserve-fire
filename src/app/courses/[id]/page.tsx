@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: CourseDetailPageProps) {
         }
     }
     return {
-        title: `${course.name} - TeeTime Concierge`,
+        title: `${course.name} - TeeReserve`,
         description: course.description.substring(0, 160),
     }
 }
@@ -93,7 +93,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                     {/* Right Column (Sidebar) */}
                     <aside className="lg:col-span-1">
                         <div className="sticky top-24 space-y-8">
-                             <TeeTimePicker course={course} />
+                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} />
                         </div>
                     </aside>
                 </div>
