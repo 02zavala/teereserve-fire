@@ -172,22 +172,16 @@ const uploadImages = async (courseName: string, files: File[]): Promise<string[]
 // *** Firestore Data Functions ***
 
 export const getCourses = async ({ location }: { location?: string }): Promise<GolfCourse[]> => {
-  let courses = initialCourses.map(c => ({...c, reviews: []}));
+  let courses = initialCourses.map(c => ({...c, reviews: [] as Review[]}));
 
   if (location && location !== 'all') {
     courses = courses.filter(course => course.location === location);
   }
   
-  // In a real app, you would fetch from Firestore here.
-  // For now, we use the static data and simulate fetching reviews.
-  const courseListPromises = courses.map(async (course) => {
-    // We simulate fetching reviews. In a real scenario, this might still be needed
-    // if reviews are a sub-collection.
-    course.reviews = await getReviewsForCourse(course.id, true); 
-    return course;
-  });
-
-  return Promise.all(courseListPromises);
+  // This function now primarily returns the static course data for list views.
+  // The full details with reviews are fetched in getCourseById.
+  // This improves performance and avoids unnecessary Firestore reads on the home/courses pages.
+  return courses;
 };
 
 export const getCourseById = async (id: string): Promise<GolfCourse | undefined> => {

@@ -12,6 +12,7 @@ import { Loader2, User, Calendar, Clock, Users, DollarSign, ArrowLeft } from 'lu
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { createBooking } from '@/lib/data';
+import { format } from 'date-fns';
 
 function ConfirmationPageContent() {
     const searchParams = useSearchParams();
@@ -124,7 +125,7 @@ function ConfirmationPageContent() {
                             </div>
                             <div className="flex items-center">
                                 <Calendar className="h-4 w-4 mr-3 text-muted-foreground" />
-                                <span>Date: <span className="font-semibold">{date ? new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''}</span></span>
+                                <span>Date: <span className="font-semibold">{date ? format(new Date(date), "PPP") : ''}</span></span>
                             </div>
                              <div className="flex items-center">
                                 <Clock className="h-4 w-4 mr-3 text-muted-foreground" />

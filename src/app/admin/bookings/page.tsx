@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { getBookings } from "@/lib/data";
 import type { Booking } from "@/types";
+import { format } from "date-fns";
 
 function getStatusVariant(status: Booking['status']) {
     switch (status) {
@@ -52,7 +53,7 @@ export default async function BookingsAdminPage() {
                                     <TableCell className="font-medium">{booking.id.substring(0, 7)}...</TableCell>
                                     <TableCell>{booking.courseName}</TableCell>
                                     <TableCell>{booking.userName}</TableCell>
-                                    <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
+                                    <TableCell>{format(new Date(booking.date), 'PPP')}</TableCell>
                                     <TableCell>${booking.totalPrice}</TableCell>
                                     <TableCell>
                                         <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>

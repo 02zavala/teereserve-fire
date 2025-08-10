@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { getUserBookings } from "@/lib/data";
 import type { Booking } from "@/types";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 export default function ProfilePage() {
     const { user, loading: authLoading } = useAuth();
@@ -70,7 +71,7 @@ export default function ProfilePage() {
                 <div className="text-center md:text-left flex-1">
                     <h1 className="font-headline text-4xl font-bold text-primary">{user.displayName || 'TeeReserve User'}</h1>
                     <p className="text-muted-foreground mt-1">{user.email}</p>
-                    <p className="text-muted-foreground text-sm mt-2">Member since {user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A'}</p>
+                    <p className="text-muted-foreground text-sm mt-2">Member since {user.metadata.creationTime ? format(new Date(user.metadata.creationTime), 'PPP') : 'N/A'}</p>
                     <Button variant="outline" size="sm" className="mt-4">
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Profile
@@ -91,7 +92,7 @@ export default function ProfilePage() {
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div>
                                         <p className="font-bold text-lg">{booking.courseName}</p>
-                                        <p className="text-sm text-muted-foreground">{new Date(booking.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {booking.time}</p>
+                                        <p className="text-sm text-muted-foreground">{format(new Date(booking.date), 'PPP')} at {booking.time}</p>
                                     </div>
                                      <div className="text-right">
                                         <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
