@@ -15,7 +15,7 @@ interface FooterProps {
 
 
 export function Footer({ dictionary }: FooterProps) {
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -163,7 +163,7 @@ export function Footer({ dictionary }: FooterProps) {
         <div className="border-t border-border mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">
-              © {currentYear} TeeReserve Golf. {dictionary.footer.allRightsReserved}
+              {currentYear && `© ${currentYear} TeeReserve Golf. ${dictionary.footer.allRightsReserved}`}
             </p>
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <Link 
