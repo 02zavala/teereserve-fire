@@ -6,11 +6,25 @@
         "about": "About Us"
     },
     "footer": {
-        "builtBy": "Built by",
-        "privacyPolicy": "Privacy",
-        "termsOfService": "Terms",
-        "allRightsReserved": "All rights reserved.",
         "platformDescription": "The premium golf booking platform in Mexico. Discover the best courses and live unique experiences.",
+        "platform": "Platform",
+        "courses": "Courses",
+        "reservations": "Reservations",
+        "admin": "Admin",
+        "support": "Support",
+        "helpCenter": "Help Center",
+        "contact": "Contact",
+        "apiStatus": "API Status",
+        "contactTitle": "Contact",
+        "followUs": "Follow Us",
+        "allRightsReserved": "All rights reserved.",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service",
+        "premiumExperience": "A Premium Golf Experience",
+        "adminDashboard": "Admin Dashboard"
+    },
+     "secondaryFooter": {
+        "platformDescription": "The premium platform for golf bookings in Mexico. Discover the best courses and live unique experiences.",
         "quickLinks": "Quick Links",
         "golfCourses": "Golf Courses",
         "book": "Book",
@@ -27,6 +41,9 @@
         "ratingCount": "+2,500 reviews",
         "needHelp": "Need help?",
         "helpCenter": "Help Center",
+        "allRightsReserved": "All rights reserved.",
+        "privacyPolicy": "Privacy",
+        "termsOfService": "Terms",
         "madeIn": "Made with ❤️ in Mexico"
     },
     "home": {
@@ -35,6 +52,13 @@
         "featuredCoursesSubtitle": "Discover the top-rated courses in the area",
         "recommendationsTitle": "Recommended for You",
         "recommendationsSubtitle": "AI recommendations based on your preferences"
+    },
+    "coursesPage": {
+        "title": "Find Your Next Round",
+        "description": "Explore all available golf courses and book your next tee time in Los Cabos.",
+        "subtitle": "Use the filters below to find the perfect course for your needs.",
+        "noResultsTitle": "No Courses Found",
+        "noResultsSubtitle": "Try adjusting your search filters to find available courses."
     },
     "courseSearch": {
         "location": "Location",

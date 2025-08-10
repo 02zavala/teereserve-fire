@@ -7,7 +7,6 @@ import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getDictionary } from '@/lib/get-dictionary'
 import { Locale } from '@/i18n-config'
-import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 
 export default async function Home({ params: { lang } }: { params: { lang: Locale }}) {
@@ -15,8 +14,7 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
   const courses = await getCourses({})
 
   return (
-    <div className="flex flex-col">
-        <Header dictionary={dictionary.header} lang={lang} />
+    <>
       <section className="relative h-[50vh] min-h-[400px] w-full">
         <Image
           src="https://placehold.co/1920x1080.png"
@@ -65,8 +63,8 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
            </Suspense>
          </div>
        </section>
-       <Footer dictionary={dictionary.footer} />
-    </div>
+       <Footer dictionary={dictionary} />
+    </>
   )
 }
 

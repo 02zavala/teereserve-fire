@@ -6,10 +6,24 @@
         "about": "Sobre Nosotros"
     },
     "footer": {
-        "builtBy": "Creado por",
-        "privacyPolicy": "Privacidad",
-        "termsOfService": "Términos",
+        "platformDescription": "La plataforma premium de reservas de golf en México. Descubre los mejores campos y vive experiencias únicas.",
+        "platform": "Plataforma",
+        "courses": "Campos",
+        "reservations": "Reservas",
+        "admin": "Admin",
+        "support": "Soporte",
+        "helpCenter": "Centro de Ayuda",
+        "contact": "Contacto",
+        "apiStatus": "Estado del API",
+        "contactTitle": "Contacto",
+        "followUs": "Síguenos",
         "allRightsReserved": "Todos los derechos reservados.",
+        "privacyPolicy": "Aviso de Privacidad",
+        "termsOfService": "Términos y Condiciones",
+        "premiumExperience": "Una Experiencia de Golf Premium",
+        "adminDashboard": "Panel de Administrador"
+    },
+    "secondaryFooter": {
         "platformDescription": "La plataforma premium de reservas de golf en México. Descubre los mejores campos y vive experiencias únicas.",
         "quickLinks": "Enlaces Rápidos",
         "golfCourses": "Campos de Golf",
@@ -27,6 +41,9 @@
         "ratingCount": "+2,500 reseñas",
         "needHelp": "¿Necesitas ayuda?",
         "helpCenter": "Centro de Ayuda",
+        "allRightsReserved": "Todos los derechos reservados.",
+        "privacyPolicy": "Privacidad",
+        "termsOfService": "Términos",
         "madeIn": "Hecho con ❤️ en México"
     },
     "home": {
@@ -35,6 +52,13 @@
         "featuredCoursesSubtitle": "Descubre los campos mejor valorados de la zona",
         "recommendationsTitle": "Recomendado para Ti",
         "recommendationsSubtitle": "Recomendaciones de IA basadas en tus preferencias"
+    },
+    "coursesPage": {
+        "title": "Encuentra tu Próxima Ronda",
+        "description": "Explora todos los campos de golf disponibles y reserva tu próxima salida en Los Cabos.",
+        "subtitle": "Usa los filtros a continuación para encontrar el campo perfecto para tus necesidades.",
+        "noResultsTitle": "No se Encontraron Campos",
+        "noResultsSubtitle": "Intenta ajustar tus filtros de búsqueda para encontrar campos disponibles."
     },
     "courseSearch": {
         "location": "Ubicación",
