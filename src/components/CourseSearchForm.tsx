@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -6,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useRouter, usePathname } from "next/navigation"
 import { format } from "date-fns"
-import { MapPin, Calendar as CalendarIcon, Users, Clock } from "lucide-react"
+import { MapPin, Calendar as CalendarIcon, Users, Clock, Send } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -54,6 +55,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     const router = useRouter()
     const pathname = usePathname()
     const [locations, setLocations] = useState<string[]>([]);
+    const [isGroupBooking, setIsGroupBooking] = useState(false);
     
     useEffect(() => {
         getCourseLocations().then(setLocations);
@@ -68,8 +70,15 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
             time: "any",
         },
     })
+    
+    const lang = pathname.split('/')[1] || 'en';
 
     function onSubmit(values: z.infer<typeof formSchema>) {
+        if(isGroupBooking) {
+            router.push(`/${lang}/contact`);
+            return;
+        }
+
         const params = new URLSearchParams({
             location: values.location,
             date: format(values.date, "yyyy-MM-dd"),
@@ -78,9 +87,16 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
         if (values.time) {
             params.set("time", values.time)
         }
-
-        const lang = pathname.split('/')[1] || 'en';
         router.push(`/${lang}/courses?${params.toString()}`)
+    }
+    
+    const handlePlayersChange = (value: string) => {
+        if (value === 'group') {
+            setIsGroupBooking(true);
+        } else {
+            setIsGroupBooking(false);
+        }
+        form.setValue('players', value);
     }
 
     return (
@@ -94,7 +110,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center text-xs text-muted-foreground"><MapPin className="mr-1 h-3 w-3" /> {dictionary.location}</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select a location" />
@@ -124,6 +140,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                                 "w-full justify-start text-left font-normal",
                                                 !field.value && "text-muted-foreground"
                                             )}
+                                            disabled={isGroupBooking}
                                             >
                                             {field.value ? (
                                                 format(field.value, "PPP")
@@ -139,7 +156,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                                 selected={field.value}
                                                 onSelect={field.onChange}
                                                 disabled={(date) =>
-                                                date < new Date(new Date().setHours(0,0,0,0))
+                                                date < new Date(new Date().setHours(0,0,0,0)) || isGroupBooking
                                                 }
                                                 initialFocus
                                             />
@@ -155,7 +172,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center text-xs text-muted-foreground"><Users className="mr-1 h-3 w-3" /> {dictionary.players}</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={handlePlayersChange} defaultValue={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select players" />
@@ -163,6 +180,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                         </FormControl>
                                         <SelectContent>
                                             {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} {p > 1 ? dictionary.multiplePlayers : dictionary.onePlayer}</SelectItem>)}
+                                            <SelectItem value="group">{dictionary.groupBooking}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -175,7 +193,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center text-xs text-muted-foreground"><Clock className="mr-1 h-3 w-3" /> {dictionary.time}</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Any time" />
@@ -193,10 +211,14 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                             )}
                         />
                         <div className="lg:col-span-1">
-                            <Button type="submit" className="w-full text-base font-bold h-10">{dictionary.search}</Button>
+                            <Button type="submit" className="w-full text-base font-bold h-10">
+                                {isGroupBooking ? <Send className="mr-2 h-4 w-4" /> : null}
+                                {isGroupBooking ? dictionary.contactUs : dictionary.search}
+                            </Button>
                         </div>
                     </form>
                 </Form>
             </CardContent>
         </Card>
     )
+}

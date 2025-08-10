@@ -185,12 +185,14 @@
         "players": "Jugadores",
         "onePlayer": "1 Jugador",
         "multiplePlayers": "Jugadores",
+        "groupBooking": "8+ Jugadores (Grupos)",
         "time": "Hora",
         "anyTime": "Cualquier Hora",
         "morning": "Mañana (6am - 12pm)",
         "afternoon": "Tarde (12pm - 5pm)",
         "evening": "Noche (5pm - 9pm)",
-        "search": "Buscar"
+        "search": "Buscar",
+        "contactUs": "Contáctanos"
     },
     "courseCard": {
         "from": "Desde",

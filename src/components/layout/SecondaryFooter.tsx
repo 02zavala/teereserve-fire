@@ -148,7 +148,7 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
         <div className="border-t border-white/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="text-background/80 text-sm">
-              {currentYear && `© ${currentYear} TeeReserve Golf. ${dictionary.allRightsReserved}`}
+              {currentYear ? `© ${currentYear} TeeReserve Golf. ${dictionary.allRightsReserved}` : ' '}
             </div>
             <div className="flex flex-wrap gap-6">
               <Link 
