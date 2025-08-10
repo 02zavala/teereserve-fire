@@ -11,24 +11,21 @@ import { StarRating } from "@/components/StarRating";
 import { format } from "date-fns";
 import { useEffect, useState, useTransition } from "react";
 import type { Review } from "@/types";
-import { updateReviewStatus } from "@/lib/data";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function ReviewCard({ review }: { review: Review }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [isLoadingModeration, setIsLoadingModeration] = useState(true);
-    const [formattedDate, setFormattedDate] = useState('');
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
         assistReviewModeration({ reviewText: review.text })
             .then(setModerationResult)
             .finally(() => setIsLoadingModeration(false));
         
-        if (review.createdAt) {
-           // This effect runs only on the client, after hydration, to prevent mismatch
-           setFormattedDate(format(new Date(review.createdAt), "PPP"));
-        }
+        // This effect runs only on the client, after hydration, to prevent mismatch
+        setFormattedDate(format(new Date(review.createdAt), "PPP"));
+
     }, [review.text, review.createdAt]);
     
     const getStatusVariant = (status: boolean | null) => {
@@ -51,7 +48,12 @@ function ReviewCard({ review }: { review: Review }) {
                     <div>
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
-                            Review by {review.userName} {formattedDate && `on ${formattedDate}`}
+                            Review by {review.userName}{' '}
+                            {formattedDate ? (
+                                `on ${formattedDate}`
+                            ) : (
+                                <Skeleton className="h-4 w-24 inline-block" />
+                            )}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>
