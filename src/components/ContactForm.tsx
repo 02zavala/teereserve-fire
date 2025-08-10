@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,12 +12,14 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 interface ContactFormProps {
     dictionary: Awaited<ReturnType<typeof getDictionary>>['contactPage']['form'];
 }
 
 export function ContactForm({ dictionary }: ContactFormProps) {
+    const { executeRecaptcha } = useGoogleReCaptcha();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -38,13 +40,23 @@ export function ContactForm({ dictionary }: ContactFormProps) {
         }
     });
 
-    const onSubmit = async (data: FormData) => {
+    const onSubmit = useCallback(async (data: FormData) => {
         setIsSubmitting(true);
         setSubmitStatus('idle');
+
+        if (!executeRecaptcha) {
+            console.error("reCAPTCHA not ready");
+            setSubmitStatus('error');
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
-            // Here you would typically send the data to an API endpoint
-            // e.g., await fetch('/api/contact', { method: 'POST', body: JSON.stringify(data) });
+            const token = await executeRecaptcha('contact_form');
+            // Here you would typically send the data AND the token to an API endpoint
+            // The backend would then verify the token with Google
             console.log('Form data:', data);
+            console.log('reCAPTCHA token:', token);
             
             // Simulate API call delay
             await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -52,11 +64,12 @@ export function ContactForm({ dictionary }: ContactFormProps) {
             setSubmitStatus('success');
             form.reset();
         } catch (error) {
+            console.error("Submission error:", error);
             setSubmitStatus('error');
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }, [executeRecaptcha, form, dictionary]);
 
     return (
         <Card className="border">

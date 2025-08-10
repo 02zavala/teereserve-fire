@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -50,17 +51,27 @@ export default function RootLayout({
           fontBody.variable
         )}
       >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+        <GoogleReCaptchaProvider
+          reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+          scriptProps={{
+            async: false,
+            defer: false,
+            appendTo: "head",
+            nonce: undefined,
+          }}
         >
-          <AuthProvider>
-            {children}
-            <Toaster />
-          </AuthProvider>
-        </ThemeProvider>
+          <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+          >
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </ThemeProvider>
+        </GoogleReCaptchaProvider>
       </body>
     </html>
   )
