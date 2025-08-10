@@ -12,10 +12,11 @@ import { getUserBookings } from "@/lib/data";
 import type { Booking } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FormattedBooking extends Omit<Booking, 'createdAt'> {
     id: string;
-    createdAt?: string; // Make createdAt optional as it's not always present in the same way
+    createdAt?: string; 
     formattedDate: string;
 }
 
@@ -28,22 +29,21 @@ export default function ProfilePage() {
     useEffect(() => {
         if (user) {
             if (user.metadata.creationTime) {
-                // Client-side date formatting to prevent hydration mismatch
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
 
             getUserBookings(user.uid)
                 .then(userBookings => {
-                    // Client-side date formatting
                     const formatted = userBookings.map(b => ({
                         ...b,
                         formattedDate: `${format(new Date(b.date), 'PPP')} at ${b.time}`
                     }));
                     setBookings(formatted);
-                    setLoadingBookings(false);
                 })
                 .catch(err => {
                     console.error("Failed to fetch bookings", err);
+                })
+                .finally(() => {
                     setLoadingBookings(false);
                 });
         } else if (!authLoading) {
@@ -88,7 +88,11 @@ export default function ProfilePage() {
                 <div className="text-center md:text-left flex-1">
                     <h1 className="font-headline text-4xl font-bold text-primary">{user.displayName || 'TeeReserve User'}</h1>
                     <p className="text-muted-foreground mt-1">{user.email}</p>
-                    {memberSince && <p className="text-muted-foreground text-sm mt-2">Member since {memberSince}</p>}
+                    {memberSince ? (
+                       <p className="text-muted-foreground text-sm mt-2">Member since {memberSince}</p>
+                    ) : (
+                       <Skeleton className="h-4 w-48 mt-2" />
+                    )}
                     <Button variant="outline" size="sm" className="mt-4">
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Profile
@@ -102,7 +106,19 @@ export default function ProfilePage() {
                  <h2 className="font-headline text-3xl font-bold text-primary mb-6">My Bookings</h2>
                  <div className="space-y-4">
                     {loadingBookings ? (
-                        <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
+                         [...Array(3)].map((_, i) => (
+                           <Card key={i}>
+                               <CardContent className="p-4 flex items-center justify-between">
+                                   <div className="space-y-2">
+                                       <Skeleton className="h-5 w-48" />
+                                       <Skeleton className="h-4 w-56" />
+                                   </div>
+                                    <div className="text-right space-y-2">
+                                       <Skeleton className="h-6 w-20" />
+                                    </div>
+                               </CardContent>
+                           </Card>
+                        ))
                     ) : bookings.length > 0 ? (
                         bookings.map(booking => (
                             <Card key={booking.id}>

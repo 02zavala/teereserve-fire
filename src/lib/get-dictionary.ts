@@ -1,4 +1,6 @@
-import 'server-only'
+
+// We can't use server-only here as this is imported by client components too.
+// The data is static, so this is safe.
 import type { Locale } from '../i18n-config'
 
 // We enumerate all dictionaries here for better linting and typescript support
