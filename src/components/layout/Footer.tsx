@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, Globe, MapPin } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
@@ -64,7 +65,7 @@ export function Footer({ dictionary }: FooterProps) {
               </li>
               <li>
                 <Link 
-                  href="/help" 
+                  href="/contact" 
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {dictionary.footer.contact}

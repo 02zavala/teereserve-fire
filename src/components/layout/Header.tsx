@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface HeaderProps {
         home: string;
         findCourse: string;
         about: string;
+        contact: string;
     },
     lang: Locale;
 }
@@ -23,6 +25,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
         { href: `/${lang}`, label: dictionary.home },
         { href: `/${lang}/courses`, label: dictionary.findCourse },
         { href: `/${lang}/#about`, label: dictionary.about },
+        { href: `/${lang}/contact`, label: dictionary.contact },
     ];
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -13,16 +13,29 @@ import type { Booking } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
+interface FormattedBooking extends Booking {
+    formattedDate: string;
+}
+
 export default function ProfilePage() {
     const { user, loading: authLoading } = useAuth();
-    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
+    const [memberSince, setMemberSince] = useState('');
 
     useEffect(() => {
         if (user) {
+            if (user.metadata.creationTime) {
+                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
+            }
+
             getUserBookings(user.uid)
                 .then(userBookings => {
-                    setBookings(userBookings);
+                    const formatted = userBookings.map(b => ({
+                        ...b,
+                        formattedDate: `${format(new Date(b.date), 'PPP')} at ${b.time}`
+                    }))
+                    setBookings(formatted);
                     setLoadingBookings(false);
                 })
                 .catch(err => {
@@ -71,7 +84,7 @@ export default function ProfilePage() {
                 <div className="text-center md:text-left flex-1">
                     <h1 className="font-headline text-4xl font-bold text-primary">{user.displayName || 'TeeReserve User'}</h1>
                     <p className="text-muted-foreground mt-1">{user.email}</p>
-                    <p className="text-muted-foreground text-sm mt-2">Member since {user.metadata.creationTime ? format(new Date(user.metadata.creationTime), 'PPP') : 'N/A'}</p>
+                    {memberSince && <p className="text-muted-foreground text-sm mt-2">Member since {memberSince}</p>}
                     <Button variant="outline" size="sm" className="mt-4">
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Profile
@@ -92,7 +105,7 @@ export default function ProfilePage() {
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div>
                                         <p className="font-bold text-lg">{booking.courseName}</p>
-                                        <p className="text-sm text-muted-foreground">{format(new Date(booking.date), 'PPP')} at {booking.time}</p>
+                                        <p className="text-sm text-muted-foreground">{booking.formattedDate}</p>
                                     </div>
                                      <div className="text-right">
                                         <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>

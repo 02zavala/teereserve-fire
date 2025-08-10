@@ -3,7 +3,8 @@
     "header": {
         "home": "Inicio",
         "findCourse": "Buscar Campo",
-        "about": "Sobre Nosotros"
+        "about": "Sobre Nosotros",
+        "contact": "Contacto"
     },
     "footer": {
         "platformDescription": "La plataforma premium de reservas de golf en México. Descubre los mejores campos y vive experiencias únicas.",
@@ -44,7 +45,8 @@
         "allRightsReserved": "Todos los derechos reservados.",
         "privacyPolicy": "Privacidad",
         "termsOfService": "Términos",
-        "madeIn": "Hecho con ❤️ en México"
+        "madeIn": "Hecho con ❤️ en México",
+        "contact": "Contacto"
     },
     "home": {
         "heroSubtitle": "Tu plataforma especializada para reservar los mejores campos de golf.",
@@ -152,6 +154,35 @@
                     "answer": "Trabajamos con los mejores campos de golf de México, incluyendo Cabo del Sol, Palmilla Golf Club, Diamante Golf, TPC Danzante Bay, y muchos más campos premium en destinos como Los Cabos, La Paz y Loreto."
                 }
             ]
+        }
+    },
+    "contactPage": {
+        "title": "Contáctanos",
+        "subtitle": "¿Tienes dudas o quieres colaborar con nosotros?",
+        "form": {
+            "title": "Envíanos un Mensaje",
+            "description": "Completa el formulario y te responderemos a la brevedad.",
+            "nameLabel": "Nombre",
+            "namePlaceholder": "Tu nombre",
+            "emailLabel": "Correo electrónico",
+            "emailPlaceholder": "ejemplo@correo.com",
+            "messageLabel": "Mensaje",
+            "messagePlaceholder": "Escribe tu mensaje aquí...",
+            "submit": "Enviar Mensaje",
+            "submitting": "Enviando...",
+            "successMessage": "¡Mensaje enviado con éxito!",
+            "errorMessage": "Error al enviar el mensaje. Intenta de nuevo.",
+            "errors": {
+                "name": "El nombre debe tener al menos 2 caracteres",
+                "email": "Correo electrónico inválido",
+                "message": "El mensaje debe tener al menos 10 caracteres"
+            }
+        },
+        "info": {
+            "title": "Información de Contacto",
+            "emailLabel": "Correo",
+            "phoneLabel": "Teléfono",
+            "addressLabel": "Dirección"
         }
     }
 }

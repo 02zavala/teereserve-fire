@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Clock, Star } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
@@ -127,10 +128,10 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
               <div className="bg-white/10 rounded-lg p-4 mt-6">
                 <h5 className="text-white font-semibold mb-2">{dictionary.needHelp}</h5>
                 <Link 
-                  href="/help"
+                  href="/contact"
                   className="text-primary hover:text-primary/80 text-sm transition-colors"
                 >
-                  {dictionary.helpCenter} →
+                  {dictionary.contact} →
                 </Link>
               </div>
             </div>

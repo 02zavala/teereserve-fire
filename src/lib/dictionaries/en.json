@@ -3,7 +3,8 @@
     "header": {
         "home": "Home",
         "findCourse": "Find a Course",
-        "about": "About Us"
+        "about": "About Us",
+        "contact": "Contact"
     },
     "footer": {
         "platformDescription": "The premium golf booking platform in Mexico. Discover the best courses and live unique experiences.",
@@ -44,7 +45,8 @@
         "allRightsReserved": "All rights reserved.",
         "privacyPolicy": "Privacy",
         "termsOfService": "Terms",
-        "madeIn": "Made with ❤️ in Mexico"
+        "madeIn": "Made with ❤️ in Mexico",
+        "contact": "Contact"
     },
     "home": {
         "heroSubtitle": "Your specialized platform to book the best golf courses.",
@@ -152,6 +154,35 @@
                     "answer": "We work with the best golf courses in Mexico, including Cabo del Sol, Palmilla Golf Club, Diamante Golf, TPC Danzante Bay, and many more premium courses in destinations like Los Cabos, La Paz, and Loreto."
                 }
             ]
+        }
+    },
+    "contactPage": {
+        "title": "Contact Us",
+        "subtitle": "Have questions or want to collaborate with us?",
+        "form": {
+            "title": "Send us a Message",
+            "description": "Complete the form and we will get back to you shortly.",
+            "nameLabel": "Name",
+            "namePlaceholder": "Your name",
+            "emailLabel": "Email",
+            "emailPlaceholder": "example@email.com",
+            "messageLabel": "Message",
+            "messagePlaceholder": "Write your message here...",
+            "submit": "Send Message",
+            "submitting": "Sending...",
+            "successMessage": "Message sent successfully!",
+            "errorMessage": "Error sending message. Please try again.",
+            "errors": {
+                "name": "Name must be at least 2 characters",
+                "email": "Invalid email",
+                "message": "Message must be at least 10 characters"
+            }
+        },
+        "info": {
+            "title": "Contact Information",
+            "emailLabel": "Email",
+            "phoneLabel": "Phone",
+            "addressLabel": "Address"
         }
     }
 }
