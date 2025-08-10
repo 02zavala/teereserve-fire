@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,18 +12,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, LayoutGrid } from 'lucide-react';
+import { LogOut, User, LayoutGrid, GanttChartSquare } from 'lucide-react';
+import { useAuth } from "@/context/AuthContext";
+import { Skeleton } from "../ui/skeleton";
 
 export function UserNav() {
-  // Simulate user authentication state
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("John Doe");
+  const { user, loading, logout } = useAuth();
+  
+  // A simple check for admin role can be done here.
+  // In a real app, this should be based on custom claims in the JWT.
+  const isAdmin = user && user.email?.endsWith('@teereserve.com');
 
-  // This would be replaced with actual auth logic
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
 
-  if (!isLoggedIn) {
+  if (loading) {
+    return <Skeleton className="h-8 w-8 rounded-full" />
+  }
+
+  if (!user) {
     return (
       <div className="flex items-center gap-2">
         <Button variant="ghost" asChild>
@@ -42,17 +46,17 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={`https://i.pravatar.cc/40?u=${userName}`} alt={userName} />
-            <AvatarFallback>{userName.substring(0,2).toUpperCase()}</AvatarFallback>
+            {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+            <AvatarFallback>{user.displayName ? user.displayName.substring(0,2).toUpperCase() : user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{userName}</p>
+            <p className="text-sm font-medium leading-none">{user.displayName || 'TeeReserve User'}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {userName.replace(" ",".").toLowerCase()}@example.com
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -70,9 +74,17 @@ export function UserNav() {
                 <span>My Bookings</span>
              </Link>
           </DropdownMenuItem>
+          {isAdmin && (
+            <DropdownMenuItem asChild>
+                <Link href="/admin/dashboard">
+                    <GanttChartSquare className="mr-2 h-4 w-4" />
+                    <span>Admin Panel</span>
+                </Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

@@ -7,7 +7,7 @@ export default function SignUpPage() {
         <div className="w-full max-w-md space-y-6">
             <div className="text-center">
                 <h1 className="font-headline text-4xl font-bold text-primary">Create an Account</h1>
-                <p className="mt-2 text-muted-foreground">Join TeeTime Concierge to book your perfect round.</p>
+                <p className="mt-2 text-muted-foreground">Join TeeReserve to book your perfect round.</p>
             </div>
             <SignUpForm />
              <p className="text-center text-sm text-muted-foreground">

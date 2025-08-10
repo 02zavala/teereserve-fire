@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +18,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/context/AuthContext"
+import { FirebaseError } from "firebase/app"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -25,6 +28,8 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const { toast } = useToast()
+  const { login, googleSignIn } = useAuth()
+  const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,14 +38,54 @@ export function LoginForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would handle the actual login logic with Supabase
-    console.log(values)
-    toast({
-      title: "Logged In",
-      description: "Redirecting you to your dashboard...",
-    })
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await login(values.email, values.password)
+      toast({
+        title: "Logged In",
+        description: "Welcome back!",
+      })
+      router.push("/profile")
+    } catch (error) {
+       console.error("Login failed:", error)
+       let description = "An unexpected error occurred. Please try again."
+       if (error instanceof FirebaseError) {
+         switch (error.code) {
+            case "auth/user-not-found":
+            case "auth/wrong-password":
+            case "auth/invalid-credential":
+                description = "Invalid email or password. Please try again.";
+                break;
+            default:
+                description = "Failed to log in. Please check your credentials.";
+         }
+       }
+       toast({
+        title: "Login Failed",
+        description,
+        variant: "destructive",
+      })
+    }
   }
+
+  async function handleGoogleSignIn() {
+    try {
+      await googleSignIn();
+      toast({
+        title: "Logged In",
+        description: "Welcome!",
+      });
+      router.push("/profile");
+    } catch (error) {
+      console.error("Google Sign-In failed:", error);
+      toast({
+        title: "Sign-In Failed",
+        description: "Could not sign in with Google. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
+
 
   return (
     <Card>
@@ -75,8 +120,8 @@ export function LoginForm() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Log In
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Logging In...' : 'Log In'}
             </Button>
           </form>
         </Form>
@@ -86,9 +131,8 @@ export function LoginForm() {
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR CONTINUE WITH</span>
         </div>
-        <div className="grid grid-cols-2 gap-4 w-full">
-            <Button variant="outline">Google</Button>
-            <Button variant="outline">Facebook</Button>
+        <div className="grid grid-cols-1 gap-4 w-full">
+            <Button variant="outline" onClick={handleGoogleSignIn}>Google</Button>
         </div>
       </CardFooter>
     </Card>

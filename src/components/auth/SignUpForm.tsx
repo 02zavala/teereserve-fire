@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +18,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/context/AuthContext"
+import { FirebaseError } from "firebase/app"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -26,6 +29,8 @@ const formSchema = z.object({
 
 export function SignUpForm() {
     const { toast } = useToast()
+    const { signup, googleSignIn } = useAuth()
+    const router = useRouter()
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,13 +40,53 @@ export function SignUpForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would handle the actual signup logic with Supabase
-    console.log(values)
-    toast({
-      title: "Account Created",
-      description: "We've created your account for you.",
-    })
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await signup(values.email, values.password, values.name)
+      toast({
+        title: "Account Created",
+        description: "Welcome! You have been successfully signed up.",
+      })
+      router.push("/profile")
+    } catch (error) {
+        console.error("Signup failed:", error)
+        let description = "An unexpected error occurred. Please try again."
+        if (error instanceof FirebaseError) {
+          switch (error.code) {
+            case "auth/email-already-in-use":
+              description = "This email is already in use. Please log in or use a different email.";
+              break;
+            case "auth/weak-password":
+              description = "The password is too weak. Please choose a stronger password.";
+              break;
+            default:
+              description = "Failed to create an account. Please try again.";
+          }
+        }
+        toast({
+            title: "Sign Up Failed",
+            description,
+            variant: "destructive",
+        })
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    try {
+      await googleSignIn();
+      toast({
+        title: "Logged In",
+        description: "Welcome!",
+      });
+      router.push("/profile");
+    } catch (error) {
+      console.error("Google Sign-In failed:", error);
+      toast({
+        title: "Sign-In Failed",
+        description: "Could not sign in with Google. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -90,8 +135,8 @@ export function SignUpForm() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Create Account
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
         </Form>
@@ -101,9 +146,8 @@ export function SignUpForm() {
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">OR SIGN UP WITH</span>
         </div>
-        <div className="grid grid-cols-2 gap-4 w-full">
-            <Button variant="outline">Google</Button>
-            <Button variant="outline">Facebook</Button>
+        <div className="grid grid-cols-1 gap-4 w-full">
+            <Button variant="outline" onClick={handleGoogleSignIn}>Google</Button>
         </div>
       </CardFooter>
     </Card>

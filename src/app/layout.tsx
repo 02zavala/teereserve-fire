@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Toaster } from "@/components/ui/toaster"
+import { AuthProvider } from '@/context/AuthContext'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -39,12 +40,14 @@ export default function RootLayout({
           fontBody.variable
         )}
       >
-        <div className="relative flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-        <Toaster />
+        <AuthProvider>
+          <div className="relative flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   )
