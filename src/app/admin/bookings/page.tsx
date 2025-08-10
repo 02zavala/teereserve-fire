@@ -31,7 +31,7 @@ function FormattedDate({ dateString }: { dateString: string }) {
         }
     }, [dateString]);
 
-    return <>{formattedDate}</>;
+    return <>{formattedDate || ' '}</>;
 }
 
 export default function BookingsAdminPage() {
