@@ -1,11 +1,13 @@
 
 "use client";
 
-import { useState }from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Phone, Clock, CheckCircle, Zap, Shield, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 function WhatsAppIcon() {
     return (
@@ -26,78 +28,110 @@ function WhatsAppIcon() {
 
 
 export function WhatsAppButton() {
-    const [open, setOpen] = useState(false);
+    const [popoverOpen, setPopoverOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const pathname = usePathname();
+
     const phoneNumber = "5216241352986";
     const message = "Hola TeeReserve Golf, me gustaría obtener más información para reservar un tee time.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     const telUrl = `tel:+${phoneNumber}`;
+
+    // This effect will run every time the user navigates to a new page,
+    // making the button visible again.
+    useEffect(() => {
+        setIsVisible(true);
+    }, [pathname]);
+
+    if (!isVisible) {
+        return null;
+    }
     
     return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                <Button
-                    size="icon"
-                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full bg-green-500 text-white shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 z-50 animate-bounce"
-                    aria-label="Contact options"
-                >
-                    <WhatsAppIcon />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 mr-4 mb-2" side="top" align="end">
-                <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setOpen(false)}>
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Close</span>
-                </Button>
-                <div className="space-y-4">
-                     <div className="flex items-start gap-3">
-                         <div className="mt-1">
+        <div className="fixed bottom-6 right-6 z-50">
+             <div className="relative group">
+                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            size="icon"
+                            className="h-16 w-16 rounded-full bg-green-500 text-white shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 z-50 animate-bounce"
+                            aria-label="Contact options"
+                        >
                             <WhatsAppIcon />
-                         </div>
-                        <div>
-                            <h4 className="font-bold text-lg text-primary">Reserva por WhatsApp</h4>
-                            <p className="text-sm text-muted-foreground">
-                                Contacta directamente con nuestro equipo para reservar tu tee time.
-                            </p>
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 mr-4 mb-2" side="top" align="end">
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setPopoverOpen(false)}>
+                            <X className="h-4 w-4" />
+                            <span className="sr-only">Close Popover</span>
+                        </Button>
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                                <div className="mt-1">
+                                    <WhatsAppIcon />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-lg text-primary">Reserva por WhatsApp</h4>
+                                    <p className="text-sm text-muted-foreground">
+                                        Contacta directamente con nuestro equipo para reservar tu tee time.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <Button className="w-full bg-green-500 hover:bg-green-600" asChild>
+                                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                                    <WhatsAppIcon /> Reservar por WhatsApp
+                                </a>
+                                </Button>
+                                <Button variant="outline" className="w-full" asChild>
+                                    <a href={telUrl}>
+                                        <Phone /> Llamar Ahora
+                                    </a>
+                                </Button>
+                            </div>
+
+                            <div className="text-center text-sm text-muted-foreground">
+                                <p className="font-semibold text-foreground">+52 624 135 2986</p>
+                                <p className="flex items-center justify-center gap-1.5">
+                                    <Clock className="h-3 w-3" />
+                                    Horario: 7:00 AM - 8:00 PM
+                                </p>
+                            </div>
+
+                            <div className="bg-card border rounded-lg p-3 text-xs space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                    <span>Reserva Inmediata</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Zap className="h-4 w-4 text-yellow-500" />
+                                    <span>Confirmación Rápida</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Shield className="h-4 w-4 text-blue-500" />
+                                    <span>Pago Seguro</span>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                    
-                    <div className="space-y-2">
-                        <Button className="w-full bg-green-500 hover:bg-green-600" asChild>
-                           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                             <WhatsAppIcon /> Reservar por WhatsApp
-                           </a>
-                        </Button>
-                        <Button variant="outline" className="w-full" asChild>
-                            <a href={telUrl}>
-                                <Phone /> Llamar Ahora
-                            </a>
-                        </Button>
-                    </div>
-
-                    <div className="text-center text-sm text-muted-foreground">
-                        <p className="font-semibold text-foreground">+52 624 135 2986</p>
-                        <p className="flex items-center justify-center gap-1.5">
-                            <Clock className="h-3 w-3" />
-                            Horario: 7:00 AM - 8:00 PM
-                        </p>
-                    </div>
-
-                    <div className="bg-card border rounded-lg p-3 text-xs space-y-2">
-                         <div className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                            <span>Reserva Inmediata</span>
-                         </div>
-                         <div className="flex items-center gap-2">
-                             <Zap className="h-4 w-4 text-yellow-500" />
-                             <span>Confirmación Rápida</span>
-                         </div>
-                         <div className="flex items-center gap-2">
-                             <Shield className="h-4 w-4 text-blue-500" />
-                            <span>Pago Seguro</span>
-                         </div>
-                    </div>
-                </div>
-            </PopoverContent>
-        </Popover>
+                    </PopoverContent>
+                </Popover>
+                 <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Dismiss WhatsApp Button"
+                    className={cn(
+                        "absolute -top-2 -right-2 h-6 w-6 rounded-full bg-card/80 text-card-foreground backdrop-blur-sm transition-opacity opacity-0 group-hover:opacity-100",
+                        popoverOpen && "opacity-100"
+                    )}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsVisible(false);
+                    }}
+                >
+                    <X className="h-4 w-4" />
+                </Button>
+            </div>
+        </div>
     );
 }

@@ -201,9 +201,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value="any">{dictionary.anyTime}</SelectItem>
-                                            <SelectItem value="morning">{dictionary.morning}</SelectItem>
                                             <SelectItem value="afternoon">{dictionary.afternoon}</SelectItem>
-                                            <SelectItem value="evening">{dictionary.evening}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

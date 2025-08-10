@@ -28,6 +28,7 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (user) {
+            // Client-side only date formatting to prevent hydration mismatch
             if (user.metadata.creationTime) {
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
@@ -47,6 +48,7 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         } else if (!authLoading) {
+            // If there's no user and we're not loading, stop loading bookings.
             setLoadingBookings(false);
         }
     }, [user, authLoading]);
