@@ -38,9 +38,9 @@ export default async function AboutPage({ params: { lang } }: AboutPageProps) {
     ];
     
     const team = [
-        { name: "Carlos R.", role: t.team.roles.founder, avatar: "https://i.pravatar.cc/150?u=carlos" },
-        { name: "Ana G.", role: t.team.roles.ops, avatar: "https://i.pravatar.cc/150?u=ana" },
-        { name: "Javier M.", role: t.team.roles.dev, avatar: "https://i.pravatar.cc/150?u=javier" },
+        { name: "[Your Name]", role: t.team.roles.founder, avatar: "https://i.pravatar.cc/150?u=founder" },
+        { name: "[Teammate Name]", role: t.team.roles.ops, avatar: "https://i.pravatar.cc/150?u=ops" },
+        { name: "[Teammate Name]", role: t.team.roles.dev, avatar: "https://i.pravatar.cc/150?u=dev" },
     ];
 
 

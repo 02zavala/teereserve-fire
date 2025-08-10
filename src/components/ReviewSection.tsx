@@ -28,7 +28,7 @@ function ReviewCard({ review }: { review: Review }) {
 
     useEffect(() => {
         if (review.createdAt) {
-          setTimeAgo(formatDistanceToNow(new Date(review.createdAt)) + ' ago');
+          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true }));
         }
     }, [review.createdAt]);
 
