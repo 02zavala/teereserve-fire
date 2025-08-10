@@ -28,7 +28,9 @@ function ReviewCard({ review }: { review: Review }) {
 
     useEffect(() => {
         // This ensures the relative time is only calculated on the client, avoiding hydration mismatch.
-        setTimeAgo(formatDistanceToNow(new Date(review.createdAt)) + ' ago');
+        if (review.createdAt) {
+          setTimeAgo(formatDistanceToNow(new Date(review.createdAt)) + ' ago');
+        }
     }, [review.createdAt]);
 
     return (
@@ -42,7 +44,7 @@ function ReviewCard({ review }: { review: Review }) {
                     <div className="flex-1">
                         <div className="flex items-center justify-between">
                             <p className="font-semibold">{review.user.name}</p>
-                            <p className="text-xs text-muted-foreground">{timeAgo}</p>
+                            {timeAgo && <p className="text-xs text-muted-foreground">{timeAgo}</p>}
                         </div>
                         <StarRating rating={review.rating} className="my-1" starClassName='h-4 w-4' />
                         <p className="text-sm text-foreground/80">{review.text}</p>

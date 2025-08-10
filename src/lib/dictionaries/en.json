@@ -184,5 +184,47 @@
             "phoneLabel": "Phone",
             "addressLabel": "Address"
         }
+    },
+    "aboutPage": {
+        "hero": {
+            "title": "About Us",
+            "subtitle": "Connecting golfers with unforgettable experiences on the best courses.",
+            "imageAlt": "TeeReserve team on a golf course"
+        },
+        "mission": {
+            "title": "Our Mission",
+            "description": "At TeeReserve, we are passionate about connecting golfers with unique experiences at the best golf courses. Our mission is to provide premium reservations with a seamless, secure, and reliable experience, ensuring that every round is memorable.",
+            "imageAlt": "Detailed view of a pristine golf course"
+        },
+        "values": {
+            "title": "Our Values",
+            "subtitle": "The principles that guide our work and commitment to you.",
+            "passion": {
+                "title": "Passion for Golf",
+                "description": "We are golfers serving golfers. We understand the details that make a round of golf perfect."
+            },
+            "quality": {
+                "title": "Quality and Excellence",
+                "description": "We partner with the most exclusive and best-maintained courses to offer a premium experience."
+            },
+            "trust": {
+                "title": "Trust and Security",
+                "description": "We guarantee a secure and transparent booking process from start to finish."
+            }
+        },
+        "team": {
+            "title": "Our Team",
+            "subtitle": "The experts making your next golf adventure possible.",
+            "roles": {
+                "founder": "Founder & CEO",
+                "ops": "Head of Operations",
+                "dev": "Lead Developer"
+            }
+        },
+        "cta": {
+            "title": "Ready for Your Next Round?",
+            "subtitle": "Explore our selection of world-class courses and book your next tee time with TeeReserve.",
+            "button": "Explore Courses"
+        }
     }
 }

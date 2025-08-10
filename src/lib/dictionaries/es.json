@@ -184,5 +184,47 @@
             "phoneLabel": "Teléfono",
             "addressLabel": "Dirección"
         }
+    },
+     "aboutPage": {
+        "hero": {
+            "title": "Sobre Nosotros",
+            "subtitle": "Conectando golfistas con experiencias inolvidables en los mejores campos.",
+            "imageAlt": "Equipo de TeeReserve en un campo de golf"
+        },
+        "mission": {
+            "title": "Nuestra Misión",
+            "description": "En TeeReserve nos apasiona conectar a los golfistas con experiencias únicas en los mejores campos de golf. Nuestra misión es facilitar reservas premium, con una experiencia fluida, segura y confiable, asegurando que cada ronda sea memorable.",
+            "imageAlt": "Vista detallada de un campo de golf prístino"
+        },
+        "values": {
+            "title": "Nuestros Valores",
+            "subtitle": "Los principios que guían nuestro trabajo y compromiso contigo.",
+            "passion": {
+                "title": "Pasión por el Golf",
+                "description": "Somos golfistas al servicio de golfistas. Entendemos los detalles que hacen un día de golf perfecto."
+            },
+            "quality": {
+                "title": "Calidad y Excelencia",
+                "description": "Nos asociamos con los campos más exclusivos y mejor mantenidos para ofrecer una experiencia premium."
+            },
+            "trust": {
+                "title": "Confianza y Seguridad",
+                "description": "Garantizamos un proceso de reserva seguro y transparente de principio a fin."
+            }
+        },
+        "team": {
+            "title": "Nuestro Equipo",
+            "subtitle": "Los expertos que hacen posible tu próxima aventura de golf.",
+            "roles": {
+                "founder": "Fundador y CEO",
+                "ops": "Directora de Operaciones",
+                "dev": "Desarrollador Principal"
+            }
+        },
+        "cta": {
+            "title": "¿Listo para tu Próxima Ronda?",
+            "subtitle": "Explora nuestra selección de campos de clase mundial y reserva tu próximo tee time con TeeReserve.",
+            "button": "Explorar Campos"
+        }
     }
 }

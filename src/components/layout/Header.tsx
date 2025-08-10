@@ -24,7 +24,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
     const navLinks = [
         { href: `/${lang}`, label: dictionary.home },
         { href: `/${lang}/courses`, label: dictionary.findCourse },
-        { href: `/${lang}/#about`, label: dictionary.about },
+        { href: `/${lang}/about`, label: dictionary.about },
         { href: `/${lang}/contact`, label: dictionary.contact },
     ];
     return (
