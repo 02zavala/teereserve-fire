@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -15,14 +16,29 @@ import {
 import { LogOut, User, LayoutGrid, GanttChartSquare } from 'lucide-react';
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "../ui/skeleton";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { UserProfile } from "@/types";
 
 export function UserNav() {
   const { user, loading, logout } = useAuth();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   
-  // A simple check for admin role can be done here.
-  // In a real app, this should be based on custom claims in the JWT.
-  const isAdmin = user && user.email?.endsWith('@teereserve.com');
+  useEffect(() => {
+    if (user) {
+      const userDocRef = doc(db, 'users', user.uid);
+      getDoc(userDocRef).then(docSnap => {
+        if (docSnap.exists()) {
+          setUserProfile(docSnap.data() as UserProfile);
+        }
+      })
+    } else {
+      setUserProfile(null);
+    }
+  }, [user]);
 
+  const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
 
   if (loading) {
     return <Skeleton className="h-8 w-8 rounded-full" />

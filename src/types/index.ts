@@ -1,3 +1,4 @@
+
 export interface ReviewUserInput {
   name: string;
   avatarUrl?: string;
@@ -72,6 +73,7 @@ export interface UserProfile {
     email: string | null;
     displayName: string | null;
     photoURL: string | null;
-    role: 'Customer' | 'Admin' | 'Affiliate';
+    role: 'SuperAdmin' | 'Admin' | 'Customer' | 'Affiliate';
     createdAt: string;
+    assignedCourses?: string[];
 }

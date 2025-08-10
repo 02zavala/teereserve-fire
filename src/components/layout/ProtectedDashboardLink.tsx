@@ -1,8 +1,13 @@
+
 "use client";
 
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import type { getDictionary } from "@/lib/get-dictionary";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { UserProfile } from "@/types";
 
 interface ProtectedDashboardLinkProps {
     dictionary: Awaited<ReturnType<typeof getDictionary>>['footer'];
@@ -10,7 +15,22 @@ interface ProtectedDashboardLinkProps {
 
 export function ProtectedDashboardLink({ dictionary }: ProtectedDashboardLinkProps) {
     const { user } = useAuth();
-    const isAdmin = user && user.email?.endsWith('@teereserve.com');
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+    useEffect(() => {
+        if (user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            getDoc(userDocRef).then(docSnap => {
+                if (docSnap.exists()) {
+                    setUserProfile(docSnap.data() as UserProfile);
+                }
+            })
+        } else {
+            setUserProfile(null);
+        }
+    }, [user]);
+
+    const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
 
     if (!isAdmin) {
         return null;
