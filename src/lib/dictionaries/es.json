@@ -61,6 +61,34 @@
         "bookButton": "Reserva tu Ronda",
         "exploreButton": "Explora los Campos"
     },
+    "howItWorks": {
+        "title": "Cómo Funciona",
+        "subtitle": "Reservar tu ronda de golf perfecta en Los Cabos es simple y directo. Sigue estos sencillos pasos para asegurar tu tee time en campos de clase mundial.",
+        "steps": {
+            "search": {
+                "title": "Busca y Explora",
+                "description": "Explora nuestra selección de campos de golf premium. Usa los filtros para encontrar campos que coincidan con tus preferencias y nivel."
+            },
+            "select": {
+                "title": "Selecciona tu Tee Time",
+                "description": "Elige tu fecha y hora preferidas de los espacios disponibles que se muestran en nuestro calendario en tiempo real."
+            },
+            "pay": {
+                "title": "Pago Seguro",
+                "description": "Completa tu reserva con nuestro sistema de pago seguro. Protegemos tus datos y ofrecemos múltiples opciones de pago."
+            },
+            "play": {
+                "title": "Juega y Disfruta",
+                "description": "Llega al campo con tu confirmación. Nuestro equipo de soporte 24/7 está disponible si necesitas ayuda."
+            }
+        },
+        "cta": {
+            "title": "¿Listo para Reservar tu Ronda?",
+            "subtitle": "Únete a miles de golfistas satisfechos que confían en TeeReserve para sus experiencias de golf en Los Cabos.",
+            "bookButton": "Comenzar a Reservar",
+            "exploreButton": "Explorar Campos"
+        }
+    },
     "home": {
         "heroSubtitle": "Tu plataforma especializada para reservar los mejores campos de golf.",
         "featuredCoursesTitle": "Campos Destacados",

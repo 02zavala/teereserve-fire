@@ -9,6 +9,7 @@ import { getDictionary } from '@/lib/get-dictionary'
 import { Locale } from '@/i18n-config'
 import { Footer } from '@/components/layout/Footer'
 import { HeroSection } from '@/components/home/HeroSection'
+import { HowItWorks } from '@/components/home/HowItWorks'
 
 export default async function Home({ params: { lang } }: { params: { lang: Locale }}) {
   const dictionary = await getDictionary(lang)
@@ -18,12 +19,18 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
     <>
       <HeroSection dictionary={dictionary.heroSection} lang={lang} />
 
+      <div className="relative">
+          <div className="absolute left-1/2 z-20 w-full max-w-6xl -translate-x-1/2 -translate-y-[calc(50%)] px-4">
+            <CourseSearchForm dictionary={dictionary.courseSearch} />
+          </div>
+          <div className="h-24 bg-background"></div>
+      </div>
+      
+      <HowItWorks dictionary={dictionary.howItWorks} lang={lang} />
+
       <section className="bg-background py-16 lg:py-24">
         <div className="container mx-auto px-4">
-           <div className="absolute left-1/2 z-20 w-full max-w-6xl -translate-x-1/2 -translate-y-[calc(50%+6rem)] px-4">
-             <CourseSearchForm dictionary={dictionary.courseSearch} />
-           </div>
-          <div className="mb-12 text-center pt-24 md:pt-16">
+          <div className="mb-12 text-center">
             <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">{dictionary.home.featuredCoursesTitle}</h2>
             <p className="mt-2 text-lg text-muted-foreground">{dictionary.home.featuredCoursesSubtitle}</p>
           </div>

@@ -5,24 +5,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getAllReviews } from "@/lib/data";
 import { assistReviewModeration } from "@/ai/flows/assist-review-moderation";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
 import { ReviewActions } from "./ReviewActions";
 import { StarRating } from "@/components/StarRating";
-import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { format, parseISO } from "date-fns";
+import { useEffect, useState, useTransition } from "react";
 import type { Review } from "@/types";
+import { updateReviewStatus } from "@/lib/data";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 function ReviewCard({ review }: { review: Review }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
+    const [isLoadingModeration, setIsLoadingModeration] = useState(true);
     const [formattedDate, setFormattedDate] = useState('');
 
     useEffect(() => {
-        assistReviewModeration({ reviewText: review.text }).then(setModerationResult);
+        assistReviewModeration({ reviewText: review.text })
+            .then(setModerationResult)
+            .finally(() => setIsLoadingModeration(false));
     }, [review.text]);
-
+    
     useEffect(() => {
         if (review.createdAt) {
-            setFormattedDate(format(new Date(review.createdAt), "PPP"));
+           setFormattedDate(format(new Date(review.createdAt), "PPP"));
         }
     }, [review.createdAt]);
 
@@ -37,6 +43,8 @@ function ReviewCard({ review }: { review: Review }) {
         if (status === false) return 'Rejected';
         return 'Pending';
     }
+    
+    const isFlagged = moderationResult?.isSpam || moderationResult?.isToxic;
 
     return (
         <Card>
@@ -55,6 +63,8 @@ function ReviewCard({ review }: { review: Review }) {
                 <StarRating rating={review.rating} className="mb-2" />
                 <p className="text-muted-foreground mb-4">{review.text}</p>
 
+                {isLoadingModeration && <p className="text-sm text-muted-foreground">Analyzing review...</p>}
+                
                 {isFlagged && moderationResult && (
                      <div className="bg-yellow-50 border border-yellow-200 text-sm text-yellow-800 rounded-lg p-3 mb-4 flex items-start gap-3">
                         <AlertCircle className="h-5 w-5 mt-0.5 text-yellow-500" />

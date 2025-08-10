@@ -61,6 +61,34 @@
         "bookButton": "Book Your Round",
         "exploreButton": "Explore Courses"
     },
+    "howItWorks": {
+        "title": "How It Works",
+        "subtitle": "Booking your perfect golf round in Los Cabos is simple and straightforward. Follow these easy steps to secure your tee time at world-class courses.",
+        "steps": {
+            "search": {
+                "title": "Search & Browse",
+                "description": "Browse our curated selection of premium golf courses. Use filters to find courses that match your preferences and skill level."
+            },
+            "select": {
+                "title": "Select Your Tee Time",
+                "description": "Choose your preferred date and time from available slots shown in our real-time calendar."
+            },
+            "pay": {
+                "title": "Secure Payment",
+                "description": "Complete your booking with our secure payment system. We protect your data and offer multiple payment options."
+            },
+            "play": {
+                "title": "Play & Enjoy",
+                "description": "Arrive at the course with your confirmation. Our 24/7 support team is available if you need any assistance."
+            }
+        },
+        "cta": {
+            "title": "Ready to Book Your Round?",
+            "subtitle": "Join thousands of satisfied golfers who trust TeeReserve for their Los Cabos golf experiences.",
+            "bookButton": "Start Booking",
+            "exploreButton": "Browse Courses"
+        }
+    },
     "home": {
         "heroSubtitle": "Your specialized platform to book the best golf courses.",
         "featuredCoursesTitle": "Featured Courses",
