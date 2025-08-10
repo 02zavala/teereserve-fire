@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils"
 import { getTeeTimesForCourse } from "@/lib/data"
 import Link from "next/link"
 import { Locale } from "@/i18n-config"
+import { Skeleton } from "./ui/skeleton"
 
 interface TeeTimePickerProps {
     courseId: string
@@ -25,18 +26,20 @@ interface TeeTimePickerProps {
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
 export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
-    const [date, setDate] = useState<Date | undefined>(undefined);
+    const [date, setDate] = useState<Date | undefined>();
     const [players, setPlayers] = useState<number | 'group'>(2)
     const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning')
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isPending, startTransition] = useTransition();
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        // This effect runs only on the client, after hydration, to avoid mismatch
+        // This effect runs only on the client, after hydration
+        setIsClient(true);
         if (!date) {
             setDate(new Date());
         }
-    }, [date]);
+    }, []);
 
     useEffect(() => {
         if (!date) return;
@@ -58,13 +61,18 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     
     const availableTimes = filterTeeTimes(teeTimes, timeOfDay);
 
-    if (!date) {
+    if (!isClient || !date) {
         return (
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-3xl text-primary">Reservar Tee Time</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                    <Skeleton className="h-10 w-full" />
                     <div className="flex justify-center items-center py-8">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
