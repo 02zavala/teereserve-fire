@@ -25,12 +25,9 @@ interface TeeTimePickerProps {
     lang: Locale,
 }
 
-type TimeOfDay = 'morning' | 'afternoon' | 'evening';
-
 export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>();
     const [players, setPlayers] = useState<number | 'group'>(2)
-    const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning')
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isPending, startTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
@@ -53,22 +50,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         });
     }, [courseId, date, basePrice]);
     
-    useEffect(() => {
-        setSelectedTeeTime(null); // Reset selection when time of day changes
-    }, [timeOfDay]);
-
-
-    const filterTeeTimes = (times: TeeTime[], selectedTimeOfDay: TimeOfDay): TeeTime[] => {
-        return times.filter(t => {
-            const hour = parseInt(t.time.split(':')[0], 10);
-            if (selectedTimeOfDay === 'morning' && hour >= 6 && hour < 12) return true;
-            if (selectedTimeOfDay === 'afternoon' && hour >= 12 && hour < 17) return true;
-            if (selectedTimeOfDay === 'evening' && hour >= 17 && hour < 21) return true;
-            return false;
-        });
-    }
-    
-    const availableTimes = filterTeeTimes(teeTimes, timeOfDay);
+    const availableTimes = teeTimes.filter(t => t.status === 'available');
     
     const totalPrice = selectedTeeTime ? selectedTeeTime.price * (players as number) : 0;
     
@@ -154,21 +136,6 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                     </div>
                 ) : (
                     <div>
-                        <div className="mb-4 flex justify-around rounded-md bg-muted p-1">
-                            {(['morning', 'afternoon', 'evening'] as TimeOfDay[]).map(tod => (
-                                <Button
-                                key={tod}
-                                variant={timeOfDay === tod ? "default" : "ghost"}
-                                className="flex-1 capitalize"
-                                onClick={() => setTimeOfDay(tod)}
-                                >
-                                    {tod === 'morning' && <Sun className="mr-2 h-4 w-4"/>}
-                                    {tod === 'afternoon' && <Zap className="mr-2 h-4 w-4"/>}
-                                    {tod === 'evening' && <Moon className="mr-2 h-4 w-4"/>}
-                                    {tod}
-                                </Button>
-                            ))}
-                        </div>
                         {isPending ? (
                             <div className="flex justify-center items-center py-8">
                                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
