@@ -48,6 +48,7 @@ function ConfirmationPageContent() {
         }
 
         if (date) {
+            // Safe date formatting on client
             setFormattedDate(format(new Date(date), "PPP"));
         }
 

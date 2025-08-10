@@ -376,5 +376,24 @@
                 }
             ]
         }
+    },
+    "recommendationsPage": {
+        "title": "Your Personalized Recommendations",
+        "subtitle": "Based on your preferences, we've found {count} perfect courses for you.",
+        "refresh": "Refresh",
+        "recommendationBadge": "Recommendation",
+        "perPlayer": "per player",
+        "greatMatch": "Why it's a great match for you",
+        "bookNow": "Book Now",
+        "viewDetails": "View Details",
+        "error": {
+            "title": "Error Loading Recommendations",
+            "message": "Could not load recommendations at this time. Please try again later."
+        },
+        "tryAgain": "Try Again",
+        "noRecs": {
+            "title": "No Special Recommendations Right Now",
+            "subtitle": "We're working on finding the perfect match. Try refreshing!"
+        }
     }
 }

@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getDictionary } from '@/lib/get-dictionary';
 import { Locale } from '@/i18n-config';
+import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
 
 interface RecommendationsPageProps {
   params: { lang: Locale };
@@ -15,6 +16,7 @@ interface RecommendationsPageProps {
 
 export default async function AIRecommendationsPage({ params }: RecommendationsPageProps) {
   const dictionary = await getDictionary(params.lang);
+  const t = dictionary.recommendationsPage;
   let recommendations: any[] = [];
   let error: string | null = null;
 
@@ -28,30 +30,33 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
     recommendations = result.recommendations || [];
   } catch (err) {
     console.error("Failed to fetch AI recommendations:", err);
-    error = "Could not load recommendations at this time. Please try again later.";
+    error = t.error.message;
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="h-5 w-5" />
-              Error Loading Recommendations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button asChild variant="outline">
-               <Link href={`/${params.lang}/recommendations`}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Try Again
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <div className="container mx-auto px-4 py-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                {t.error.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">{error}</p>
+              <Button asChild variant="outline">
+                <Link href={`/${params.lang}/recommendations`}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  {t.tryAgain}
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        <SecondaryFooter dictionary={dictionary.secondaryFooter} />
+      </>
     );
   }
 
@@ -63,17 +68,17 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
             <div className="flex justify-between items-center">
               <CardTitle className="flex items-center gap-3 font-headline text-3xl text-primary">
                 <Sparkles className="h-8 w-8" />
-                Your Personalized Recommendations
+                {t.title}
               </CardTitle>
                <Button asChild variant="outline">
                  <Link href={`/${params.lang}/recommendations`}>
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
+                  {t.refresh}
                 </Link>
               </Button>
             </div>
             <CardDescription className="text-primary/80">
-              Based on your preferences, we've found {recommendations.length} perfect courses for you.
+              {t.subtitle.replace('{count}', recommendations.length.toString())}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -94,7 +99,7 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
                     />
                      <div className="absolute top-3 left-3">
                       <Badge className="bg-primary text-primary-foreground">
-                        #{index + 1} Recommendation
+                        #{index + 1} {t.recommendationBadge}
                       </Badge>
                     </div>
                   </div>
@@ -115,7 +120,7 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
                           ${rec.price}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          per player
+                          {t.perPlayer}
                         </div>
                       </div>
                     </div>
@@ -125,7 +130,7 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
                     <div className="bg-card border rounded-lg p-3 mb-4">
                         <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
                             <TrendingUp className="h-4 w-4 text-primary" />
-                            Why it's a great match for you
+                            {t.greatMatch}
                         </h4>
                          <p className="text-xs text-muted-foreground">{rec.reason}</p>
                     </div>
@@ -145,12 +150,12 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
                     <div className="flex gap-3">
                       <Button asChild className="flex-1">
                         <Link href={`/courses/${rec.courseId}`}>
-                           Book Now
+                           {t.bookNow}
                         </Link>
                       </Button>
                       <Button asChild variant="outline">
                          <Link href={`/courses/${rec.courseId}`}>
-                            View Details
+                            {t.viewDetails}
                         </Link>
                       </Button>
                     </div>
@@ -163,15 +168,15 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
                 <CardContent className="text-center py-16">
                     <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-foreground mb-2">
-                        No Special Recommendations Right Now
+                        {t.noRecs.title}
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                        We're working on finding the perfect match. Try refreshing!
+                        {t.noRecs.subtitle}
                     </p>
                     <Button asChild variant="outline">
                         <Link href={`/${params.lang}/recommendations`}>
                             <RefreshCw className="h-4 w-4 mr-2" />
-                            Refresh
+                            {t.refresh}
                         </Link>
                     </Button>
                 </CardContent>
@@ -179,6 +184,7 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
           )}
         </div>
       </div>
+       <SecondaryFooter dictionary={dictionary.secondaryFooter} />
     </div>
   );
 }

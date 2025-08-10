@@ -376,5 +376,24 @@
                 }
             ]
         }
+    },
+     "recommendationsPage": {
+        "title": "Tus Recomendaciones Personalizadas",
+        "subtitle": "Basado en tus preferencias, hemos encontrado {count} campos perfectos para ti.",
+        "refresh": "Refrescar",
+        "recommendationBadge": "Recomendación",
+        "perPlayer": "por jugador",
+        "greatMatch": "Por qué es ideal para ti",
+        "bookNow": "Reservar Ahora",
+        "viewDetails": "Ver Detalles",
+        "error": {
+            "title": "Error al Cargar Recomendaciones",
+            "message": "No se pudieron cargar las recomendaciones en este momento. Por favor, inténtalo de nuevo más tarde."
+        },
+        "tryAgain": "Intentar de Nuevo",
+        "noRecs": {
+            "title": "No hay Recomendaciones Especiales Ahora",
+            "subtitle": "Estamos trabajando para encontrar la opción perfecta. ¡Intenta refrescar!"
+        }
     }
 }
