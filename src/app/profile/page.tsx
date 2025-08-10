@@ -28,7 +28,7 @@ export default function ProfilePage() {
     useEffect(() => {
         if (user) {
             if (user.metadata.creationTime) {
-                // Client-side date formatting
+                // Client-side date formatting to prevent hydration mismatch
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
 
