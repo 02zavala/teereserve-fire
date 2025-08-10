@@ -24,16 +24,13 @@ function ReviewCard({ review }: { review: Review }) {
         assistReviewModeration({ reviewText: review.text })
             .then(setModerationResult)
             .finally(() => setIsLoadingModeration(false));
-    }, [review.text]);
-    
-    useEffect(() => {
+        
         if (review.createdAt) {
-           // This effect runs only on the client, after hydration
+           // This effect runs only on the client, after hydration, to prevent mismatch
            setFormattedDate(format(new Date(review.createdAt), "PPP"));
         }
-    }, [review.createdAt]);
-
-
+    }, [review.text, review.createdAt]);
+    
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';
         if (status === false) return 'destructive';
