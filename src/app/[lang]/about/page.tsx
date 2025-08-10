@@ -70,7 +70,7 @@ export default async function AboutPage({ params: { lang } }: AboutPageProps) {
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div className="md:pr-8">
                          <div className="flex justify-center md:justify-start mb-6">
-                            <Logo className="h-32 w-auto" />
+                            <Logo className="h-20" />
                         </div>
                         <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary mb-4">{t.mission.title}</h2>
                         <p className="text-muted-foreground text-lg leading-relaxed">

@@ -9,48 +9,25 @@ import { Calendar, MapPin, Users, Star } from 'lucide-react'
 import type { getDictionary } from '@/lib/get-dictionary'
 import type { Locale } from '@/i18n-config'
 
-const heroImages = [
-  { src: 'https://placehold.co/1200x800.png', hint: 'golf course sunrise' },
-  { src: 'https://placehold.co/1200x800.png', hint: 'golf course ocean' },
-  { src: 'https://placehold.co/1200x800.png', hint: 'golf fairway' },
-  { src: 'https://placehold.co/1200x800.png', hint: 'golfer swinging' }
-]
-
 interface HeroSectionProps {
     dictionary: Awaited<ReturnType<typeof getDictionary>>['heroSection'];
     lang: Locale;
 }
 
 export function HeroSection({ dictionary, lang }: HeroSectionProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-      )
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [])
 
   return (
     <section className="relative h-[80vh] min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Background Image Slideshow */}
+      {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        {heroImages.map((image, index) => (
-          <Image
-            key={index}
-            src={image.src}
+        <Image
+            src="/hero-background.jpg"
             alt="Hero background image"
-            data-ai-hint={image.hint}
+            data-ai-hint="golf course sunrise"
             fill
-            className={`object-cover object-center transition-opacity duration-1000 ${
-              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-            priority={index === 0}
+            className="object-cover object-center"
+            priority
           />
-        ))}
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/50" />
       </div>
@@ -113,20 +90,6 @@ export function HeroSection({ dictionary, lang }: HeroSectionProps) {
             </Link>
           </Button>
         </div>
-      </div>
-
-      {/* Image Indicators */}
-      <div className="absolute bottom-8 right-8 z-10 flex space-x-2">
-        {heroImages.map((_, index) => (
-          <button
-            key={index}
-            aria-label={`Go to image ${index + 1}`}
-            onClick={() => setCurrentImageIndex(index)}
-            className={`w-2 h-2 rounded-full transition-colors ${
-              index === currentImageIndex ? 'bg-primary' : 'bg-white/40 hover:bg-white/60'
-            }`}
-          />
-        ))}
       </div>
     </section>
   )

@@ -24,10 +24,8 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1">
-            <div className="flex items-center space-x-3 mb-6">
-               <div className="w-24 h-auto flex items-center justify-center">
-                 <Logo className="w-full h-auto" />
-              </div>
+            <div className="mb-6">
+                <Logo className="h-12" />
             </div>
             <p className="text-background/80 text-sm leading-relaxed mb-6">
               {dictionary.platformDescription}
