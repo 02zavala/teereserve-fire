@@ -283,33 +283,39 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
     const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes');
     const q = query(teeTimesCol, where('date', '==', dateString));
     
-    const snapshot = await getDocs(q);
+    try {
+        const snapshot = await getDocs(q);
 
-    if (snapshot.empty) {
-        // No tee times for this date, so let's generate and save them
-        const defaultTimes = generateDefaultTeeTimes(basePrice);
-        const batch = writeBatch(db);
-        const newTimes: TeeTime[] = [];
+        if (snapshot.empty) {
+            // No tee times for this date, so let's generate and save them
+            const defaultTimes = generateDefaultTeeTimes(basePrice);
+            const batch = writeBatch(db);
+            const newTimes: TeeTime[] = [];
 
-        defaultTimes.forEach(timeData => {
-            const timeDocRef = doc(teeTimesCol); // Auto-generate ID
-            const newTeeTime: TeeTime = {
-                ...timeData,
-                id: timeDocRef.id,
-                date: dateString,
-            };
-             batch.set(timeDocRef, {
-                date: newTeeTime.date,
-                time: newTeeTime.time,
-                price: newTeeTime.price,
-                status: newTeeTime.status
+            defaultTimes.forEach(timeData => {
+                const timeDocRef = doc(teeTimesCol); // Auto-generate ID
+                const newTeeTime: TeeTime = {
+                    ...timeData,
+                    id: timeDocRef.id,
+                    date: dateString,
+                };
+                 batch.set(timeDocRef, {
+                    date: newTeeTime.date,
+                    time: newTeeTime.time,
+                    price: newTeeTime.price,
+                    status: newTeeTime.status
+                });
+                newTimes.push(newTeeTime);
             });
-            newTimes.push(newTeeTime);
-        });
-        await batch.commit();
-        return newTimes.sort((a,b) => a.time.localeCompare(b.time));
-    } else {
-        return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as TeeTime)).sort((a,b) => a.time.localeCompare(b.time));
+            
+            await batch.commit(); // Ensure the batch is committed before returning
+            return newTimes.sort((a,b) => a.time.localeCompare(b.time));
+        } else {
+            return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as TeeTime)).sort((a,b) => a.time.localeCompare(b.time));
+        }
+    } catch (error) {
+        console.error("Error getting or creating tee times: ", error);
+        return []; // Return an empty array on error to prevent infinite loops
     }
 };
 

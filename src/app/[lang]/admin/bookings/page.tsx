@@ -23,7 +23,8 @@ function getStatusVariant(status: Booking['status']) {
     }
 }
 
-interface FormattedBooking extends Booking {
+interface FormattedBooking extends Omit<Booking, 'date'> {
+    date: string | Date;
     formattedDate?: string;
 }
 
