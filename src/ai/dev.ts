@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/generate-course-descriptions.ts';
+import '@/ai/flows/recommend-golf-courses.ts';
+import '@/ai/flows/assist-review-moderation.ts';
