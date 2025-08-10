@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Golf, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { UserNav } from "@/components/auth/UserNav";
@@ -10,13 +10,34 @@ const navLinks = [
     { href: "/#about", label: "About Us" },
 ];
 
+const GolfIcon = ({ className }: { className?: string }) => (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a5 5 0 0 0-5 5c0 1.5.64 2.85 1.66 3.84" />
+      <path d="M12 22a5 5 0 0 1-5-5c0-1.5.64-2.85 1.66-3.84" />
+      <path d="M22 12a5 5 0 0 1-5-5c-1.5 0-2.85.64-3.84 1.66" />
+      <path d="M2 12a5 5 0 0 0-5 5c-1.5 0-2.85-.64-3.84-1.66" />
+    </svg>
+  );
+
 export function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 max-w-screen-2xl items-center">
                 <div className="mr-4 hidden md:flex">
                     <Link href="/" className="mr-6 flex items-center space-x-2">
-                        <Golf className="h-6 w-6 text-primary" />
+                        <GolfIcon className="h-6 w-6 text-primary" />
                         <span className="hidden font-bold sm:inline-block font-headline text-lg">
                             TeeTime Concierge
                         </span>
@@ -47,7 +68,7 @@ export function Header() {
                     </SheetTrigger>
                     <SheetContent side="left" className="pr-0">
                         <Link href="/" className="flex items-center space-x-2">
-                            <Golf className="h-6 w-6 text-primary" />
+                            <GolfIcon className="h-6 w-6 text-primary" />
                             <span className="font-bold font-headline text-lg">
                                 TeeTime Concierge
                             </span>

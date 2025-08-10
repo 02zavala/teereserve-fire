@@ -1,5 +1,25 @@
 import Link from "next/link";
-import { Golf } from "lucide-react";
+
+const GolfIcon = ({ className }: { className?: string }) => (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a5 5 0 0 0-5 5c0 1.5.64 2.85 1.66 3.84" />
+      <path d="M12 22a5 5 0 0 1-5-5c0-1.5.64-2.85 1.66-3.84" />
+      <path d="M22 12a5 5 0 0 1-5-5c-1.5 0-2.85.64-3.84 1.66" />
+      <path d="M2 12a5 5 0 0 0-5 5c-1.5 0-2.85-.64-3.84-1.66" />
+    </svg>
+  );
 
 export function Footer() {
     return (
@@ -7,7 +27,7 @@ export function Footer() {
             <div className="container mx-auto px-4">
                 <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                     <div className="flex items-center space-x-2">
-                         <Golf className="h-6 w-6 text-primary" />
+                         <GolfIcon className="h-6 w-6 text-primary" />
                         <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
                             Built by TeeTime Concierge.
                         </p>
