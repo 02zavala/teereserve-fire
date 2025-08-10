@@ -1,17 +1,28 @@
 
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllReviews } from "@/lib/data";
 import { assistReviewModeration } from "@/ai/flows/assist-review-moderation";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle2, ThumbsDown, ThumbsUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 import { ReviewActions } from "./ReviewActions";
 import { StarRating } from "@/components/StarRating";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
 
-async function ReviewCard({ review }: { review: any }) {
-    const moderationResult = await assistReviewModeration({ reviewText: review.text });
-    const isFlagged = moderationResult.isSpam || moderationResult.isToxic;
+function ReviewCard({ review }: { review: any }) {
+    const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
+    const [formattedDate, setFormattedDate] = useState('');
+
+    useEffect(() => {
+        assistReviewModeration({ reviewText: review.text }).then(setModerationResult);
+        if (review.createdAt) {
+            setFormattedDate(format(new Date(review.createdAt), "PPP"));
+        }
+    }, [review.text, review.createdAt]);
+
+    const isFlagged = moderationResult && (moderationResult.isSpam || moderationResult.isToxic);
 
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';
@@ -31,7 +42,7 @@ async function ReviewCard({ review }: { review: any }) {
                     <div>
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
-                            Review by {review.userName} on {format(new Date(review.createdAt), "PPP")}
+                            Review by {review.userName} on {formattedDate}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>
@@ -41,7 +52,7 @@ async function ReviewCard({ review }: { review: any }) {
                 <StarRating rating={review.rating} className="mb-2" />
                 <p className="text-muted-foreground mb-4">{review.text}</p>
 
-                {isFlagged && (
+                {isFlagged && moderationResult && (
                      <div className="bg-yellow-50 border border-yellow-200 text-sm text-yellow-800 rounded-lg p-3 mb-4 flex items-start gap-3">
                         <AlertCircle className="h-5 w-5 mt-0.5 text-yellow-500" />
                         <div>
@@ -62,9 +73,13 @@ async function ReviewCard({ review }: { review: any }) {
 }
 
 
-export default async function ReviewsAdminPage() {
-    const reviews = await getAllReviews();
+export default function ReviewsAdminPage() {
+    const [reviews, setReviews] = useState<any[]>([]);
     
+    useEffect(() => {
+        getAllReviews().then(setReviews);
+    }, []);
+
     const pendingReviews = reviews.filter(r => r.approved === null);
     const decidedReviews = reviews.filter(r => r.approved !== null);
 

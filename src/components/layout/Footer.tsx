@@ -64,7 +64,7 @@ export function Footer({ dictionary }: FooterProps) {
               </li>
               <li>
                 <Link 
-                  href="/contact" 
+                  href="/help" 
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {dictionary.footer.contact}
