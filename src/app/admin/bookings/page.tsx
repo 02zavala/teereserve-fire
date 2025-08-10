@@ -1,5 +1,9 @@
+
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
@@ -18,8 +22,24 @@ function getStatusVariant(status: Booking['status']) {
     }
 }
 
-export default async function BookingsAdminPage() {
-    const bookings = await getBookings();
+function FormattedDate({ dateString }: { dateString: string }) {
+    const [formattedDate, setFormattedDate] = useState('');
+
+    useEffect(() => {
+        if (dateString) {
+            setFormattedDate(format(new Date(dateString), 'PPP'));
+        }
+    }, [dateString]);
+
+    return <>{formattedDate}</>;
+}
+
+export default function BookingsAdminPage() {
+    const [bookings, setBookings] = useState<Booking[]>([]);
+
+    useEffect(() => {
+        getBookings().then(setBookings);
+    }, []);
     
     return (
         <div>
@@ -53,7 +73,9 @@ export default async function BookingsAdminPage() {
                                     <TableCell className="font-medium">{booking.id.substring(0, 7)}...</TableCell>
                                     <TableCell>{booking.courseName}</TableCell>
                                     <TableCell>{booking.userName}</TableCell>
-                                    <TableCell>{format(new Date(booking.date), 'PPP')}</TableCell>
+                                    <TableCell>
+                                        <FormattedDate dateString={booking.date} />
+                                    </TableCell>
                                     <TableCell>${booking.totalPrice}</TableCell>
                                     <TableCell>
                                         <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
