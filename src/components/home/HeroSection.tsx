@@ -8,29 +8,61 @@ import { Button } from '@/components/ui/button'
 import { Calendar, MapPin, Users, Star } from 'lucide-react'
 import type { getDictionary } from '@/lib/get-dictionary'
 import type { Locale } from '@/i18n-config'
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 interface HeroSectionProps {
     dictionary: Awaited<ReturnType<typeof getDictionary>>['heroSection'];
     lang: Locale;
 }
 
+const heroImages = [
+    '/hero-1.jpg',
+    '/hero-2.jpg',
+    '/hero-3.jpg'
+]
+
 export function HeroSection({ dictionary, lang }: HeroSectionProps) {
 
   return (
     <section className="relative h-[80vh] min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <Image
-            src="/hero-background.jpg"
-            alt="Hero background image"
-            data-ai-hint="golf course sunrise"
-            fill
-            className="object-cover object-center"
-            priority
-          />
+      {/* Background Image Carousel */}
+      <Carousel
+        className="absolute inset-0 z-0"
+        opts={{
+          loop: true,
+        }}
+      >
+        <CarouselContent className="-ml-0">
+          {heroImages.map((src, index) => (
+            <CarouselItem key={index} className="pl-0">
+               <Image
+                    src={src}
+                    alt={`Hero background image ${index + 1}`}
+                    data-ai-hint="golf course sunrise"
+                    fill
+                    className="object-cover object-center"
+                    priority={index === 0}
+                />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        {heroImages.length > 1 && (
+            <>
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4" />
+            </>
+        )}
+      </Carousel>
+
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50" />
-      </div>
+      <div className="absolute inset-0 bg-black/50" />
 
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

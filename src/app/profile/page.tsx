@@ -28,15 +28,17 @@ export default function ProfilePage() {
     useEffect(() => {
         if (user) {
             if (user.metadata.creationTime) {
+                // Client-side date formatting
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
 
             getUserBookings(user.uid)
                 .then(userBookings => {
+                    // Client-side date formatting
                     const formatted = userBookings.map(b => ({
                         ...b,
                         formattedDate: `${format(new Date(b.date), 'PPP')} at ${b.time}`
-                    }))
+                    }));
                     setBookings(formatted);
                     setLoadingBookings(false);
                 })
