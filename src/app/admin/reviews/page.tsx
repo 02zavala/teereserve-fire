@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllReviews } from "@/lib/data";
 import { assistReviewModeration } from "@/ai/flows/assist-review-moderation";
@@ -6,6 +7,7 @@ import { AlertCircle, CheckCircle2, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ReviewActions } from "./ReviewActions";
 import { StarRating } from "@/components/StarRating";
+import { format } from "date-fns";
 
 async function ReviewCard({ review }: { review: any }) {
     const moderationResult = await assistReviewModeration({ reviewText: review.text });
@@ -29,7 +31,7 @@ async function ReviewCard({ review }: { review: any }) {
                     <div>
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
-                            Review by {review.userName} on {new Date(review.createdAt).toLocaleDateString()}
+                            Review by {review.userName} on {format(new Date(review.createdAt), "PPP")}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>
