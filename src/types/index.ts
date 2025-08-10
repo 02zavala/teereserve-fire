@@ -37,6 +37,10 @@ export interface GolfCourseInput {
   rules: string;
   basePrice: number;
   imageUrls: string[];
+  latLng?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 // This is the full course object, including related data that might be fetched separately

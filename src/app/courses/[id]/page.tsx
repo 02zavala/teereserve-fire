@@ -8,6 +8,7 @@ import { ReviewSection } from '@/components/ReviewSection';
 import { Recommendations } from '@/components/Recommendations';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CourseMap } from '@/components/CourseMap';
 
 interface CourseDetailPageProps {
     params: {
@@ -76,6 +77,16 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                             <CarouselPrevious className="left-4" />
                             <CarouselNext className="right-4" />
                         </Carousel>
+                        
+                        {/* Map Section */}
+                        {course.latLng && (
+                             <div className="my-8">
+                                <h2 className="font-headline text-3xl font-semibold text-primary mb-4">Location</h2>
+                                <div className="aspect-video w-full rounded-lg overflow-hidden">
+                                    <CourseMap lat={course.latLng.lat} lng={course.latLng.lng} name={course.name} />
+                                </div>
+                            </div>
+                        )}
 
                         {/* Description & Rules */}
                         <div className="space-y-8">
@@ -85,7 +96,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                             </div>
                             <div>
                                 <h3 className="font-headline text-2xl font-semibold text-primary mb-4 flex items-center"><ShieldCheck className="h-6 w-6 mr-2" /> Course Rules</h3>
-                                <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{course.rules}</p>
+                                <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{course.rules || 'Standard golf etiquette and club rules apply.'}</p>
                             </div>
                         </div>
                     </div>

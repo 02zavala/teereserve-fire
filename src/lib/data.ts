@@ -14,6 +14,151 @@ interface CourseDataInput {
     existingImageUrls: string[];
 }
 
+const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
+    {
+      id: "solmar-golf-links",
+      name: "Solmar Golf Links",
+      location: "Cabo San Lucas",
+      description: "Este campo inspirado en links compara con ninguno, con vistas impresionantes del Pacífico en cada hoyo. Diseñado por Greg Norman en 2020, abarca tres paisajes distintos: dunas de arena estilo links, bosques de cactus y proximidad al mar. Ofrece 18 hoyos con un sentimiento de la era dorada del golf, similar a Ballybunion en Irlanda. Incluye clubhouse estilo rancho con vistas dramáticas.",
+      rules: "Standard golf etiquette and club rules apply.",
+      basePrice: 150,
+      imageUrls: [
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+      ],
+      latLng: { lat: 22.876, lng: -109.931 }
+    },
+    {
+      id: "palmilla-golf-club",
+      name: "Palmilla Golf Club",
+      location: "San José del Cabo",
+      description: "Conocido como la \"Gran Dama de Los Cabos\", este club ofrece 27 hoyos diseñados por Jack Nicklaus, con vistas al Mar de Cortés desde 12 hoyos. Incluye cursos Arroyo, Mountain y Ocean, con fairways ondulantes, bunkers esculpidos y lagos. Clubhouse inspirado en México, pro shop y staff profesional. Reconocido como uno de los top en Los Cabos por su elegancia y desafío.",
+      rules: "Standard golf etiquette and club rules apply.",
+      basePrice: 250,
+      imageUrls: [
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+        "https://placehold.co/800x600.png",
+      ],
+      latLng: { lat: 23.013, lng: -109.736 }
+    },
+    {
+        id: 'cabo-del-sol',
+        name: 'Cabo del Sol (Desert & Ocean)',
+        location: 'Cabo San Lucas',
+        description: 'Dos cursos: Desert con cambios de elevación dramáticos, terreno desértico y vistas al Mar de Cortés; Ocean diseñado por Jack Nicklaus, donde el desierto se encuentra con el océano, con 7 hoyos junto a la costa. Incluye arroyos como cañones y bunkering dramático. Oasis de lujo con vistas panorámicas.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 200,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 22.918, lng: -109.831 }
+    },
+    {
+        id: 'puerto-los-cabos',
+        name: 'Puerto Los Cabos Golf Club',
+        location: 'San José del Cabo',
+        description: 'Instalación de 27 hoyos con tres combinaciones de 18, diseñadas por Jack Nicklaus y Greg Norman. Fairways ondulantes, greens elevados y vistas al Mar de Cortés. Incluye comida/drink stations gratuitas cada pocos hoyos. Ubicado en una comunidad planificada de 2,000 acres.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 180,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 23.064, lng: -109.682 }
+    },
+    {
+        id: 'vidanta-golf-los-cabos',
+        name: 'Vidanta Golf Los Cabos',
+        location: 'San José del Cabo',
+        description: 'Curso original de 9 hoyos en Los Cabos, con 3,000 yardas de verde bordeado por el Mar de Cortés y las montañas Sierra de La Laguna. Diseñado para juego suave en terreno parcialmente plano, con oportunidades para drives y putts creativos. Clubhouse elevado para vistas.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 220,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 23.045, lng: -109.708 }
+    },
+    {
+        id: 'cabo-real-golf-club',
+        name: 'Cabo Real Golf Club',
+        location: 'Cabo San Lucas',
+        description: 'Diseñado por Robert Trent Jones Jr., estilo target con fairways multi-temáticos en 2,800 acres de resort con playa. Hoyos tallados en desierto y montañas, con vistas al Mar de Cortés. Anfitrión de torneos PGA.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 190,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 22.955, lng: -109.789 }
+    },
+    {
+        id: 'club-campestre-san-jose',
+        name: 'Club Campestre San José',
+        location: 'San José del Cabo',
+        description: 'Diseñado por Jack Nicklaus, usa pasto Paspalum resistente al agua salada. Fairways verdes en colinas de Sierra de la Laguna, con vistas al Mar de Cortés. Terreno desértico rodante, greens elevados.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 100,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 23.078, lng: -109.735 }
+    },
+    {
+        id: 'cabo-san-lucas-country-club',
+        name: 'Cabo San Lucas Country Club',
+        location: 'Cabo San Lucas',
+        description: "18 hoyos en terreno suavemente inclinado con vistas al Mar de Cortés y Land's End. Diseñado por Roy Dye, desafiante con vistas panorámicas desde casi todos los hoyos. Incluye restaurante y comunidad cerrada.",
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 120,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 22.898, lng: -109.897 }
+    },
+    {
+        id: 'diamante-golf',
+        name: 'Diamante Golf (Dunes / Cardonal)',
+        location: 'Cabo San Lucas',
+        description: 'Dunes por Davis Love III, estilo links con vistas al Pacífico y arroyos nativos; Cardonal por Tiger Woods, con fairways anchos y greens slick. Vistas largas al océano y dunas.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 300,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 22.951, lng: -110.021 }
+    },
+    {
+        id: 'el-cortes-golf-club',
+        name: 'El Cortés Golf Club',
+        location: 'La Paz',
+        description: 'Firma de Gary Player, 18 hoyos con vistas panorámicas al Mar de Cortés. Cambios de elevación dramáticos, desierto y mar, con practice range y halfway house escénica.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 80,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 24.195, lng: -110.320 }
+    },
+    {
+        id: 'paraiso-del-mar-golf',
+        name: 'Paraíso del Mar Golf',
+        location: 'La Paz',
+        description: 'Diseñado por Arthur Hills, estilo links oceánico de 18 hoyos en 7,039 yardas. Paisaje de dunas reminiscentes de Escocia, con vistas al Golfo de California.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 90,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 24.237, lng: -110.334 }
+    },
+    {
+        id: 'tpc-danzante-bay',
+        name: 'TPC Danzante Bay',
+        location: 'Loreto',
+        description: '18 hoyos multi-temáticos por Rees Jones, con valles, arroyos, dunas y colinas. Vistas panorámicas a Danzante Bay y Mar de Cortés, greens slick y vientos desafiantes.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 150,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 25.828, lng: -111.306 }
+    },
+    {
+        id: 'costa-palmas-golf-club',
+        name: 'Costa Palmas Golf Club',
+        location: 'La Ribera, East Cape',
+        description: 'Diseñado por Robert Trent Jones II, links-like con fairways anchos, condiciones firmes y rápidas. Vistas de desierto y mar, terreno divertido para todos los niveles.',
+        rules: 'Standard golf etiquette and club rules apply.',
+        basePrice: 250,
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        latLng: { lat: 23.633, lng: -109.689 }
+    },
+  ];
+
 const uploadImages = async (courseName: string, files: File[]): Promise<string[]> => {
     const uploadPromises = files.map(file => {
         // Sanitize file name
@@ -27,18 +172,18 @@ const uploadImages = async (courseName: string, files: File[]): Promise<string[]
 // *** Firestore Data Functions ***
 
 export const getCourses = async ({ location }: { location?: string }): Promise<GolfCourse[]> => {
-  const coursesCol = collection(db, 'courses');
-  let coursesQuery = query(coursesCol);
+  let courses = initialCourses.map(c => ({...c, reviews: []}));
 
   if (location && location !== 'all') {
-    coursesQuery = query(coursesCol, where('location', '==', location));
+    courses = courses.filter(course => course.location === location);
   }
-
-  const courseSnapshot = await getDocs(coursesQuery);
   
-  const courseListPromises = courseSnapshot.docs.map(async (docSnapshot) => {
-    const course = { id: docSnapshot.id, ...docSnapshot.data() } as GolfCourse;
-    course.reviews = await getReviewsForCourse(course.id);
+  // In a real app, you would fetch from Firestore here.
+  // For now, we use the static data and simulate fetching reviews.
+  const courseListPromises = courses.map(async (course) => {
+    // We simulate fetching reviews. In a real scenario, this might still be needed
+    // if reviews are a sub-collection.
+    course.reviews = await getReviewsForCourse(course.id, true); 
     return course;
   });
 
@@ -47,27 +192,37 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
 
 export const getCourseById = async (id: string): Promise<GolfCourse | undefined> => {
     if (!id) return undefined;
-    const courseDocRef = doc(db, 'courses', id);
-    const courseSnap = await getDoc(courseDocRef);
+    
+    // Find the course in our static data
+    const course = initialCourses.find(c => c.id === id);
 
-    if (courseSnap.exists()) {
-        const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-        courseData.reviews = await getReviewsForCourse(id);
+    if (course) {
+        // Attach reviews
+        const courseData = { ...course, reviews: await getReviewsForCourse(id) };
         return courseData;
     } else {
-        console.log("No such document!");
-        return undefined;
+        // Fallback to Firestore for dynamically added courses
+        const courseDocRef = doc(db, 'courses', id);
+        const courseSnap = await getDoc(courseDocRef);
+
+        if (courseSnap.exists()) {
+            const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
+            courseData.reviews = await getReviewsForCourse(id);
+            return courseData;
+        } else {
+            console.log("No such document!");
+            return undefined;
+        }
     }
 };
 
 export const getCourseLocations = async (): Promise<string[]> => {
-    const coursesCol = collection(db, 'courses');
-    const courseSnapshot = await getDocs(coursesCol);
-    const courseList = courseSnapshot.docs.map(doc => doc.data() as GolfCourse);
+    const courseList = initialCourses;
     return [...new Set(courseList.map(c => c.location))];
 }
 
 export const addCourse = async (courseData: CourseDataInput): Promise<string> => {
+    // This will add a new course to Firestore, it won't be in the initial static list
     const { newImages, ...restOfData } = courseData;
     const newImageUrls = await uploadImages(courseData.name, newImages);
     
@@ -79,6 +234,7 @@ export const addCourse = async (courseData: CourseDataInput): Promise<string> =>
       rules: restOfData.rules || "",
       basePrice: restOfData.basePrice,
       imageUrls: [...restOfData.existingImageUrls, ...newImageUrls],
+      // latLng would need to be added to the form
     });
     return docRef.id;
 }
@@ -240,6 +396,13 @@ export async function getAllReviews(): Promise<Review[]> {
     const coursesSnapshot = await getDocs(collection(db, 'courses'));
     const allReviews: Review[] = [];
 
+    // Add reviews from static courses
+    for (const course of initialCourses) {
+        const reviews = await getReviewsForCourse(course.id, false);
+        reviews.forEach(r => allReviews.push({ ...r, courseName: course.name }));
+    }
+
+    // Add reviews from dynamically added courses
     for (const courseDoc of coursesSnapshot.docs) {
         const courseName = courseDoc.data().name;
         const reviewsCol = collection(db, 'courses', courseDoc.id, 'reviews');
