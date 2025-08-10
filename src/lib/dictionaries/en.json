@@ -89,6 +89,46 @@
             "exploreButton": "Browse Courses"
         }
     },
+    "whyChooseUs": {
+        "title": "Why Choose TeeReserve?",
+        "subtitle": "We're more than just a booking platform. We're your trusted partner in creating unforgettable golf experiences in one of the world's most beautiful destinations.",
+        "features": {
+            "realTime": {
+                "title": "Real-Time Availability",
+                "description": "See live availability and book instantly with immediate confirmation for all premium courses in Los Cabos."
+            },
+            "bestRate": {
+                "title": "Best Rate Guarantee",
+                "description": "We guarantee the best rates available. Find a lower price elsewhere? We'll match it and give you 5% off."
+            },
+            "premium": {
+                "title": "Premium Courses Only",
+                "description": "Access to 15+ championship golf courses including Jack Nicklaus, Tiger Woods, and Robert Trent Jones designs."
+            },
+            "support": {
+                "title": "24/7 Support",
+                "description": "Our golf experts are available around the clock to help you find the perfect tee time and answer any questions."
+            },
+            "payment": {
+                "title": "Secure Payments",
+                "description": "Multiple payment options including Stripe, PayPal, Apple Pay, and Google Pay with bank-level security."
+            },
+            "expertise": {
+                "title": "Local Expertise",
+                "description": "Deep knowledge of Los Cabos golf courses with insider tips on course conditions, weather, and best times to play."
+            }
+        },
+        "stats": {
+            "coursesValue": "15+",
+            "coursesLabel": "Premium Golf Courses",
+            "golfersValue": "10,000+",
+            "golfersLabel": "Satisfied Golfers",
+            "ratingValue": "4.9",
+            "ratingLabel": "Average Rating",
+            "successRateValue": "99%",
+            "successRateLabel": "Success Rate"
+        }
+    },
     "testimonials": {
         "title": "What Our Golfers Say",
         "subtitle": "Don't just take our word for it. Hear from thousands of satisfied golfers who have experienced the best of Los Cabos golf through TeeReserve.",

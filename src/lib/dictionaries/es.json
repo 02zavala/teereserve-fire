@@ -89,6 +89,46 @@
             "exploreButton": "Explorar Campos"
         }
     },
+    "whyChooseUs": {
+        "title": "¿Por qué Elegir TeeReserve?",
+        "subtitle": "Somos más que una plataforma de reservas. Somos tu socio de confianza para crear experiencias de golf inolvidables en uno de los destinos más hermosos del mundo.",
+        "features": {
+            "realTime": {
+                "title": "Disponibilidad en Tiempo Real",
+                "description": "Consulta la disponibilidad en vivo y reserva al instante con confirmación inmediata para todos los campos premium de Los Cabos."
+            },
+            "bestRate": {
+                "title": "Mejor Tarifa Garantizada",
+                "description": "Garantizamos las mejores tarifas disponibles. ¿Encuentras un precio más bajo? Lo igualamos y te damos un 5% de descuento."
+            },
+            "premium": {
+                "title": "Solo Campos Premium",
+                "description": "Acceso a más de 15 campos de campeonato, incluyendo diseños de Jack Nicklaus, Tiger Woods y Robert Trent Jones."
+            },
+            "support": {
+                "title": "Soporte 24/7",
+                "description": "Nuestros expertos en golf están disponibles todo el día para ayudarte a encontrar el tee time perfecto y responder tus dudas."
+            },
+            "payment": {
+                "title": "Pagos Seguros",
+                "description": "Múltiples opciones de pago, incluyendo Stripe, PayPal, Apple Pay y Google Pay, con seguridad de nivel bancario."
+            },
+            "expertise": {
+                "title": "Conocimiento Local",
+                "description": "Profundo conocimiento de los campos de Los Cabos con consejos sobre condiciones, clima y las mejores horas para jugar."
+            }
+        },
+        "stats": {
+            "coursesValue": "15+",
+            "coursesLabel": "Campos de Golf Premium",
+            "golfersValue": "10,000+",
+            "golfersLabel": "Golfistas Satisfechos",
+            "ratingValue": "4.9",
+            "ratingLabel": "Calificación Promedio",
+            "successRateValue": "99%",
+            "successRateLabel": "Tasa de Éxito"
+        }
+    },
     "testimonials": {
         "title": "Lo que Dicen Nuestros Golfistas",
         "subtitle": "No te fíes solo de nuestra palabra. Escucha a miles de golfistas satisfechos que han experimentado lo mejor del golf en Los Cabos a través de TeeReserve.",

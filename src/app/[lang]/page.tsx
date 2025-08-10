@@ -11,6 +11,7 @@ import { Footer } from '@/components/layout/Footer'
 import { HeroSection } from '@/components/home/HeroSection'
 import { HowItWorks } from '@/components/home/HowItWorks'
 import { Testimonials } from '@/components/home/Testimonials'
+import { WhyChooseUs } from '@/components/home/WhyChooseUs'
 
 export default async function Home({ params: { lang } }: { params: { lang: Locale }}) {
   const dictionary = await getDictionary(lang)
@@ -28,6 +29,8 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
       </div>
       
       <HowItWorks dictionary={dictionary.howItWorks} lang={lang} />
+
+      <WhyChooseUs dictionary={dictionary.whyChooseUs} />
 
       <section className="bg-background py-16 lg:py-24">
         <div className="container mx-auto px-4">
