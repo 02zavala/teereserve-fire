@@ -56,6 +56,7 @@ export default function CheckoutForm() {
         }
 
         if (date) {
+            // Client-side date formatting to prevent hydration mismatch
             setFormattedDate(format(new Date(date), "PPP"));
         }
 
@@ -160,7 +161,7 @@ export default function CheckoutForm() {
                                     </div>
                                     <div className="flex items-center">
                                         <Calendar className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span>Date: <span className="font-semibold">{formattedDate}</span></span>
+                                        <span>Date: <span className="font-semibold">{formattedDate || '...'}</span></span>
                                     </div>
                                     <div className="flex items-center">
                                         <Clock className="h-4 w-4 mr-3 text-muted-foreground" />
