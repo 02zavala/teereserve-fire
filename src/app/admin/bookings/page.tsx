@@ -26,11 +26,13 @@ function FormattedDate({ dateString }: { dateString: string }) {
     const [formattedDate, setFormattedDate] = useState('');
 
     useEffect(() => {
+        // This effect runs only on the client, after hydration
         if (dateString) {
             setFormattedDate(format(new Date(dateString), 'PPP'));
         }
     }, [dateString]);
 
+    // Render a placeholder or empty string on the server and initial client render
     return <>{formattedDate || ' '}</>;
 }
 
