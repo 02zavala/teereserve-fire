@@ -1,5 +1,5 @@
 import { Sidebar, SidebarProvider, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset } from "@/components/ui/sidebar";
-import { Home, GanttChartSquare, BookMarked, Users, Settings } from "lucide-react";
+import { Home, GanttChartSquare, BookMarked, Users, Settings, MessageSquareQuote } from "lucide-react";
 import Link from "next/link";
 import { UserNav } from "@/components/auth/UserNav";
 import { Header } from "@/components/layout/Header";
@@ -39,6 +39,14 @@ export default function AdminLayout({
                                 <Link href="/admin/bookings">
                                     <BookMarked />
                                     <span>Bookings</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                         <SidebarMenuItem>
+                            <SidebarMenuButton asChild tooltip="Reviews">
+                                <Link href="/admin/reviews">
+                                    <MessageSquareQuote />
+                                    <span>Reviews</span>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

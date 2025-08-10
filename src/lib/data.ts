@@ -1,6 +1,6 @@
-import type { GolfCourse, Review, TeeTime, Booking, BookingInput } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput } from '@/types';
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { format, startOfDay } from 'date-fns';
 
@@ -12,30 +12,6 @@ interface CourseDataInput {
     basePrice: number;
     newImages: File[];
     existingImageUrls: string[];
-}
-
-const generateReviews = (): Review[] => {
-    const reviews: Review[] = [];
-    const reviewCount = Math.floor(Math.random() * 15) + 5;
-    const sampleTexts = [
-        "An absolutely stunning course, challenging but fair. The views are breathtaking!",
-        "Well-maintained greens and friendly staff. A must-play in the area.",
-        "Played here on vacation. It was the highlight of our trip. Course is in immaculate condition.",
-        "A bit pricey, but you get what you pay for. World-class experience.",
-        "The layout is fantastic, with a great mix of holes. Can't wait to come back.",
-        "Difficult course, especially with the wind. Bring your A-game. Service was top-notch.",
-        "Beautiful scenery. The course condition was good, though some bunkers needed attention.",
-    ];
-    for(let i=0; i < reviewCount; i++) {
-        reviews.push({
-            id: `review-${i+1}`,
-            user: { name: `Golfer${i+1}`, avatarUrl: `https://i.pravatar.cc/40?u=golfer${i+1}` },
-            rating: Math.floor(Math.random() * 2) + 4, // Ratings between 4 and 5
-            text: sampleTexts[Math.floor(Math.random() * sampleTexts.length)],
-            createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-        });
-    }
-    return reviews;
 }
 
 const uploadImages = async (courseName: string, files: File[]): Promise<string[]> => {
@@ -59,13 +35,14 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
   }
 
   const courseSnapshot = await getDocs(coursesQuery);
-  const courseList = courseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GolfCourse));
+  
+  const courseListPromises = courseSnapshot.docs.map(async (docSnapshot) => {
+    const course = { id: docSnapshot.id, ...docSnapshot.data() } as GolfCourse;
+    course.reviews = await getReviewsForCourse(course.id);
+    return course;
+  });
 
-  // Still adding mock data for reviews for now
-  return courseList.map(course => ({
-      ...course,
-      reviews: generateReviews(),
-  }));
+  return Promise.all(courseListPromises);
 };
 
 export const getCourseById = async (id: string): Promise<GolfCourse | undefined> => {
@@ -75,7 +52,7 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
 
     if (courseSnap.exists()) {
         const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-        courseData.reviews = generateReviews();
+        courseData.reviews = await getReviewsForCourse(id);
         return courseData;
     } else {
         console.log("No such document!");
@@ -155,16 +132,21 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
         const batch = writeBatch(db);
         const newTimes: TeeTime[] = [];
 
-        for (const timeData of defaultTimes) {
-            const timeDocRef = doc(teeTimesCol);
+        defaultTimes.forEach(timeData => {
+            const timeDocRef = doc(teeTimesCol); // Auto-generate ID
             const newTeeTime: TeeTime = {
                 ...timeData,
                 id: timeDocRef.id,
                 date: dateString,
             };
-            batch.set(timeDocRef, newTeeTime);
+             batch.set(timeDocRef, {
+                date: newTeeTime.date,
+                time: newTeeTime.time,
+                price: newTeeTime.price,
+                status: newTeeTime.status
+            });
             newTimes.push(newTeeTime);
-        }
+        });
         await batch.commit();
         return newTimes.sort((a,b) => a.time.localeCompare(b.time));
     } else {
@@ -208,13 +190,82 @@ export async function createBooking(bookingData: BookingInput): Promise<string> 
 
 export async function getBookings(): Promise<Booking[]> {
     const bookingsCol = collection(db, 'bookings');
-    const snapshot = await getDocs(bookingsCol);
+    const snapshot = await getDocs(query(bookingsCol, orderBy('createdAt', 'desc')));
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
 }
 
 export async function getUserBookings(userId: string): Promise<Booking[]> {
     const bookingsCol = collection(db, 'bookings');
-    const q = query(bookingsCol, where('userId', '==', userId));
+    const q = query(bookingsCol, where('userId', '==', userId), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
+}
+
+// *** Review Functions ***
+
+export async function addReview(courseId: string, reviewData: ReviewInput): Promise<string> {
+    const reviewsCol = collection(db, 'courses', courseId, 'reviews');
+    const docRef = await addDoc(reviewsCol, {
+        ...reviewData,
+        approved: null, // Pending moderation
+        createdAt: new Date().toISOString(),
+        courseId,
+    });
+    return docRef.id;
+}
+
+export async function getReviewsForCourse(courseId: string, onlyApproved = true): Promise<Review[]> {
+    const reviewsCol = collection(db, 'courses', courseId, 'reviews');
+    let q = query(reviewsCol, orderBy('createdAt', 'desc'));
+
+    if (onlyApproved) {
+        q = query(reviewsCol, where('approved', '==', true), orderBy('createdAt', 'desc'));
+    }
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            user: {
+                name: data.userName,
+                avatarUrl: data.userAvatar
+            },
+            ...data
+        } as Review
+    });
+}
+
+export async function getAllReviews(): Promise<Review[]> {
+    const coursesSnapshot = await getDocs(collection(db, 'courses'));
+    const allReviews: Review[] = [];
+
+    for (const courseDoc of coursesSnapshot.docs) {
+        const courseName = courseDoc.data().name;
+        const reviewsCol = collection(db, 'courses', courseDoc.id, 'reviews');
+        const reviewsSnapshot = await getDocs(query(reviewsCol, orderBy('createdAt', 'desc')));
+        
+        reviewsSnapshot.forEach(reviewDoc => {
+            const data = reviewDoc.data();
+            allReviews.push({
+                id: reviewDoc.id,
+                courseName,
+                ...data,
+                 user: { // Ensure user object exists for type consistency
+                    name: data.userName,
+                    avatarUrl: data.userAvatar
+                },
+            } as Review);
+        });
+    }
+
+    // Sort all reviews globally by creation date
+    allReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return allReviews;
+}
+
+export async function updateReviewStatus(courseId: string, reviewId: string, approved: boolean): Promise<void> {
+    const reviewDocRef = doc(db, 'courses', courseId, 'reviews', reviewId);
+    await updateDoc(reviewDocRef, { approved });
 }

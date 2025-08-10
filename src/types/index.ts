@@ -1,13 +1,24 @@
-export interface Review {
-  id: string;
-  user: {
-    name: string;
-    avatarUrl?: string;
-  };
+export interface ReviewUserInput {
+  name: string;
+  avatarUrl?: string;
+}
+
+export interface ReviewInput {
+  userId: string;
+  userName: string;
+  userAvatar?: string | null;
   rating: number; // 1-5
   text: string;
   imageUrl?: string;
-  createdAt: string;
+}
+
+export interface Review extends ReviewInput {
+  id: string;
+  courseId: string;
+  courseName?: string; // Added for admin panel
+  user: ReviewUserInput;
+  createdAt: string; // ISO String
+  approved: boolean | null; // true: approved, false: rejected, null: pending
 }
 
 export interface TeeTime {
@@ -30,7 +41,7 @@ export interface GolfCourseInput {
 
 // This is the full course object, including related data that might be fetched separately
 export interface GolfCourse extends GolfCourseInput {
-  id: string;
+  id:string;
   reviews: Review[];
 }
 
