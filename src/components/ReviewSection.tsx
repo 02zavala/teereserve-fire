@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -13,9 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
-import { Loader2, Star } from 'lucide-react';
+import { Loader2, Star, CheckCircle, MessageSquarePlus, Upload } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { addReview } from '@/lib/data';
+import { addReview, checkIfUserHasPlayed, uploadReviewImage } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -120,7 +119,23 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [reviewText, setReviewText] = useState("");
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasPlayed, setHasPlayed] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        if(user) {
+            checkIfUserHasPlayed(user.uid, courseId).then(setHasPlayed);
+        } else {
+            setHasPlayed(false);
+        }
+    }, [user, courseId]);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -135,12 +150,18 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
 
         setIsSubmitting(true);
         try {
+            let imageUrl: string | undefined = undefined;
+            if (imageFile) {
+                imageUrl = await uploadReviewImage(courseId, user.uid, imageFile);
+            }
+
             await addReview(courseId, {
                 userId: user.uid,
                 userName: user.displayName || "Anonymous",
                 userAvatar: user.photoURL,
                 rating,
                 text: reviewText,
+                imageUrl,
             });
 
             toast({
@@ -149,6 +170,7 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
             });
             setRating(0);
             setReviewText("");
+            setImageFile(null);
             // Maybe refresh the page or show a thank you message instead of the form
         } catch (error) {
             console.error("Failed to submit review:", error);
@@ -158,11 +180,21 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
         }
     };
 
+    if (hasPlayed === null) {
+        return (
+             <Card>
+                <CardContent className="p-6 flex items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                </CardContent>
+             </Card>
+        )
+    }
+
     if (!user) {
         return (
              <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl text-primary">Write a Review</CardTitle>
+                    <CardTitle className="font-headline text-2xl text-primary flex items-center gap-2"><MessageSquarePlus/> Write a Review</CardTitle>
                     <CardDescription>You must be logged in to leave a review.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -172,10 +204,22 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
         )
     }
 
+    if (!hasPlayed) {
+         return (
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-2xl text-primary flex items-center gap-2"><MessageSquarePlus/> Write a Review</CardTitle>
+                    <CardDescription>You can only review a course after you've completed a booking here.</CardDescription>
+                </CardHeader>
+             </Card>
+        )
+    }
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-2xl text-primary">Write a Review</CardTitle>
+                <CardTitle className="font-headline text-2xl text-primary flex items-center gap-2"><CheckCircle className="text-green-500" />Tell us how it was!</CardTitle>
+                <CardDescription>You've played here. Share your experience with other golfers.</CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
                 <CardContent className="space-y-4">
@@ -196,6 +240,11 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
                     <div>
                         <Label htmlFor="review-text">Your Review</Label>
                         <Textarea id="review-text" placeholder="What did you think of the course?" value={reviewText} onChange={(e) => setReviewText(e.target.value)} />
+                    </div>
+                     <div>
+                        <Label htmlFor="review-image">Add a photo (optional)</Label>
+                        <Input id="review-image" type="file" accept="image/*" onChange={handleImageChange} className="file:text-primary"/>
+                        {imageFile && <p className="text-xs text-muted-foreground mt-1">Selected: {imageFile.name}</p>}
                     </div>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                         {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Submitting...</> : 'Submit Review'}

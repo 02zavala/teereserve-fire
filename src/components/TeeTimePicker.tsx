@@ -107,7 +107,7 @@ export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
                                 <SelectValue placeholder="Select players" />
                             </SelectTrigger>
                             <SelectContent>
-                                {[1, 2, 3, 4].map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
+                                {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>

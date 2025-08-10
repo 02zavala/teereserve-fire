@@ -1,14 +1,16 @@
+
 import { getCourseById } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { MapPin, ShieldCheck, Star } from 'lucide-react';
+import { MapPin, ShieldCheck, Star, Sun, Wind, Droplets } from 'lucide-react';
 import { TeeTimePicker } from '@/components/TeeTimePicker';
 import { ReviewSection } from '@/components/ReviewSection';
 import { Recommendations } from '@/components/Recommendations';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CourseMap } from '@/components/CourseMap';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CourseDetailPageProps {
     params: {
@@ -27,6 +29,33 @@ export async function generateMetadata({ params }: CourseDetailPageProps) {
         title: `${course.name} - TeeReserve`,
         description: course.description.substring(0, 160),
     }
+}
+
+function WeatherPlaceholder() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-2xl text-primary">Today's Forecast</CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-around items-center text-center">
+                <div className="flex flex-col items-center gap-1">
+                    <Sun className="h-8 w-8 text-yellow-500" />
+                    <span className="font-bold text-xl">78°F</span>
+                    <span className="text-sm text-muted-foreground">Sunny</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                    <Wind className="h-8 w-8 text-gray-400" />
+                    <span className="font-bold text-xl">12 mph</span>
+                    <span className="text-sm text-muted-foreground">Wind</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                    <Droplets className="h-8 w-8 text-blue-400" />
+                    <span className="font-bold text-xl">15%</span>
+                    <span className="text-sm text-muted-foreground">Humidity</span>
+                </div>
+            </CardContent>
+        </Card>
+    )
 }
 
 
@@ -78,22 +107,27 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                             <CarouselNext className="right-4" />
                         </Carousel>
                         
-                        {/* Map Section */}
-                        {course.latLng && (
-                             <div className="my-8">
-                                <h2 className="font-headline text-3xl font-semibold text-primary mb-4">Location</h2>
-                                <div className="aspect-video w-full rounded-lg overflow-hidden">
-                                    <CourseMap lat={course.latLng.lat} lng={course.latLng.lng} name={course.name} />
-                                </div>
-                            </div>
-                        )}
-
                         {/* Description & Rules */}
                         <div className="space-y-8">
                             <div>
                                 <h2 className="font-headline text-3xl font-semibold text-primary mb-4">About the Course</h2>
                                 <p className="text-base text-foreground/80 leading-relaxed">{course.description}</p>
                             </div>
+                             <div className="my-8">
+                                <h2 className="font-headline text-3xl font-semibold text-primary mb-4">Weather</h2>
+                                <WeatherPlaceholder />
+                             </div>
+                            
+                            {/* Map Section */}
+                            {course.latLng && (
+                                <div className="my-8">
+                                    <h2 className="font-headline text-3xl font-semibold text-primary mb-4">Location</h2>
+                                    <div className="aspect-video w-full rounded-lg overflow-hidden">
+                                        <CourseMap lat={course.latLng.lat} lng={course.latLng.lng} name={course.name} />
+                                    </div>
+                                </div>
+                            )}
+
                             <div>
                                 <h3 className="font-headline text-2xl font-semibold text-primary mb-4 flex items-center"><ShieldCheck className="h-6 w-6 mr-2" /> Course Rules</h3>
                                 <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{course.rules || 'Standard golf etiquette and club rules apply.'}</p>

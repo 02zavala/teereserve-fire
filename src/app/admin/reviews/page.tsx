@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
 import { ReviewActions } from "./ReviewActions";
 import { StarRating } from "@/components/StarRating";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { useEffect, useState, useTransition } from "react";
 import type { Review } from "@/types";
 import { updateReviewStatus } from "@/lib/data";
@@ -28,6 +28,7 @@ function ReviewCard({ review }: { review: Review }) {
     
     useEffect(() => {
         if (review.createdAt) {
+           // This effect runs only on the client, after hydration
            setFormattedDate(format(new Date(review.createdAt), "PPP"));
         }
     }, [review.createdAt]);

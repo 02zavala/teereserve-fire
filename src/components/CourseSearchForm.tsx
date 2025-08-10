@@ -1,3 +1,4 @@
+
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -161,7 +162,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {[1, 2, 3, 4].map(p => <SelectItem key={p} value={p.toString()}>{p} {p > 1 ? dictionary.multiplePlayers : dictionary.onePlayer}</SelectItem>)}
+                                            {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} {p > 1 ? dictionary.multiplePlayers : dictionary.onePlayer}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

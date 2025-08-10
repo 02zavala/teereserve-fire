@@ -1,6 +1,7 @@
+
 import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile } from '@/types';
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { format, startOfDay } from 'date-fns';
 
@@ -167,6 +168,13 @@ const uploadImages = async (courseName: string, files: File[]): Promise<string[]
         return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
     });
     return Promise.all(uploadPromises);
+};
+
+export const uploadReviewImage = async (courseId: string, userId: string, file: File): Promise<string> => {
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+    const storageRef = ref(storage, `reviews/${courseId}/${userId}-${Date.now()}-${cleanFileName}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return getDownloadURL(snapshot.ref);
 };
 
 // *** Firestore Data Functions ***
@@ -427,6 +435,20 @@ export async function updateReviewStatus(courseId: string, reviewId: string, app
     await updateDoc(reviewDocRef, { approved });
 }
 
+export async function checkIfUserHasPlayed(userId: string, courseId: string): Promise<boolean> {
+    if (!userId) return false;
+
+    const bookingsCol = collection(db, 'bookings');
+    const q = query(
+        bookingsCol, 
+        where('userId', '==', userId), 
+        where('courseId', '==', courseId),
+        where('status', '==', 'Completed'),
+        limit(1)
+    );
+    const snapshot = await getDocs(q);
+    return !snapshot.empty;
+}
 
 // *** User Functions ***
 export async function getUsers(): Promise<UserProfile[]> {
