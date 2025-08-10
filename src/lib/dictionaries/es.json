@@ -4,7 +4,8 @@
         "home": "Inicio",
         "findCourse": "Buscar Campo",
         "about": "Sobre Nosotros",
-        "contact": "Contacto"
+        "contact": "Contacto",
+        "recommendations": "Recomendaciones IA"
     },
     "footer": {
         "platformDescription": "La plataforma premium de reservas de golf en México. Descubre los mejores campos y vive experiencias únicas.",
@@ -29,7 +30,6 @@
         "quickLinks": "Enlaces Rápidos",
         "golfCourses": "Campos de Golf",
         "book": "Reservar",
-        "aiRecommendations": "Recomendaciones IA",
         "adminDashboard": "Panel de Administrador",
         "contactInfo": "Contacto",
         "reservations": "Reservas",

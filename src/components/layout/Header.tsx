@@ -1,6 +1,6 @@
 
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { UserNav } from "@/components/auth/UserNav";
@@ -16,6 +16,7 @@ interface HeaderProps {
         findCourse: string;
         about: string;
         contact: string;
+        recommendations: string;
     },
     lang: Locale;
 }
@@ -24,6 +25,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
     const navLinks = [
         { href: `/${lang}`, label: dictionary.home },
         { href: `/${lang}/courses`, label: dictionary.findCourse },
+        { href: `/${lang}/recommendations`, label: dictionary.recommendations, icon: Sparkles },
         { href: `/${lang}/about`, label: dictionary.about },
         { href: `/${lang}/contact`, label: dictionary.contact },
     ];
@@ -39,8 +41,9 @@ export function Header({ dictionary, lang }: HeaderProps) {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="transition-colors hover:text-foreground/80 text-foreground/60"
+                                className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-1"
                             >
+                                {link.icon && <link.icon className="h-4 w-4 text-primary" />}
                                 {link.label}
                             </Link>
                         ))}
@@ -65,7 +68,8 @@ export function Header({ dictionary, lang }: HeaderProps) {
                         <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
                             <div className="flex flex-col space-y-3">
                                 {navLinks.map(link => (
-                                    <Link key={link.href} href={link.href} className="text-foreground">
+                                    <Link key={link.href} href={link.href} className="text-foreground flex items-center gap-2">
+                                         {link.icon && <link.icon className="h-4 w-4 text-primary" />}
                                         {link.label}
                                     </Link>
                                 ))}

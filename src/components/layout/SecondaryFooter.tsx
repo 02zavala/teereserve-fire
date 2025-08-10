@@ -84,15 +84,6 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
                   {dictionary.book}
                 </Link>
               </li>
-              <li>
-                <Link 
-                  href="/recommendations" 
-                  className="text-background/80 hover:text-white transition-colors flex items-center group"
-                >
-                   <Sparkles className="w-4 h-4 mr-3 text-primary/80 group-hover:text-primary" />
-                  {dictionary.aiRecommendations}
-                </Link>
-              </li>
                <ProtectedDashboardLink dictionary={{ adminDashboard: dictionary.adminDashboard }} />
             </ul>
           </div>

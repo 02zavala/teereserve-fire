@@ -4,7 +4,8 @@
         "home": "Home",
         "findCourse": "Find a Course",
         "about": "About Us",
-        "contact": "Contact"
+        "contact": "Contact",
+        "recommendations": "AI Recommendations"
     },
     "footer": {
         "platformDescription": "The premium golf booking platform in Mexico. Discover the best courses and live unique experiences.",
@@ -29,7 +30,6 @@
         "quickLinks": "Quick Links",
         "golfCourses": "Golf Courses",
         "book": "Book",
-        "aiRecommendations": "AI Recommendations",
         "adminDashboard": "Admin Dashboard",
         "contactInfo": "Contact",
         "reservations": "Reservations",
