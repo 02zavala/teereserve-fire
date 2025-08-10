@@ -8,7 +8,7 @@ import { getCourseById } from '@/lib/data';
 import type { GolfCourse } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, User, Calendar, Clock, Users, DollarSign, ArrowLeft } from 'lucide-react';
+import { Loader2, User, Calendar, Clock, Users, DollarSign, ArrowLeft, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { createBooking } from '@/lib/data';
@@ -38,6 +38,7 @@ export default function CheckoutForm() {
     const players = searchParams.get('players');
     const price = searchParams.get('price');
     const teeTimeId = searchParams.get('teeTimeId');
+    const comments = searchParams.get('comments');
     
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
@@ -121,6 +122,7 @@ export default function CheckoutForm() {
                     totalPrice: parseFloat(price),
                     status: 'Confirmed',
                     teeTimeId,
+                    comments: comments || undefined,
                 });
 
                 toast({
@@ -188,6 +190,15 @@ export default function CheckoutForm() {
                                         <Users className="h-4 w-4 mr-3 text-muted-foreground" />
                                         <span>Players: <span className="font-semibold">{players}</span></span>
                                     </div>
+                                    {comments && (
+                                        <div className="flex items-start pt-2 border-t mt-2">
+                                            <MessageSquare className="h-4 w-4 mr-3 mt-1 text-muted-foreground" />
+                                            <div>
+                                                <span className="font-semibold">Additional Comments:</span>
+                                                <p className="text-muted-foreground text-xs italic">{comments}</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="pt-4 border-t">
                                     <PaymentElement options={paymentElementOptions} />

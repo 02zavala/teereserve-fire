@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send } from "lucide-react"
+import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send, MessageSquare, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -16,6 +16,8 @@ import { getTeeTimesForCourse } from "@/lib/data"
 import Link from "next/link"
 import { Locale } from "@/i18n-config"
 import { Skeleton } from "./ui/skeleton"
+import { Textarea } from "./ui/textarea"
+import { Label } from "./ui/label"
 
 interface TeeTimePickerProps {
     courseId: string
@@ -32,9 +34,10 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isPending, startTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
+    const [selectedTeeTime, setSelectedTeeTime] = useState<TeeTime | null>(null);
+    const [comments, setComments] = useState("");
 
     useEffect(() => {
-        // This effect runs only on the client, after hydration
         setIsClient(true);
         if (!date) {
             setDate(new Date());
@@ -43,11 +46,17 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
 
     useEffect(() => {
         if (!date) return;
+        setSelectedTeeTime(null); // Reset selection when date changes
         startTransition(async () => {
             const fetchedTeeTimes = await getTeeTimesForCourse(courseId, date, basePrice);
             setTeeTimes(fetchedTeeTimes);
         });
     }, [courseId, date, basePrice]);
+    
+    useEffect(() => {
+        setSelectedTeeTime(null); // Reset selection when time of day changes
+    }, [timeOfDay]);
+
 
     const filterTeeTimes = (times: TeeTime[], selectedTimeOfDay: TimeOfDay): TeeTime[] => {
         return times.filter(t => {
@@ -60,6 +69,12 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     }
     
     const availableTimes = filterTeeTimes(teeTimes, timeOfDay);
+    
+    const totalPrice = selectedTeeTime ? selectedTeeTime.price * (players as number) : 0;
+    
+    const bookingUrl = selectedTeeTime
+    ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date!, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${totalPrice}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
+    : '#';
 
     if (!isClient || !date) {
         return (
@@ -161,14 +176,19 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                         ) : availableTimes.length > 0 ? (
                             <div className="grid grid-cols-3 gap-2">
                                 {availableTimes.map(teeTime => {
-                                    const totalPrice = teeTime.price * (players as number);
-                                    const bookingUrl = `/book/confirm?courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${teeTime.time}&players=${players}&price=${totalPrice}&teeTimeId=${teeTime.id}`;
+                                    const isSelected = selectedTeeTime?.id === teeTime.id;
                                     return (
-                                        <Button key={teeTime.id} variant={teeTime.status === 'available' ? 'outline' : 'secondary'} className="flex flex-col h-auto" asChild disabled={teeTime.status !== 'available'}>
-                                            <Link href={bookingUrl}>
-                                                <span className="font-semibold text-base">{teeTime.time}</span>
-                                                <span className="text-xs text-muted-foreground">${totalPrice}</span>
-                                            </Link>
+                                        <Button 
+                                            key={teeTime.id} 
+                                            variant={isSelected ? 'default' : (teeTime.status === 'available' ? 'outline' : 'secondary')} 
+                                            className="flex flex-col h-auto"
+                                            disabled={teeTime.status !== 'available'}
+                                            onClick={() => setSelectedTeeTime(teeTime)}
+                                        >
+                                            <span className="font-semibold text-base">{teeTime.time}</span>
+                                            <span className={cn("text-xs", isSelected ? "text-primary-foreground/80" : "text-muted-foreground")}>
+                                                ${teeTime.price * (players as number)}
+                                            </span>
                                         </Button>
                                     )
                                 })}
@@ -176,6 +196,29 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                         ) : (
                             <div className="text-center py-8 text-muted-foreground">
                                 No available tee times for this period. Please try another selection.
+                            </div>
+                        )}
+
+                        {selectedTeeTime && (
+                            <div className="mt-6 pt-6 border-t animate-in fade-in-50">
+                                <div className="space-y-2">
+                                    <Label htmlFor="comments" className="flex items-center">
+                                        <MessageSquare className="mr-2 h-4 w-4"/>
+                                        Additional Comments (Optional)
+                                    </Label>
+                                    <Textarea
+                                        id="comments"
+                                        placeholder="e.g., Club rental needed, person with a disability, etc."
+                                        value={comments}
+                                        onChange={(e) => setComments(e.target.value)}
+                                    />
+                                </div>
+                                <Button asChild size="lg" className="w-full mt-4 font-bold text-base">
+                                     <Link href={bookingUrl}>
+                                        <CheckCircle className="mr-2 h-5 w-5" />
+                                        Book for ${totalPrice}
+                                    </Link>
+                                </Button>
                             </div>
                         )}
                     </div>

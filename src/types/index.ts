@@ -1,4 +1,5 @@
 
+
 export interface ReviewUserInput {
   name: string;
   avatarUrl?: string;
@@ -61,6 +62,7 @@ export interface BookingInput {
     totalPrice: number;
     status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
     teeTimeId: string;
+    comments?: string;
 }
 
 export interface Booking extends BookingInput {
