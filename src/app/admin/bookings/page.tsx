@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Loader2 } from "lucide-react";
 import { getBookings } from "@/lib/data";
 import type { Booking } from "@/types";
 import { format } from "date-fns";
@@ -23,29 +23,26 @@ function getStatusVariant(status: Booking['status']) {
     }
 }
 
-function FormattedDate({ dateString }: { dateString: string }) {
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
-
-    useEffect(() => {
-        // This effect runs only on the client, after hydration
-        if (dateString) {
-            setFormattedDate(format(new Date(dateString), 'PPP'));
-        }
-    }, [dateString]);
-
-    // Render a placeholder on the server and initial client render
-    if (!formattedDate) {
-        return <Skeleton className="h-4 w-24" />;
-    }
-    
-    return <>{formattedDate}</>;
+interface FormattedBooking extends Booking {
+    formattedDate?: string;
 }
 
 export default function BookingsAdminPage() {
-    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [bookings, setBookings] = useState<FormattedBooking[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getBookings().then(setBookings);
+        getBookings().then(fetchedBookings => {
+            const formatted = fetchedBookings.map(b => ({
+                ...b,
+                formattedDate: format(new Date(b.date), 'PPP')
+            }));
+            setBookings(formatted);
+            setLoading(false);
+        }).catch(err => {
+            console.error("Failed to fetch bookings", err);
+            setLoading(false);
+        });
     }, []);
     
     return (
@@ -60,43 +57,49 @@ export default function BookingsAdminPage() {
 
             <Card>
                 <CardContent className="pt-6">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Booking ID</TableHead>
-                                <TableHead>Course</TableHead>
-                                <TableHead>User</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Total</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>
-                                    <span className="sr-only">Actions</span>
-                                </TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {bookings.map(booking => (
-                                <TableRow key={booking.id}>
-                                    <TableCell className="font-medium">{booking.id.substring(0, 7)}...</TableCell>
-                                    <TableCell>{booking.courseName}</TableCell>
-                                    <TableCell>{booking.userName}</TableCell>
-                                    <TableCell>
-                                        <FormattedDate dateString={booking.date} />
-                                    </TableCell>
-                                    <TableCell>${booking.totalPrice}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                                            <MoreHorizontal className="h-4 w-4" />
-                                            <span className="sr-only">Toggle menu</span>
-                                        </Button>
-                                    </TableCell>
+                    {loading ? (
+                         <div className="flex justify-center items-center py-16">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Booking ID</TableHead>
+                                    <TableHead>Course</TableHead>
+                                    <TableHead>User</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Total</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>
+                                        <span className="sr-only">Actions</span>
+                                    </TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {bookings.map(booking => (
+                                    <TableRow key={booking.id}>
+                                        <TableCell className="font-medium">{booking.id.substring(0, 7)}...</TableCell>
+                                        <TableCell>{booking.courseName}</TableCell>
+                                        <TableCell>{booking.userName}</TableCell>
+                                        <TableCell>
+                                            {booking.formattedDate ? booking.formattedDate : <Skeleton className="h-4 w-24" />}
+                                        </TableCell>
+                                        <TableCell>${booking.totalPrice}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                                <span className="sr-only">Toggle menu</span>
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
                 </CardContent>
             </Card>
         </div>
