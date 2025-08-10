@@ -335,5 +335,46 @@
                 "content": "Estos Términos se regirán e interpretarán de acuerdo con las leyes de México, sin tener en cuenta sus disposiciones sobre conflicto de leyes. Cualquier disputa que surja de estos términos se resolverá en los tribunales de Los Cabos, B.C.S., México."
             }
         ]
+    },
+    "helpPage": {
+        "backToHome": "Volver al Inicio",
+        "title": "¿Cómo podemos ayudarte?",
+        "subtitle": "Estamos aquí para ayudarte con cualquier pregunta o problema que puedas tener. Explora nuestras opciones a continuación para encontrar la ayuda que necesitas.",
+        "whatsapp": {
+            "title": "Chatea por WhatsApp",
+            "description": "La forma más rápida de obtener ayuda. Chatea directamente con uno de nuestros concierges de golf.",
+            "buttonText": "Iniciar Chat"
+        },
+        "phone": {
+            "title": "Llámanos",
+            "description": "Habla directamente con nuestro equipo de soporte para obtener asistencia inmediata con tu reserva.",
+            "buttonText": "+52 624 135 29 86"
+        },
+        "email": {
+            "title": "Envíanos un Correo",
+            "description": "Para consultas menos urgentes, envíanos un correo electrónico y te responderemos en menos de 24 horas.",
+            "buttonText": "info@teereserve.golf"
+        },
+        "faq": {
+            "title": "Preguntas Frecuentes",
+            "questions": [
+                {
+                    "question": "¿Cómo puedo cancelar o modificar una reserva?",
+                    "answer": "Puedes modificar o cancelar tu reserva directamente desde tu perfil de usuario en 'Mis Reservas'. Ten en cuenta la política de cancelación específica de tu campo elegido, ya que algunas pueden tener restricciones."
+                },
+                {
+                    "question": "¿Está segura mi información de pago?",
+                    "answer": "Sí, absolutamente. Utilizamos Stripe, un procesador de pagos de clase mundial, para gestionar todas las transacciones. Tu información de pago está encriptada y nunca se almacena en nuestros servidores."
+                },
+                {
+                    "question": "¿Qué es la Garantía de Mejor Tarifa?",
+                    "answer": "Garantizamos que encontrarás la mejor tarifa pública disponible en nuestra plataforma. Si encuentras una tarifa más baja para el mismo tee time en otro sitio web dentro de las 24 horas posteriores a la reserva, la igualaremos y te daremos un 5% de descuento adicional en tu reserva."
+                },
+                {
+                    "question": "¿Puedo reservar para un grupo grande?",
+                    "answer": "Sí, puedes reservar para hasta 4 jugadores directamente en el sitio. Para grupos más grandes o eventos corporativos, por favor contáctanos directamente por correo electrónico o teléfono, y nuestro equipo de concierge estará encantado de ayudarte con un arreglo personalizado."
+                }
+            ]
+        }
     }
 }

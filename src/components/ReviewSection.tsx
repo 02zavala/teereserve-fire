@@ -27,7 +27,6 @@ function ReviewCard({ review }: { review: Review }) {
     const [timeAgo, setTimeAgo] = useState('');
 
     useEffect(() => {
-        // This ensures the relative time is only calculated on the client, avoiding hydration mismatch.
         if (review.createdAt) {
           setTimeAgo(formatDistanceToNow(new Date(review.createdAt)) + ' ago');
         }
