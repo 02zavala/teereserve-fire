@@ -1,4 +1,5 @@
 
+
 import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit } from 'firebase/firestore';
@@ -24,7 +25,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 150,
       imageUrls: [
-        "https://placehold.co/800x600.png",
+        "/hero-1.jpg",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
@@ -40,7 +41,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 250,
       imageUrls: [
-        "https://placehold.co/800x600.png",
+        "/hero-2.jpg",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
@@ -55,7 +56,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Dos cursos: Desert con cambios de elevación dramáticos, terreno desértico y vistas al Mar de Cortés; Ocean diseñado por Jack Nicklaus, donde el desierto se encuentra con el océano, con 7 hoyos junto a la costa. Incluye arroyos como cañones y bunkering dramático. Oasis de lujo con vistas panorámicas.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 200,
-        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        imageUrls: ['/hero-3.jpg', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
         latLng: { lat: 22.918, lng: -109.831 }
     },
     {
@@ -462,3 +463,4 @@ export async function updateUserRole(uid: string, role: UserProfile['role']): Pr
     const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, { role });
 }
+

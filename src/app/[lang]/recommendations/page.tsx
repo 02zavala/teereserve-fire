@@ -149,12 +149,12 @@ export default async function AIRecommendationsPage({ params }: RecommendationsP
                     
                     <div className="flex gap-3">
                       <Button asChild className="flex-1">
-                        <Link href={`/courses/${rec.courseId}`}>
+                        <Link href={`/${params.lang}/courses/${rec.courseId}`}>
                            {t.bookNow}
                         </Link>
                       </Button>
                       <Button asChild variant="outline">
-                         <Link href={`/courses/${rec.courseId}`}>
+                         <Link href={`/${params.lang}/courses/${rec.courseId}`}>
                             {t.viewDetails}
                         </Link>
                       </Button>

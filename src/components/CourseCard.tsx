@@ -1,3 +1,6 @@
+
+"use client";
+
 import Link from 'next/link'
 import Image from 'next/image'
 import type { GolfCourse } from '@/types'
@@ -6,21 +9,26 @@ import { Button } from '@/components/ui/button'
 import { MapPin, Star } from 'lucide-react'
 import { StarRating } from './StarRating'
 import { getDictionary } from '@/lib/get-dictionary'
+import { usePathname } from 'next/navigation'
+import type { Locale } from '@/i18n-config'
 
 interface CourseCardProps {
   course: GolfCourse,
-  dictionary: Awaited<ReturnType<typeof getDictionary>>['courseCard']
+  dictionary: Awaited<ReturnType<typeof getDictionary>>['courseCard'],
+  lang: Locale,
 }
 
-export function CourseCard({ course, dictionary }: CourseCardProps) {
+export function CourseCard({ course, dictionary, lang }: CourseCardProps) {
   const avgRating = course.reviews.length > 0
     ? course.reviews.reduce((acc, r) => acc + r.rating, 0) / course.reviews.length
     : 0;
+    
+  const courseUrl = `/${lang}/courses/${course.id}`;
 
   return (
     <Card className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
       <CardHeader className="p-0">
-        <Link href={`/courses/${course.id}`} className="block">
+        <Link href={courseUrl} className="block">
           <div className="relative h-56 w-full">
             <Image
               src={course.imageUrls[0]}
@@ -34,7 +42,7 @@ export function CourseCard({ course, dictionary }: CourseCardProps) {
       </CardHeader>
       <CardContent className="flex-grow p-4">
         <CardTitle className="mb-2 font-headline text-2xl text-primary">
-          <Link href={`/courses/${course.id}`}>{course.name}</Link>
+          <Link href={courseUrl}>{course.name}</Link>
         </CardTitle>
         <div className="flex items-center text-sm text-muted-foreground mb-2">
           <MapPin className="mr-1.5 h-4 w-4" />
@@ -50,7 +58,7 @@ export function CourseCard({ course, dictionary }: CourseCardProps) {
             {dictionary.from} <span className="text-accent">${course.basePrice}</span>
         </div>
         <Button asChild>
-          <Link href={`/courses/${course.id}`}>{dictionary.bookNow}</Link>
+          <Link href={courseUrl}>{dictionary.bookNow}</Link>
         </Button>
       </CardFooter>
     </Card>

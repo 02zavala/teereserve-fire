@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Suspense, useEffect, useState } from 'react';
 import { getCourseById } from '@/lib/data';
@@ -13,10 +13,12 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { createBooking } from '@/lib/data';
 import { format } from 'date-fns';
+import { Locale } from '@/i18n-config';
 
 function ConfirmationPageContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const pathname = usePathname();
     const { user, loading: authLoading } = useAuth();
     const { toast } = useToast();
 
@@ -31,6 +33,8 @@ function ConfirmationPageContent() {
     const players = searchParams.get('players');
     const price = searchParams.get('price');
     const teeTimeId = searchParams.get('teeTimeId');
+    
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         if (!courseId) {

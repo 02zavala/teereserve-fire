@@ -14,15 +14,17 @@ import type { TeeTime } from "@/types"
 import { cn } from "@/lib/utils"
 import { getTeeTimesForCourse } from "@/lib/data"
 import Link from "next/link"
+import { Locale } from "@/i18n-config"
 
 interface TeeTimePickerProps {
     courseId: string
-    basePrice: number
+    basePrice: number,
+    lang: Locale,
 }
 
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
-export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
+export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [players, setPlayers] = useState<number | 'group'>(2)
     const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning')
@@ -30,9 +32,11 @@ export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
     const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
-        // Set initial date on client to avoid hydration mismatch
-        setDate(new Date());
-    }, []);
+        // This effect runs only on the client, after hydration, to avoid mismatch
+        if (!date) {
+            setDate(new Date());
+        }
+    }, [date]);
 
     useEffect(() => {
         if (!date) return;
@@ -120,7 +124,7 @@ export function TeeTimePicker({ courseId, basePrice }: TeeTimePickerProps) {
                      <div className="text-center py-4 bg-primary/10 rounded-lg">
                         <p className="text-sm text-primary/90 mb-3">For groups of 8+ or tournaments, please contact us.</p>
                         <Button asChild>
-                            <Link href="/contact">
+                            <Link href={`/${lang}/contact`}>
                                <Send className="mr-2 h-4 w-4" /> Contact Us for Group Booking
                             </Link>
                         </Button>

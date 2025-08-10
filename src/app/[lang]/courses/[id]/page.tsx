@@ -11,10 +11,13 @@ import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CourseMap } from '@/components/CourseMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getDictionary } from '@/lib/get-dictionary';
+import type { Locale } from '@/i18n-config';
 
 interface CourseDetailPageProps {
     params: {
         id: string;
+        lang: Locale;
     }
 }
 
@@ -61,6 +64,8 @@ function WeatherPlaceholder() {
 
 export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
     const course = await getCourseById(params.id);
+    const dictionary = await getDictionary(params.lang);
+
 
     if (!course) {
         notFound();
@@ -138,7 +143,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                     {/* Right Column (Sidebar) */}
                     <aside className="lg:col-span-1">
                         <div className="sticky top-24 space-y-8">
-                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} />
+                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} lang={params.lang} />
                         </div>
                     </aside>
                 </div>
@@ -155,7 +160,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                         <p className="mt-2 text-lg text-muted-foreground">Other courses you may enjoy</p>
                     </div>
                     <Suspense fallback={<RecommendationSkeleton />}>
-                        <Recommendations courseId={course.id} />
+                        <Recommendations courseId={course.id} dictionary={dictionary.courseCard} lang={params.lang} />
                     </Suspense>
                 </div>
             </div>

@@ -40,7 +40,7 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {courses.slice(0, 3).map((course) => (
-              <CourseCard key={course.id} course={course} dictionary={dictionary.courseCard} />
+              <CourseCard key={course.id} course={course} dictionary={dictionary.courseCard} lang={lang} />
             ))}
           </div>
         </div>
@@ -55,7 +55,7 @@ export default async function Home({ params: { lang } }: { params: { lang: Local
              <p className="mt-2 text-lg text-muted-foreground">{dictionary.home.recommendationsSubtitle}</p>
            </div>
            <Suspense fallback={<RecommendationSkeleton />}>
-             <Recommendations dictionary={dictionary.courseCard} />
+             <Recommendations dictionary={dictionary.courseCard} lang={lang} />
            </Suspense>
          </div>
        </section>
