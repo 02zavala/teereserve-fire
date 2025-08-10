@@ -58,6 +58,9 @@ function ConfirmationPageContent() {
         if (!user || !courseId || !date || !time || !players || !price || !teeTimeId || !course) return;
         setIsBooking(true);
         try {
+            // TODO: Integrate payment processing here.
+            // For now, we simulate a successful payment and confirm the booking instantly.
+
             await createBooking({
                 userId: user.uid,
                 userName: user.displayName || user.email || 'Unknown User',
@@ -67,13 +70,13 @@ function ConfirmationPageContent() {
                 time,
                 players: parseInt(players),
                 totalPrice: parseFloat(price),
-                status: 'Pending',
+                status: 'Confirmed', // Booking is confirmed instantly
                 teeTimeId,
             });
 
             toast({
-                title: "Booking Successful!",
-                description: "Your tee time is pending confirmation. You can view it in your profile.",
+                title: "Booking Confirmed!",
+                description: "Your tee time has been successfully booked. You can view it in your profile.",
             });
             router.push('/profile');
 
@@ -138,7 +141,7 @@ function ConfirmationPageContent() {
                         </CardContent>
                         <CardFooter>
                             <Button className="w-full text-lg font-bold" onClick={handleConfirmBooking} disabled={isBooking}>
-                                {isBooking ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Processing...</> : 'Confirm Booking'}
+                                {isBooking ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Processing...</> : 'Confirm & Book Instantly'}
                             </Button>
                         </CardFooter>
                     </Card>
