@@ -1,6 +1,17 @@
-import type { GolfCourse, Review, TeeTime, GolfCourseInput } from '@/types';
-import { db } from './firebase';
+import type { GolfCourse, Review, TeeTime } from '@/types';
+import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+interface CourseDataInput {
+    name: string;
+    location: string;
+    description: string;
+    rules?: string;
+    basePrice: number;
+    newImages: File[];
+    existingImageUrls: string[];
+}
 
 const generateTeeTimes = (basePrice: number): TeeTime[] => {
   const times: TeeTime[] = [];
@@ -45,6 +56,14 @@ const generateReviews = (): Review[] => {
     return reviews;
 }
 
+const uploadImages = async (courseName: string, files: File[]): Promise<string[]> => {
+    const uploadPromises = files.map(file => {
+        const storageRef = ref(storage, `courses/${courseName.toLowerCase().replace(/\s+/g, '-')}/${file.name}`);
+        return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
+    });
+    return Promise.all(uploadPromises);
+};
+
 // *** Firestore Data Functions ***
 
 export const getCourses = async ({ location }: { location?: string }): Promise<GolfCourse[]> => {
@@ -84,20 +103,41 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
 };
 
 export const getCourseLocations = async (): Promise<string[]> => {
-    const courses = await getCourses({});
-    return [...new Set(courses.map(c => c.location))];
+    const coursesCol = collection(db, 'courses');
+    const courseSnapshot = await getDocs(coursesCol);
+    const courseList = courseSnapshot.docs.map(doc => doc.data() as GolfCourse);
+    return [...new Set(courseList.map(c => c.location))];
 }
 
-export const addCourse = async (courseData: GolfCourseInput): Promise<string> => {
+export const addCourse = async (courseData: CourseDataInput): Promise<string> => {
+    const { newImages, ...restOfData } = courseData;
+    const newImageUrls = await uploadImages(courseData.name, newImages);
+    
     const coursesCol = collection(db, 'courses');
     const docRef = await addDoc(coursesCol, {
-        ...courseData,
-        imageUrls: ['https://placehold.co/800x600.png'], // Add a default placeholder
+      name: restOfData.name,
+      location: restOfData.location,
+      description: restOfData.description,
+      rules: restOfData.rules || "",
+      basePrice: restOfData.basePrice,
+      imageUrls: newImageUrls,
     });
     return docRef.id;
 }
 
-export const updateCourse = async (courseId: string, courseData: Partial<GolfCourseInput>): Promise<void> => {
+export const updateCourse = async (courseId: string, courseData: CourseDataInput): Promise<void> => {
+    const { newImages, existingImageUrls, ...restOfData } = courseData;
+    const newImageUrls = await uploadImages(courseData.name, newImages);
+    
+    const allImageUrls = [...existingImageUrls, ...newImageUrls];
+
     const courseDocRef = doc(db, 'courses', courseId);
-    await updateDoc(courseDocRef, courseData);
+    await updateDoc(courseDocRef, {
+        name: restOfData.name,
+        location: restOfData.location,
+        description: restOfData.description,
+        rules: restOfData.rules || "",
+        basePrice: restOfData.basePrice,
+        imageUrls: allImageUrls
+    });
 }

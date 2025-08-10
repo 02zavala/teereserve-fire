@@ -14,11 +14,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { GolfCourse } from "@/types";
 import { addCourse, updateCourse } from "@/lib/data";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { ImageUploader } from "./ImageUploader";
 
 const formSchema = z.object({
   name: z.string().min(3, "Course name must be at least 3 characters."),
@@ -37,6 +39,10 @@ interface CourseFormProps {
 export function CourseForm({ course }: CourseFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>(course?.imageUrls || []);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<CourseFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,17 +55,24 @@ export function CourseForm({ course }: CourseFormProps) {
   });
 
   async function onSubmit(values: CourseFormValues) {
+    setIsSubmitting(true);
     try {
+      const courseData = {
+        ...values,
+        newImages,
+        existingImageUrls
+      };
+
       if (course) {
         // Update existing course
-        await updateCourse(course.id, values);
+        await updateCourse(course.id, courseData);
         toast({
           title: "Course Updated",
           description: `The course "${values.name}" has been saved successfully.`,
         });
       } else {
         // Create new course
-        const newCourseId = await addCourse({ ...values, imageUrls: [] });
+        await addCourse(courseData);
         toast({
           title: "Course Created",
           description: `The course "${values.name}" has been created successfully.`,
@@ -74,6 +87,8 @@ export function CourseForm({ course }: CourseFormProps) {
         description: "Failed to save the course. Please try again.",
         variant: "destructive",
       });
+    } finally {
+        setIsSubmitting(false);
     }
   }
 
@@ -129,7 +144,7 @@ export function CourseForm({ course }: CourseFormProps) {
                         )}
                     />
 
-                    <FormField
+                     <FormField
                         control={form.control}
                         name="rules"
                         render={({ field }) => (
@@ -147,7 +162,7 @@ export function CourseForm({ course }: CourseFormProps) {
                         )}
                     />
                     
-                    <FormField
+                     <FormField
                         control={form.control}
                         name="basePrice"
                         render={({ field }) => (
@@ -161,9 +176,22 @@ export function CourseForm({ course }: CourseFormProps) {
                         )}
                     />
 
+                    <FormItem>
+                        <FormLabel>Course Images</FormLabel>
+                        <FormControl>
+                           <ImageUploader 
+                             newFiles={newImages}
+                             setNewFiles={setNewImages}
+                             existingImageUrls={existingImageUrls}
+                             setExistingImageUrls={setExistingImageUrls}
+                           />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={form.formState.isSubmitting}>
-                            {form.formState.isSubmitting ? 'Saving...' : (course ? 'Save Changes' : 'Create Course')}
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Saving...' : (course ? 'Save Changes' : 'Create Course')}
                         </Button>
                     </div>
                 </form>
