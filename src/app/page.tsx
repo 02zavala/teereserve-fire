@@ -23,10 +23,10 @@ export default async function Home() {
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
           <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-6xl lg:text-7xl">
-            TeeTime Concierge
+            TeeReserve
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-primary-foreground/90 md:text-xl">
-            Your premier destination for booking exclusive golf courses in Los Cabos.
+            Tu plataforma especializada para reservar los mejores campos de golf.
           </p>
         </div>
         <div className="absolute bottom-0 left-1/2 z-20 w-full max-w-6xl -translate-x-1/2 translate-y-1/2 px-4">
@@ -51,8 +51,8 @@ export default async function Home() {
       <section className="bg-card py-16 lg:py-24">
          <div className="container mx-auto px-4">
            <div className="mb-12 text-center">
-             <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">Specially For You</h2>
-             <p className="mt-2 text-lg text-muted-foreground">AI-powered recommendations based on your preferences</p>
+             <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">Recomendado para ti</h2>
+             <p className="mt-2 text-lg text-muted-foreground">Recomendaciones de IA basadas en tus preferencias</p>
            </div>
            <Suspense fallback={<RecommendationSkeleton />}>
              <Recommendations />

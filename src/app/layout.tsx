@@ -18,7 +18,7 @@ const fontBody = PT_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'TeeTime Concierge',
+  title: 'TeeReserve',
   description: 'Book your next golf adventure in Los Cabos.',
   icons: {
     icon: '/favicon.ico',

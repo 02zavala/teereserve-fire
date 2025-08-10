@@ -29,7 +29,7 @@ export function Footer() {
                     <div className="flex items-center space-x-2">
                          <GolfIcon className="h-6 w-6 text-primary" />
                         <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                            Built by TeeTime Concierge.
+                            Built by TeeReserve.
                         </p>
                     </div>
                     <div className="flex items-center space-x-4 text-sm text-muted-foreground">
@@ -38,7 +38,7 @@ export function Footer() {
                     </div>
                 </div>
                 <div className="mt-4 text-center text-xs text-muted-foreground">
-                    © {new Date().getFullYear()} TeeTime Concierge. All rights reserved.
+                    © {new Date().getFullYear()} TeeReserve. All rights reserved.
                 </div>
             </div>
         </footer>

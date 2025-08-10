@@ -24,7 +24,6 @@ export interface GolfCourse {
   rules: string;
   basePrice: number;
   imageUrls: string[];
-  latLng: [number, number];
-  reviews: Review[];
-  teeTimes: TeeTime[];
+  reviews: Review[]; // This will be fetched separately later
+  teeTimes: TeeTime[]; // This will be fetched separately later
 }
