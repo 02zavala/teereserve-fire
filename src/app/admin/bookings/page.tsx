@@ -10,6 +10,7 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { getBookings } from "@/lib/data";
 import type { Booking } from "@/types";
 import { format } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function getStatusVariant(status: Booking['status']) {
     switch (status) {
@@ -23,7 +24,7 @@ function getStatusVariant(status: Booking['status']) {
 }
 
 function FormattedDate({ dateString }: { dateString: string }) {
-    const [formattedDate, setFormattedDate] = useState('');
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
         // This effect runs only on the client, after hydration
@@ -32,8 +33,12 @@ function FormattedDate({ dateString }: { dateString: string }) {
         }
     }, [dateString]);
 
-    // Render a placeholder or empty string on the server and initial client render
-    return <>{formattedDate || ' '}</>;
+    // Render a placeholder on the server and initial client render
+    if (!formattedDate) {
+        return <Skeleton className="h-4 w-24" />;
+    }
+    
+    return <>{formattedDate}</>;
 }
 
 export default function BookingsAdminPage() {

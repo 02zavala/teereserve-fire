@@ -85,8 +85,18 @@ export default function CheckoutForm() {
             return;
         }
 
-        const { error } = await stripe.confirmPayment({
+        const clientSecret = new URLSearchParams(window.location.search).get(
+            "payment_intent_client_secret"
+        );
+        
+        if (!clientSecret) {
+            setIsProcessing(false);
+            return;
+        }
+
+        const { error, paymentIntent } = await stripe.confirmPayment({
             elements,
+            clientSecret,
             confirmParams: {
                 return_url: `${window.location.origin}/profile`,
             },
@@ -96,7 +106,7 @@ export default function CheckoutForm() {
         if (error) {
             setErrorMessage(error.message || "An unexpected error occurred during payment.");
             setIsProcessing(false);
-        } else {
+        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
             // Payment succeeded, now create the booking in the database
             try {
                 await createBooking({
@@ -122,6 +132,8 @@ export default function CheckoutForm() {
                  setErrorMessage("Your payment was successful, but we failed to save your booking. Please contact support.");
                  setIsProcessing(false);
             }
+        } else {
+            setIsProcessing(false);
         }
     };
 
@@ -137,6 +149,10 @@ export default function CheckoutForm() {
         return <div className="text-center">Course not found.</div>;
     }
 
+    const paymentElementOptions = {
+        layout: "tabs" as const,
+        defaultCollapsed: false,
+    };
 
     return (
         <div className="container mx-auto max-w-4xl px-4 py-12">
@@ -173,7 +189,7 @@ export default function CheckoutForm() {
                                     </div>
                                 </div>
                                 <div className="pt-4 border-t">
-                                    <PaymentElement />
+                                    <PaymentElement options={paymentElementOptions} />
                                 </div>
                                 <div className="flex items-center pt-2 border-t mt-4">
                                     <DollarSign className="h-5 w-5 mr-3 text-muted-foreground" />

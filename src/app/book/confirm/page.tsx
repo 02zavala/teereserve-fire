@@ -27,8 +27,14 @@ function ConfirmationPageContent() {
             }
             try {
                 const amountInCents = Math.round(parseFloat(price) * 100);
-                const { clientSecret } = await createPaymentIntent({ amount: amountInCents, currency: 'usd' });
-                setClientSecret(clientSecret);
+                const { clientSecret: newClientSecret } = await createPaymentIntent({ amount: amountInCents, currency: 'usd' });
+                setClientSecret(newClientSecret);
+
+                // Add client secret to URL for the Payment Element
+                const currentParams = new URLSearchParams(window.location.search);
+                currentParams.set('payment_intent_client_secret', newClientSecret);
+                window.history.replaceState(null, '', `?${currentParams.toString()}`);
+
             } catch (error) {
                 console.error("Failed to create payment intent:", error);
             } finally {
