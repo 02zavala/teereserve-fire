@@ -65,6 +65,7 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
             try {
                 const [statsData, revenueChartData] = await Promise.all([
                     getDashboardStats(),
@@ -81,10 +82,18 @@ export default function DashboardPage() {
         fetchData();
     }, []);
     
-    if (loading || !stats) {
+    if (loading) {
         return (
             <div className="flex justify-center items-center h-full">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        )
+    }
+    
+    if (!stats) {
+        return (
+             <div className="flex justify-center items-center h-full">
+                <p className="text-muted-foreground">Could not load dashboard data.</p>
             </div>
         )
     }
