@@ -65,11 +65,16 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             location: "all",
-            date: new Date(),
+            // date will be set in useEffect to avoid hydration mismatch
             players: "2",
             time: "any",
         },
     })
+    
+    useEffect(() => {
+        // Set date only on the client side
+        form.setValue('date', new Date());
+    }, [form]);
     
     const lang = pathname.split('/')[1] || 'en';
 
