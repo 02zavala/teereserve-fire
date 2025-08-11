@@ -29,12 +29,14 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (user) {
+            // Safe: runs only on client
             if (user.metadata.creationTime) {
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
 
             getUserBookings(user.uid)
                 .then(userBookings => {
+                     // The formatting now happens inside a client-side useEffect, which is safe.
                     const formatted = userBookings.map(b => ({
                         ...b,
                         formattedDate: `${format(new Date(b.date), 'PPP')} at ${b.time}`
@@ -126,7 +128,9 @@ export default function ProfilePage() {
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div>
                                         <p className="font-bold text-lg">{booking.courseName}</p>
-                                        <p className="text-sm text-muted-foreground">{booking.formattedDate || <Skeleton className="h-4 w-40" />}</p>
+                                        <p className="text-sm text-muted-foreground">
+                                          {booking.formattedDate || <Skeleton className="h-4 w-40" />}
+                                        </p>
                                     </div>
                                      <div className="text-right">
                                         <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
