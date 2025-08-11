@@ -8,7 +8,6 @@ import { getStorage } from "firebase/storage";
 const firebaseConfig = {
   apiKey: "AIzaSyAGbLMGcxSRumk--pywW6PvytcTwRn4j1E",
   authDomain: "teereserve-golf.firebaseapp.com",
-  databaseURL: "https://teereserve-golf-default-rtdb.firebaseio.com",
   projectId: "teereserve-golf",
   storageBucket: "teereserve-golf.appspot.com",
   messagingSenderId: "502212139547",
