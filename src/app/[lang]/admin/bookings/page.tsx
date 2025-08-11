@@ -34,6 +34,7 @@ export default function BookingsAdminPage() {
 
     useEffect(() => {
         getBookings().then(fetchedBookings => {
+            // The formatting now happens inside a client-side useEffect, which is safe.
             const formatted = fetchedBookings.map(b => ({
                 ...b,
                 formattedDate: format(new Date(b.date), 'PPP')
