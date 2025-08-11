@@ -6,14 +6,16 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  "projectId": "teetime-concierge",
-  "appId": "1:541228309302:web:ea742ea66588057143f197",
-  "storageBucket": "teetime-concierge.appspot.com",
-  "apiKey": "AIzaSyCoAQ2ndYM9mlX5n9h8lCUMsFkEMQ_9Gmc",
-  "authDomain": "teetime-concierge.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "541228309302"
+  apiKey: "AIzaSyAGbLMGcxSRumk--pywW6PvytcTwRn4j1E",
+  authDomain: "teereserve-golf.firebaseapp.com",
+  databaseURL: "https://teereserve-golf-default-rtdb.firebaseio.com",
+  projectId: "teereserve-golf",
+  storageBucket: "teereserve-golf.appspot.com",
+  messagingSenderId: "502212139547",
+  appId: "1:502212139547:web:37ebd5c12071689b20b6be",
+  measurementId: "G-HYV3VCD0WW"
 };
+
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
