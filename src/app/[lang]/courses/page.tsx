@@ -3,7 +3,7 @@ import { getCourses } from '@/lib/data';
 import { CourseCard } from '@/components/CourseCard';
 import { CourseSearchForm } from '@/components/CourseSearchForm';
 import { getDictionary } from '@/lib/get-dictionary';
-import { Locale } from '@/i18n-config';
+import { Locale } from '@/i-config';
 import type { Metadata } from 'next';
 import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
 
@@ -12,7 +12,7 @@ interface CoursesPageProps {
     searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({ params: paramsProp, searchParams }: CoursesPageProps): Promise<Metadata> {
+export async function generateMetadata({ params: paramsProp, searchParams: searchParamsProp }: CoursesPageProps): Promise<Metadata> {
     const params = await paramsProp;
     const dictionary = await getDictionary(params.lang);
     return {
@@ -21,8 +21,9 @@ export async function generateMetadata({ params: paramsProp, searchParams }: Cou
     };
 }
 
-export default async function CoursesPage({ params: paramsProp, searchParams }: CoursesPageProps) {
+export default async function CoursesPage({ params: paramsProp, searchParams: searchParamsProp }: CoursesPageProps) {
     const params = await paramsProp;
+    const searchParams = await searchParamsProp;
     const dictionary = await getDictionary(params.lang);
     const location = typeof searchParams.location === 'string' ? searchParams.location : 'all';
 
