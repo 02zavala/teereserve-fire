@@ -37,7 +37,7 @@ export async function generateStaticParams() {
 }
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params
 }: RootLayoutProps) {
