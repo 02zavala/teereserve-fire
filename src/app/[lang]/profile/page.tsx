@@ -28,9 +28,7 @@ export default function ProfilePage() {
     const [memberSince, setMemberSince] = useState<string | null>(null);
 
     useEffect(() => {
-        // This effect runs only when the user object is available and auth is not loading.
         if (user && !authLoading) {
-            // Safe: runs only on client after auth state is confirmed
             if (user.metadata.creationTime) {
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
@@ -51,7 +49,6 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         } else if (!authLoading) {
-            // If there's no user and auth is not loading, we can stop the booking loader.
             setLoadingBookings(false);
         }
     }, [user, authLoading]);
@@ -71,6 +68,16 @@ export default function ProfilePage() {
             </div>
         )
     }
+    
+    const getInitials = () => {
+        if (user.displayName) {
+            return user.displayName.substring(0, 2).toUpperCase();
+        }
+        if (user.email) {
+            return user.email.substring(0, 2).toUpperCase();
+        }
+        return 'U';
+    }
 
     const getStatusVariant = (status: Booking['status']) => {
         switch (status) {
@@ -88,7 +95,7 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center md:flex-row md:items-start gap-8 mb-12">
                 <Avatar className="h-32 w-32 border-4 border-primary">
                     <AvatarImage src={user.photoURL || `https://i.pravatar.cc/128?u=${user.uid}`} alt={user.displayName || 'User'} />
-                    <AvatarFallback className="text-4xl">{user.displayName ? user.displayName.substring(0,2).toUpperCase() : user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback className="text-4xl">{getInitials()}</AvatarFallback>
                 </Avatar>
                 <div className="text-center md:text-left flex-1">
                     <h1 className="font-headline text-4xl font-bold text-primary">{user.displayName || 'TeeReserve User'}</h1>

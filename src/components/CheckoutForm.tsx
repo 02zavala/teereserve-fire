@@ -60,6 +60,7 @@ export default function CheckoutForm() {
             return;
         }
 
+        // Safe client-side date formatting
         if (date) {
             setFormattedDate(format(new Date(date), "PPP"));
         }

@@ -16,30 +16,12 @@ import {
 import { LogOut, User, LayoutGrid, GanttChartSquare } from 'lucide-react';
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "../ui/skeleton";
-import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { UserProfile } from "@/types";
 import { usePathname } from "next/navigation";
 
 export function UserNav() {
-  const { user, loading, logout } = useAuth();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { user, userProfile, loading, logout } = useAuth();
   const pathname = usePathname();
   const lang = pathname.split('/')[1] || 'en';
-  
-  useEffect(() => {
-    if (user) {
-      const userDocRef = doc(db, 'users', user.uid);
-      getDoc(userDocRef).then(docSnap => {
-        if (docSnap.exists()) {
-          setUserProfile(docSnap.data() as UserProfile);
-        }
-      })
-    } else {
-      setUserProfile(null);
-    }
-  }, [user]);
 
   const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
 
