@@ -1,6 +1,8 @@
 
+"use client";
+
 import Link from "next/link";
-import { Menu, Sparkles } from "lucide-react";
+import { Menu, Sparkles, GanttChartSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { UserNav } from "@/components/auth/UserNav";
@@ -8,7 +10,7 @@ import type { Locale } from "@/i18n-config";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Logo } from "../Logo";
-
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
     dictionary: {
@@ -17,11 +19,15 @@ interface HeaderProps {
         about: string;
         contact: string;
         recommendations: string;
+        admin: string;
     },
     lang: Locale;
 }
 
 export function Header({ dictionary, lang }: HeaderProps) {
+    const { userProfile } = useAuth();
+    const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
+
     const navLinks = [
         { href: `/${lang}`, label: dictionary.home },
         { href: `/${lang}/courses`, label: dictionary.findCourse },
@@ -29,6 +35,12 @@ export function Header({ dictionary, lang }: HeaderProps) {
         { href: `/${lang}/about`, label: dictionary.about },
         { href: `/${lang}/contact`, label: dictionary.contact },
     ];
+    
+    const mobileNavLinks = [...navLinks];
+    if (isAdmin) {
+        mobileNavLinks.push({ href: `/${lang}/admin/dashboard`, label: dictionary.admin, icon: GanttChartSquare });
+    }
+
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 max-w-screen-2xl items-center">
@@ -47,6 +59,15 @@ export function Header({ dictionary, lang }: HeaderProps) {
                                 {link.label}
                             </Link>
                         ))}
+                         {isAdmin && (
+                             <Link
+                                href={`/${lang}/admin/dashboard`}
+                                className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-1 font-semibold text-primary"
+                            >
+                                <GanttChartSquare className="h-4 w-4" />
+                                {dictionary.admin}
+                            </Link>
+                         )}
                     </nav>
                 </div>
 
@@ -67,7 +88,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
                         </Link>
                         <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
                             <div className="flex flex-col space-y-3">
-                                {navLinks.map(link => (
+                                {mobileNavLinks.map(link => (
                                     <Link key={link.href} href={link.href} className="text-foreground flex items-center gap-2">
                                          {link.icon && <link.icon className="h-4 w-4 text-primary" />}
                                         {link.label}

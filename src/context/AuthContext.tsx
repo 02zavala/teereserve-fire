@@ -22,6 +22,7 @@ import type { UserProfile } from '@/types';
 
 interface AuthContextType {
     user: User | null;
+    userProfile: UserProfile | null;
     loading: boolean;
     login: (email: string, pass: string) => Promise<any>;
     signup: (email: string, pass: string, displayName: string) => Promise<any>;
@@ -36,7 +37,6 @@ const createUserInFirestore = async (userCredential: UserCredential) => {
     const userDocRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userDocRef);
 
-    // Only create a new document if one doesn't already exist (e.g., for Google Sign-In)
     if (!userDoc.exists()) {
         const role: UserProfile['role'] = user.email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer';
         await setDoc(userDocRef, {
@@ -53,12 +53,24 @@ const createUserInFirestore = async (userCredential: UserCredential) => {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
+            if (user) {
+                const userDocRef = doc(db, 'users', user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists()) {
+                    setUserProfile(docSnap.data() as UserProfile);
+                } else {
+                    setUserProfile(null);
+                }
+            } else {
+                setUserProfile(null);
+            }
             setLoading(false);
         });
 
@@ -73,28 +85,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         await updateProfile(userCredential.user, { displayName });
         
-        // Update user object to reflect display name immediately
         const updatedUser = { ...userCredential.user, displayName };
         setUser(updatedUser);
         
         const role: UserProfile['role'] = email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer';
-
-        // Now create firestore doc with the updated info
-        const userDocRef = doc(db, 'users', updatedUser.uid);
-        await setDoc(userDocRef, {
+        const profile: UserProfile = {
             uid: updatedUser.uid,
             email: updatedUser.email,
             displayName: updatedUser.displayName,
             photoURL: updatedUser.photoURL,
             role: role,
             createdAt: new Date().toISOString(),
-        });
+        };
+
+        const userDocRef = doc(db, 'users', updatedUser.uid);
+        await setDoc(userDocRef, profile);
+        setUserProfile(profile);
 
         return userCredential;
     };
     
     const logout = async () => {
         await signOut(auth);
+        setUser(null);
+        setUserProfile(null);
         router.push('/');
     };
 
@@ -107,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const value = {
         user,
+        userProfile,
         loading,
         login,
         signup,
