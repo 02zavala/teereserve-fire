@@ -34,7 +34,13 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
         // Safe client-side date formatting to prevent hydration mismatch.
         if (booking.date) {
             try {
-                setFormattedDate(format(new Date(booking.date), 'PPP'));
+                // Ensure date is treated as a valid Date object before formatting
+                const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
+                if (!isNaN(dateObj.getTime())) {
+                    setFormattedDate(format(dateObj, 'PPP'));
+                } else {
+                    throw new Error("Invalid date value");
+                }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
                 setFormattedDate("Invalid Date");

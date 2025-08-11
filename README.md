@@ -1,82 +1,160 @@
-# TeeReserve Golf - Premium Golf Booking Platform
+# TeeReserve Golf - Premium Golf Booking Platform (Enterprise Vision)
 
-TeeReserve Golf is a modern, full-stack web application designed to provide a premium booking experience for tee times at the most exclusive golf courses in Los Cabos, Mexico. The application is built from the ground up using a state-of-the-art technology stack to ensure performance, scalability, and an exceptional user experience.
+TeeReserve Golf is evolving from a premium booking application into a scalable, secure, and robust multi-tenant SaaS platform for enterprise-level golf course management in Los Cabos, Mexico, and beyond. This document outlines the architectural vision and strategic plan for this transformation.
 
-## Tech Stack
+## Core Pillars of the Enterprise Solution
 
-- **Core Framework**: **Next.js 15** with the **App Router**, enabling ultra-fast navigation and optimized server-side and client-side rendering.
-- **User Interface**: **Tailwind CSS** combined with the **ShadCN UI** component library, creating an elegant, modern, and fully responsive interface.
-- **Backend & Database**: **Firebase** serves as the core of the application, managing:
-    - **Authentication**: Secure login and registration system with email/password and providers like Google.
-    - **Firestore**: Real-time NoSQL database for storing all information about golf courses, bookings, tee time availability, and user profiles.
-    - **Storage**: Cloud storage for all golf course images and photos uploaded by users in their reviews.
-- **AI-Powered Features**: **Google Genkit** is used to power advanced features, such as:
-    - **Personalized Recommendations**: An AI system that suggests golf courses to users based on their preferences and context.
-    - **Content Moderation**: An AI agent that analyzes user reviews for spam or toxic content, assisting administrators.
-- **Payment Processing**: Full and secure integration with **Stripe** to manage the entire payment flow for bookings, from creating the payment intent to final confirmation.
+1.  **Multi-Tenant Architecture:** Support multiple golf courses, each with its own subdomain, branding, and custom configurations.
+2.  **Enterprise-Grade Security:** Achieve PCI DSS Level 1 compliance with advanced fraud detection and robust security protocols.
+3.  **Superior User Experience:** Deliver a high-performance Progressive Web App (PWA) with offline capabilities and real-time features.
+4.  **Data-Driven Operations:** Provide a comprehensive analytics dashboard for real-time business intelligence.
+5.  **Extensibility and Integration:** Offer public APIs for seamless integration with external systems.
+6.  **AI & Automation:** Leverage artificial intelligence for dynamic pricing, demand forecasting, and personalized marketing.
 
-## Key Features
+---
 
-### Customer-Facing Site
+## 1. System Architecture (Multi-Tenant)
 
-- **User Authentication**: Complete flow for registration, login, and profile management.
-- **Course Exploration & Search**: A dedicated page to view all golf courses, with a powerful search form to filter by location, date, and number of players.
-- **Detailed Course Pages**: Each course has its own page with an image gallery, detailed description, rules, location map (Google Maps), a weather forecast widget, and the tee time booking system.
-- **Real-Time Booking System**: Users can select a date and view real-time availability of tee times with dynamic pricing.
-- **Secure Payment Flow**: Integrated payment process with Stripe to securely confirm and pay for bookings.
-- **Review System**: Users who have played a course can leave a rating and a review, which then undergoes a moderation process.
+The platform is built on a multi-tenant architecture where each golf course (a "tenant") operates within a shared infrastructure but with data and branding isolation.
 
-### Comprehensive Admin Panel
+**Data Structuring (Firestore):**
 
-- **Main Dashboard**: An overview with key business statistics.
-- **Golf Course Management**: A full CRUD (Create, Read, Update, Delete) system to add new courses, edit their information, pricing, and upload images.
-- **Availability Management**: An interface for administrators to view and modify the availability and prices of tee times for any given day.
-- **Booking Management**: A list of all bookings made on the platform.
-- **Review Moderation**: A panel to view all user-submitted reviews, assisted by AI, to approve or reject them.
-- **User Management**: A list of all registered users, with the ability to change their roles (e.g., from Customer to Admin).
-
-## Project Structure
-
-Here is an overview of the most important files and directories in the project:
+The Firestore database is structured around a `tenantId` (which is the `courseId`) to ensure strict data segregation.
 
 ```
-/
-├── public/                 # Static assets like images, logos, and fonts.
-├── src/
-│   ├── ai/                 # AI-related logic using Genkit.
-│   │   ├── flows/          # Genkit flows for AI agents (recommendations, moderation).
-│   │   └── genkit.ts       # Genkit configuration.
-│   │
-│   ├── app/                # Next.js App Router directory.
-│   │   ├── [lang]/         # Dynamic route for internationalization (i18n).
-│   │   │   ├── admin/      # Routes for the admin panel.
-│   │   │   ├── book/       # Routes for the booking and payment process.
-│   │   │   ├── courses/    # Routes for course listing and details pages.
-│   │   │   ├── (page).tsx  # Main application pages (Home, About, Contact, etc.).
-│   │   │   └── layout.tsx  # Main layout for the customer-facing site.
-│   │   │
-│   │   ├── globals.css     # Global styles and Tailwind CSS directives.
-│   │   └── layout.tsx      # Root layout of the entire application.
-│   │
-│   ├── components/         # Reusable React components.
-│   │   ├── admin/          # Components used exclusively in the admin panel.
-│   │   ├── auth/           # Authentication components (Login, Signup forms).
-│   │   ├── home/           # Components specific to the homepage.
-│   │   ├── layout/         # Layout components (Header, Footer, Theme switcher).
-│   │   └── ui/             # ShadCN UI components (Button, Card, etc.).
-│   │
-│   ├── context/            # Global React contexts (Authentication, App Providers).
-│   ├── hooks/              # Custom React hooks.
-│   ├── lib/                # Core logic, utilities, and configurations.
-│   │   ├── dictionaries/   # JSON files for i18n translations.
-│   │   ├── data.ts         # Main data-fetching and Firestore interaction logic.
-│   │   ├── firebase.ts     # Firebase SDK initialization.
-│   │   └── utils.ts        # Utility functions.
-│   │
-│   ├── types/              # TypeScript type definitions.
-│   └── i18n-config.ts      # Configuration for internationalization.
-│
-├── next.config.ts          # Next.js configuration file.
-├── tailwind.config.ts      # Tailwind CSS configuration.
-└── README.md               # This file.
+/courses/{courseId}  // Represents a Tenant
+  - name: "Palmilla Golf Club"
+  - subdomain: "palmilla"
+  - branding: { primaryColor: "#...", logoUrl: "..." }
+  - settings: { operatingHours: [...], bookingPolicy: "...", currency: "usd" }
+  - (other course-specific data...)
+
+  // Subcollections for tenant-specific data
+  /courses/{courseId}/teeTimes/{date_time}
+  /courses/{courseId}/bookings/{bookingId}
+  /courses/{courseId}/reviews/{reviewId}
+
+/users/{userId}
+  - email: "user@example.com"
+  - displayName: "John Doe"
+  - roles: {
+      "{courseId}": "Admin",        // User is an Admin for a specific course
+      "{anotherCourseId}": "Staff"
+    }
 ```
+
+**Subdomain Handling (Next.js Middleware):**
+
+The Next.js middleware (`src/middleware.ts`) is responsible for identifying the tenant based on the request's hostname (e.g., `palmilla.teereserve.golf`). It extracts the subdomain, maps it to a `courseId`, and rewrites the request internally. This allows the application to dynamically load the correct branding, settings, and data for the active tenant.
+
+---
+
+## 2. Security Strategy
+
+Security is paramount. The platform is designed to meet PCI DSS Level 1 standards and protect against modern threats.
+
+-   **PCI DSS Compliance:**
+    -   **Payment Processing:** All payment processing is delegated to **Stripe**, which is PCI DSS Level 1 certified. Sensitive cardholder data is sent directly to Stripe's servers via tokenization (using Stripe Elements) and never touches our application servers.
+    -   **3D Secure:** Stripe Payments is configured to automatically trigger 3D Secure for transactions that meet certain risk criteria, adding a crucial layer of authentication.
+    -   **TLS 1.3:** All traffic is enforced to use TLS 1.3 through Firebase Hosting and Cloudflare configurations.
+
+-   **AI-Powered Fraud Detection:**
+    -   A **Genkit Flow** will be created to analyze booking attempts before payment. This flow will score the transaction's risk based on factors like: amount, location mismatch (IP vs. billing), user history, and time of day.
+    -   Based on the risk score, the system will automatically:
+        1.  **Approve:** Low-risk transactions proceed directly.
+        2.  **Challenge:** Medium-risk transactions are forced to complete 3D Secure.
+        3.  **Manual Review:** High-risk transactions are flagged for admin review.
+        4.  **Block:** Extremely high-risk attempts are blocked.
+
+-   **Infrastructure Security:**
+    -   **Firebase Security Rules:** Firestore access is rigorously controlled with rules that enforce tenant data isolation (e.g., a user can only access data related to their `courseId`).
+    -   **Firebase App Check:** Ensures that requests to our backend originate from our legitimate app, preventing abuse.
+    -   **Cloudflare WAF & DDoS Protection:** Firebase Hosting's integration with Cloudflare provides an enterprise-grade Web Application Firewall and robust protection against DDoS attacks.
+
+---
+
+## 3. Technology Stack
+
+The solution leverages a modern, serverless, and highly scalable tech stack.
+
+-   **Frontend:** **Next.js 15 (App Router)** with React, Tailwind CSS, and ShadCN UI.
+-   **Backend & AI:** **Google Genkit** for orchestrating AI flows and server-side logic, running on serverless infrastructure.
+-   **Database:** **Firebase Firestore** for scalable, real-time NoSQL data storage.
+-   **Authentication:** **Firebase Authentication** with support for email/password, OAuth, and role-based access control (RBAC).
+-   **File Storage:** **Firebase Storage** for course images and user-uploaded content.
+-   **Payments:** **Stripe** for secure, PCI-compliant payment processing.
+-   **Hosting & CDN:** **Firebase Hosting** for global, low-latency content delivery, automatically configured with a CDN and SSL.
+
+---
+
+## 4. Progressive Web App (PWA) & Offline Support
+
+The application is a fully-featured PWA to provide a native-app-like experience.
+
+-   **Service Workers:** A service worker (`next-pwa`) caches critical application assets (shell, static data) to enable offline browsing of course information and previously viewed data.
+-   **Offline Data Sync:** Key user data, like their own bookings, are stored locally using IndexedDB. When the user is offline, they can still view their upcoming reservations. Any actions made offline (like drafting a review) are queued and synced automatically when connectivity is restored.
+-   **Push Notifications:** Firebase Cloud Messaging (FCM) is used to send push notifications for booking confirmations, reminders, and special offers.
+
+---
+
+## 5. Analytics Dashboard
+
+The admin panel features a real-time analytics dashboard with advanced visualizations.
+
+-   **Real-Time Metrics:**
+    -   **Revenue:** Aggregated in real-time using Firebase Extensions that sync data to a dedicated analytics store (like BigQuery).
+    -   **Occupancy Rate:** Calculated via scheduled functions that analyze `teeTimes` status.
+    -   **Net Promoter Score (NPS):** Collected via post-booking surveys.
+-   **Visualizations:**
+    -   **Charts & Graphs:** Using `shadcn/charts` and Recharts to display trends in revenue, bookings, and user growth.
+    -   **Heatmaps:** A visual representation of tee time popularity by day and hour.
+
+---
+
+## 6. Public APIs & Integrations
+
+-   **RESTful API:**
+    -   Firebase Functions are used to expose RESTful endpoints for public consumption (e.g., `GET /api/courses/{courseId}/availability`).
+    -   **Authentication:** Access is managed via secure, tenant-specific API keys.
+    -   **Documentation:** An OpenAPI (Swagger) specification is auto-generated and hosted for developers.
+-   **Webhooks:** The system can send webhook notifications to external services on events like `booking.confirmed`.
+-   **External Integrations:**
+    -   **Google Calendar:** Users can one-click add their booking to their Google Calendar.
+    -   **WhatsApp Business:** Automated booking confirmations and reminders are sent via the WhatsApp API.
+    -   **Stripe Radar:** Integrated for advanced, pre-built fraud detection rules.
+
+---
+
+## 7. Installation and Deployment
+
+**Local Development:**
+
+1.  **Prerequisites:** Node.js, Firebase CLI.
+2.  **Clone Repository:** `git clone ...`
+3.  **Install Dependencies:** `npm install`
+4.  **Environment Variables:** Create a `.env.local` file from `.env.example` and populate it with your Firebase project configuration and API keys (Stripe, Google Maps).
+5.  **Run Development Server:** `npm run dev`
+
+**Production Deployment:**
+
+Deployment is fully automated via Firebase Hosting.
+
+1.  **Connect to Firebase:** `firebase use <your-project-id>`
+2.  **Build Project:** `npm run build`
+3.  **Deploy:** `firebase deploy --only hosting`
+
+Firebase automatically handles provisioning the serverless infrastructure, CDN configuration, and SSL certificate.
+
+---
+
+## 8. Support and Monitoring Strategy
+
+-   **24/7 Monitoring:**
+    -   **Google Cloud Operations (formerly Stackdriver):** Provides comprehensive logging, monitoring, and alerting for all Firebase services.
+    -   **Alerts:** Automated alerts are configured for critical events, such as error spikes, high latency, or security rule denials.
+-   **User Support:**
+    -   Integrated help desk functionality.
+    -   Real-time chat support via WhatsApp Business API.
+-   **Uptime & Status:** A public status page will report on the health of all system components.
+
+    
