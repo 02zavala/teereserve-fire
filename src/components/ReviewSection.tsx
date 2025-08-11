@@ -23,7 +23,7 @@ interface ReviewSectionProps {
 }
 
 function ReviewCard({ review }: { review: Review }) {
-    const [timeAgo, setTimeAgo] = useState('');
+    const [timeAgo, setTimeAgo] = useState<string | null>(null);
 
     useEffect(() => {
         // This effect runs only on the client, after hydration

@@ -28,15 +28,16 @@ export default function ProfilePage() {
     const [memberSince, setMemberSince] = useState<string | null>(null);
 
     useEffect(() => {
-        if (user) {
-            // Safe: runs only on client
+        // This effect runs only when the user object is available and auth is not loading.
+        if (user && !authLoading) {
+            // Safe: runs only on client after auth state is confirmed
             if (user.metadata.creationTime) {
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
 
+            setLoadingBookings(true);
             getUserBookings(user.uid)
                 .then(userBookings => {
-                     // The formatting now happens inside a client-side useEffect, which is safe.
                     const formatted = userBookings.map(b => ({
                         ...b,
                         formattedDate: `${format(new Date(b.date), 'PPP')} at ${b.time}`
@@ -50,6 +51,7 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         } else if (!authLoading) {
+            // If there's no user and auth is not loading, we can stop the booking loader.
             setLoadingBookings(false);
         }
     }, [user, authLoading]);

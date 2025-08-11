@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true);
             setUser(user);
             if (user) {
                 const userDocRef = doc(db, 'users', user.uid);
@@ -66,7 +67,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (docSnap.exists()) {
                     setUserProfile(docSnap.data() as UserProfile);
                 } else {
-                    setUserProfile(null);
+                    // This case can happen if a user is created in Auth but not in Firestore.
+                    // We'll create their profile now.
+                    const profile: UserProfile = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        role: user.email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer',
+                        createdAt: new Date().toISOString(),
+                    };
+                    await setDoc(userDocRef, profile);
+                    setUserProfile(profile);
                 }
             } else {
                 setUserProfile(null);
@@ -86,6 +98,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await updateProfile(userCredential.user, { displayName });
         
         const updatedUser = { ...userCredential.user, displayName };
+        // We set the user object directly for immediate UI update.
+        // The onAuthStateChanged listener will handle fetching/creating the Firestore profile.
         setUser(updatedUser);
         
         const role: UserProfile['role'] = email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer';
