@@ -3,7 +3,7 @@ import { getCourses } from '@/lib/data';
 import { CourseCard } from '@/components/CourseCard';
 import { CourseSearchForm } from '@/components/CourseSearchForm';
 import { getDictionary } from '@/lib/get-dictionary';
-import { Locale } from '@/i-config';
+import { Locale } from '@/i18n-config';
 import type { Metadata } from 'next';
 import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
 
@@ -14,6 +14,7 @@ interface CoursesPageProps {
 
 export async function generateMetadata({ params: paramsProp, searchParams: searchParamsProp }: CoursesPageProps): Promise<Metadata> {
     const params = await paramsProp;
+    const searchParams = await searchParamsProp; // Await searchParams
     const dictionary = await getDictionary(params.lang);
     return {
         title: `${dictionary.coursesPage.title} - TeeReserve`,
