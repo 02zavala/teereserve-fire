@@ -7,6 +7,7 @@ import { Facebook, Twitter, Instagram, Mail, Phone, Globe, MapPin } from 'lucide
 import type { getDictionary } from "@/lib/get-dictionary";
 import { ProtectedDashboardLink } from "./ProtectedDashboardLink";
 import { Logo } from "../Logo";
+import { useAuth } from "@/context/AuthContext";
 
 
 interface FooterProps {
@@ -16,11 +17,14 @@ interface FooterProps {
 
 export function Footer({ dictionary }: FooterProps) {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     // This effect runs only on the client, after hydration
     setCurrentYear(new Date().getFullYear());
   }, []);
+
+  const reservationsLink = user ? "/profile#bookings" : "/login";
 
   return (
     <footer className="bg-card text-card-foreground border-t">
@@ -50,7 +54,7 @@ export function Footer({ dictionary }: FooterProps) {
               </li>
               <li>
                 <Link 
-                  href="/courses" 
+                  href={reservationsLink}
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {dictionary.footer.reservations}
