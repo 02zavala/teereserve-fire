@@ -28,18 +28,45 @@ interface FormattedBooking extends Omit<Booking, 'date'> {
     formattedDate?: string;
 }
 
+function BookingRow({ booking }: { booking: FormattedBooking }) {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Safe client-side date formatting to prevent hydration mismatch.
+        if (booking.date) {
+            setFormattedDate(format(new Date(booking.date), 'PPP'));
+        }
+    }, [booking.date]);
+
+    return (
+        <TableRow>
+            <TableCell className="font-medium">{booking.id.substring(0, 7)}...</TableCell>
+            <TableCell>{booking.courseName}</TableCell>
+            <TableCell>{booking.userName}</TableCell>
+            <TableCell>
+                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
+            </TableCell>
+            <TableCell>${booking.totalPrice}</TableCell>
+            <TableCell>
+                <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+            </TableCell>
+            <TableCell>
+                <Button aria-haspopup="true" size="icon" variant="ghost">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
+                </Button>
+            </TableCell>
+        </TableRow>
+    );
+}
+
 export default function BookingsAdminPage() {
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         getBookings().then(fetchedBookings => {
-            // The formatting now happens inside a client-side useEffect, which is safe.
-            const formatted = fetchedBookings.map(b => ({
-                ...b,
-                formattedDate: format(new Date(b.date), 'PPP')
-            }));
-            setBookings(formatted);
+            setBookings(fetchedBookings);
             setLoading(false);
         }).catch(err => {
             console.error("Failed to fetch bookings", err);
@@ -80,24 +107,7 @@ export default function BookingsAdminPage() {
                             </TableHeader>
                             <TableBody>
                                 {bookings.map(booking => (
-                                    <TableRow key={booking.id}>
-                                        <TableCell className="font-medium">{booking.id.substring(0, 7)}...</TableCell>
-                                        <TableCell>{booking.courseName}</TableCell>
-                                        <TableCell>{booking.userName}</TableCell>
-                                        <TableCell>
-                                            {booking.formattedDate ? booking.formattedDate : <Skeleton className="h-4 w-24" />}
-                                        </TableCell>
-                                        <TableCell>${booking.totalPrice}</TableCell>
-                                        <TableCell>
-                                            <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                <MoreHorizontal className="h-4 w-4" />
-                                                <span className="sr-only">Toggle menu</span>
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
+                                    <BookingRow key={booking.id} booking={booking} />
                                 ))}
                             </TableBody>
                         </Table>
