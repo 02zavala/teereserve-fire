@@ -25,7 +25,7 @@ export function UserNav() {
 
   const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
 
-  if (loading) {
+  if (loading && !user) {
     return <Skeleton className="h-8 w-8 rounded-full" />
   }
 
