@@ -1,0 +1,21 @@
+{
+  "name": "TeeReserve Golf",
+  "short_name": "TeeReserve",
+  "description": "Premium Golf Booking Platform in Los Cabos, Mexico.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#052e16",
+  "theme_color": "#c4a35a",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

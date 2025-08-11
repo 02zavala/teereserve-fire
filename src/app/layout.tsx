@@ -18,6 +18,7 @@ const fontBody = PT_Sans({
 export const metadata: Metadata = {
   title: 'TeeReserve',
   description: 'Book your next golf adventure in Los Cabos.',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.ico',
   },
