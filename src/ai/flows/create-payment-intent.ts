@@ -35,9 +35,12 @@ const createPaymentIntentFlow = ai.defineFlow(
     },
     async (input) => {
         try {
+            // Ensure default values from the schema are applied
+            const validatedInput = CreatePaymentIntentInputSchema.parse(input);
+
             const paymentIntent = await stripe.paymentIntents.create({
-                amount: input.amount,
-                currency: input.currency,
+                amount: validatedInput.amount,
+                currency: validatedInput.currency,
                 automatic_payment_methods: { enabled: true },
             });
 
