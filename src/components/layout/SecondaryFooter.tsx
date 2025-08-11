@@ -16,6 +16,7 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
 
   useEffect(() => {
+    // This effect runs only on the client, after hydration
     setCurrentYear(new Date().getFullYear());
   }, []);
   
@@ -147,7 +148,7 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
 
         <div className="border-t border-white/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="text-background/80 text-sm">
+            <div className="text-background/80 text-sm min-h-[20px]">
               {currentYear ? `© ${currentYear} TeeReserve Golf. ${dictionary.allRightsReserved}` : '\u00A0'}
             </div>
             <div className="flex flex-wrap gap-6">
