@@ -21,6 +21,46 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
     formattedDate?: string;
 }
 
+function BookingRow({ booking }: { booking: FormattedBooking }) {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Safe client-side date formatting to prevent hydration mismatch.
+        if (booking.date && booking.time) {
+            setFormattedDate(`${format(new Date(booking.date), 'PPP')} at ${booking.time}`);
+        }
+    }, [booking.date, booking.time]);
+
+    const getStatusVariant = (status: Booking['status']) => {
+        switch (status) {
+            case 'Confirmed': return 'default';
+            case 'Completed': return 'secondary';
+            case 'Cancelled': return 'destructive';
+            case 'Pending':
+            default:
+                return 'outline';
+        }
+    }
+
+    return (
+        <Card>
+            <CardContent className="p-4 flex items-center justify-between">
+                <div>
+                    <p className="font-bold text-lg">{booking.courseName}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-40" />}
+                    </p>
+                </div>
+                 <div className="text-right">
+                    <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                    <Button variant="link" size="sm" className="mt-1">View Details</Button>
+                 </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+
 export default function ProfilePage() {
     const { user, loading: authLoading } = useAuth();
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
@@ -37,11 +77,7 @@ export default function ProfilePage() {
             setLoadingBookings(true);
             getUserBookings(user.uid)
                 .then(userBookings => {
-                    const formatted = userBookings.map(b => ({
-                        ...b,
-                        formattedDate: `${format(new Date(b.date), 'PPP')} at ${b.time}`
-                    }));
-                    setBookings(formatted);
+                    setBookings(userBookings);
                 })
                 .catch(err => {
                     console.error("Failed to fetch bookings", err);
@@ -78,17 +114,6 @@ export default function ProfilePage() {
             return user.email.substring(0, 2).toUpperCase();
         }
         return 'U';
-    }
-
-    const getStatusVariant = (status: Booking['status']) => {
-        switch (status) {
-            case 'Confirmed': return 'default';
-            case 'Completed': return 'secondary';
-            case 'Cancelled': return 'destructive';
-            case 'Pending':
-            default:
-                return 'outline';
-        }
     }
 
     return (
@@ -134,20 +159,7 @@ export default function ProfilePage() {
                         ))
                     ) : bookings.length > 0 ? (
                         bookings.map(booking => (
-                            <Card key={booking.id}>
-                                <CardContent className="p-4 flex items-center justify-between">
-                                    <div>
-                                        <p className="font-bold text-lg">{booking.courseName}</p>
-                                        <p className="text-sm text-muted-foreground">
-                                          {booking.formattedDate || <Skeleton className="h-4 w-40" />}
-                                        </p>
-                                    </div>
-                                     <div className="text-right">
-                                        <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
-                                        <Button variant="link" size="sm" className="mt-1">View Details</Button>
-                                     </div>
-                                </CardContent>
-                            </Card>
+                           <BookingRow key={booking.id} booking={booking} />
                         ))
                     ) : (
                         <p className="text-center text-muted-foreground">You have no upcoming bookings.</p>

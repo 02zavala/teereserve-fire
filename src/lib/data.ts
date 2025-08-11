@@ -69,7 +69,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Instalación de 27 hoyos con tres combinaciones de 18, diseñadas por Jack Nicklaus y Greg Norman. Fairways ondulantes, greens elevados y vistas al Mar de Cortés. Incluye comida/drink stations gratuitas cada pocos hoyos. Ubicado en una comunidad planificada de 2,000 acres.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 180,
-        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        imageUrls: ['/hero-4.jpg', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
         latLng: { lat: 23.064, lng: -109.682 }
     },
     {

@@ -25,7 +25,8 @@ interface HeroSectionProps {
 const heroImages = [
     '/hero-1.jpg',
     '/hero-2.jpg',
-    '/hero-3.jpg'
+    '/hero-3.jpg',
+    '/hero-4.jpg'
 ]
 
 export function HeroSection({ dictionary, lang }: HeroSectionProps) {
@@ -48,7 +49,7 @@ export function HeroSection({ dictionary, lang }: HeroSectionProps) {
                     data-ai-hint="golf course sunrise"
                     fill
                     className="object-cover object-center"
-                    priority={index === 0}
+                    priority={true}
                 />
             </CarouselItem>
           ))}
