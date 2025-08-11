@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +30,9 @@ export function LoginForm() {
   const { toast } = useToast()
   const { login, googleSignIn } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const lang = pathname.split('/')[1] || 'en'
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,7 +48,7 @@ export function LoginForm() {
         title: "Logged In",
         description: "Welcome back!",
       })
-      router.push("/profile")
+      router.push(`/${lang}/profile`)
     } catch (error) {
        console.error("Login failed:", error)
        let description = "An unexpected error occurred. Please try again."
@@ -75,7 +78,7 @@ export function LoginForm() {
         title: "Logged In",
         description: "Welcome!",
       });
-      router.push("/profile");
+      router.push(`/${lang}/profile`);
     } catch (error) {
       console.error("Google Sign-In failed:", error);
       toast({
