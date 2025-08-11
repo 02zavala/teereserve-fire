@@ -25,7 +25,6 @@ function getStatusVariant(status: Booking['status']) {
 
 interface FormattedBooking extends Omit<Booking, 'date'> {
     date: string | Date;
-    formattedDate?: string;
 }
 
 function BookingRow({ booking }: { booking: FormattedBooking }) {
@@ -34,9 +33,14 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
     useEffect(() => {
         // Safe client-side date formatting to prevent hydration mismatch.
         if (booking.date) {
-            setFormattedDate(format(new Date(booking.date), 'PPP'));
+            try {
+                setFormattedDate(format(new Date(booking.date), 'PPP'));
+            } catch (e) {
+                console.error("Invalid date format for booking:", booking.id, booking.date);
+                setFormattedDate("Invalid Date");
+            }
         }
-    }, [booking.date]);
+    }, [booking.date, booking.id]);
 
     return (
         <TableRow>
