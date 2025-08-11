@@ -18,6 +18,7 @@ import {
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import type { UserProfile } from '@/types';
 
 interface AuthContextType {
     user: User | null;
@@ -37,12 +38,13 @@ const createUserInFirestore = async (userCredential: UserCredential) => {
 
     // Only create a new document if one doesn't already exist (e.g., for Google Sign-In)
     if (!userDoc.exists()) {
+        const role: UserProfile['role'] = user.email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer';
         await setDoc(userDocRef, {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
             photoURL: user.photoURL,
-            role: 'Customer', // Default role for new users
+            role: role,
             createdAt: new Date().toISOString(),
         });
     }
@@ -75,6 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const updatedUser = { ...userCredential.user, displayName };
         setUser(updatedUser);
         
+        const role: UserProfile['role'] = email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer';
+
         // Now create firestore doc with the updated info
         const userDocRef = doc(db, 'users', updatedUser.uid);
         await setDoc(userDocRef, {
@@ -82,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: updatedUser.email,
             displayName: updatedUser.displayName,
             photoURL: updatedUser.photoURL,
-            role: 'Customer',
+            role: role,
             createdAt: new Date().toISOString(),
         });
 
