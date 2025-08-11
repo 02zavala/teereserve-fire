@@ -17,7 +17,7 @@ import {
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AuthContextType {
     user: User | null;
@@ -70,9 +70,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signup = async (email: string, pass: string, displayName: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         await updateProfile(userCredential.user, { displayName });
-        await createUserInFirestore(userCredential);
-        // Manually update the user state because onAuthStateChanged might be slow
-        setUser({ ...userCredential.user, displayName });
+        
+        // Update user object to reflect display name immediately
+        const updatedUser = { ...userCredential.user, displayName };
+        setUser(updatedUser);
+        
+        // Now create firestore doc with the updated info
+        const userDocRef = doc(db, 'users', updatedUser.uid);
+        await setDoc(userDocRef, {
+            uid: updatedUser.uid,
+            email: updatedUser.email,
+            displayName: updatedUser.displayName,
+            photoURL: updatedUser.photoURL,
+            role: 'Customer',
+            createdAt: new Date().toISOString(),
+        });
+
         return userCredential;
     };
     

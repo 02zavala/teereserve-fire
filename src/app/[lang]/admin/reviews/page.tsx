@@ -24,7 +24,9 @@ function ReviewCard({ review }: { review: Review }) {
             .finally(() => setIsLoadingModeration(false));
         
         // This effect runs only on the client, after hydration, to prevent mismatch
-        setFormattedDate(format(new Date(review.createdAt), "PPP"));
+        if (review.createdAt) {
+          setFormattedDate(format(new Date(review.createdAt), "PPP"));
+        }
 
     }, [review.text, review.createdAt]);
     
