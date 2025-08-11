@@ -78,4 +78,18 @@ export interface UserProfile {
     role: 'SuperAdmin' | 'Admin' | 'Customer' | 'Affiliate';
     createdAt: string;
     assignedCourses?: string[];
+    handicap?: number;
+}
+
+export interface ScorecardInput {
+    userId: string;
+    courseName: string;
+    date: string; // YYYY-MM-DD
+    score: number;
+    notes?: string;
+}
+
+export interface Scorecard extends ScorecardInput {
+    id: string;
+    createdAt: string; // ISO String
 }

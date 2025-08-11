@@ -1,6 +1,6 @@
 
 
-import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -478,4 +478,31 @@ export async function getUsers(): Promise<UserProfile[]> {
 export async function updateUserRole(uid: string, role: UserProfile['role']): Promise<void> {
     const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, { role });
+}
+
+export async function updateUserProfile(uid: string, data: { displayName?: string, handicap?: number }): Promise<void> {
+    const userDocRef = doc(db, 'users', uid);
+    await updateDoc(userDocRef, data);
+}
+
+// *** Scorecard Functions ***
+export async function addUserScorecard(scorecardData: ScorecardInput): Promise<string> {
+    const scorecardsCol = collection(db, 'users', scorecardData.userId, 'scorecards');
+    const docRef = await addDoc(scorecardsCol, {
+        ...scorecardData,
+        createdAt: new Date().toISOString(),
+    });
+    return docRef.id;
+}
+
+export async function getUserScorecards(userId: string): Promise<Scorecard[]> {
+    const scorecardsCol = collection(db, 'users', userId, 'scorecards');
+    const q = query(scorecardsCol, orderBy('date', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Scorecard));
+}
+
+export async function deleteUserScorecard(userId: string, scorecardId: string): Promise<void> {
+    const scorecardDocRef = doc(db, 'users', userId, 'scorecards', scorecardId);
+    await deleteDoc(scorecardDocRef);
 }

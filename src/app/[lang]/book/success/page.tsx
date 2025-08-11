@@ -39,9 +39,14 @@ function SuccessPageContent() {
             return;
         }
 
-        // Format date on the client side to avoid hydration mismatch
+        // Safe client-side date formatting to prevent hydration mismatch
         if (date) {
-            setFormattedDate(format(new Date(date), "PPP"));
+            try {
+                setFormattedDate(format(new Date(date), "PPP"));
+            } catch (e) {
+                console.error("Invalid date format:", date);
+                setFormattedDate("Invalid Date");
+            }
         }
 
         getCourseById(courseId).then(data => {

@@ -2,7 +2,7 @@
 
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { 
     onAuthStateChanged, 
     User, 
@@ -10,7 +10,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
-    updateProfile,
+    updateProfile as updateFirebaseAuthProfile,
     GoogleAuthProvider,
     signInWithPopup,
     UserCredential
@@ -19,6 +19,7 @@ import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import type { UserProfile } from '@/types';
+import { updateUserProfile } from '@/lib/data';
 
 interface AuthContextType {
     user: User | null;
@@ -28,6 +29,7 @@ interface AuthContextType {
     signup: (email: string, pass: string, displayName: string) => Promise<any>;
     logout: () => Promise<void>;
     googleSignIn: () => Promise<any>;
+    refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,30 +58,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    
+    const fetchUserProfile = useCallback(async (firebaseUser: User) => {
+        const userDocRef = doc(db, 'users', firebaseUser.uid);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+            setUserProfile(docSnap.data() as UserProfile);
+        } else {
+            // This case can happen if a user is created in Auth but not in Firestore.
+            // We'll create their profile now.
+            const profile: UserProfile = {
+                uid: firebaseUser.uid,
+                email: firebaseUser.email,
+                displayName: firebaseUser.displayName,
+                photoURL: firebaseUser.photoURL,
+                role: firebaseUser.email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer',
+                createdAt: new Date().toISOString(),
+            };
+            await setDoc(userDocRef, profile);
+            setUserProfile(profile);
+        }
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setLoading(true);
             setUser(user);
             if (user) {
-                const userDocRef = doc(db, 'users', user.uid);
-                const docSnap = await getDoc(userDocRef);
-                if (docSnap.exists()) {
-                    setUserProfile(docSnap.data() as UserProfile);
-                } else {
-                    // This case can happen if a user is created in Auth but not in Firestore.
-                    // We'll create their profile now.
-                    const profile: UserProfile = {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName,
-                        photoURL: user.photoURL,
-                        role: user.email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer',
-                        createdAt: new Date().toISOString(),
-                    };
-                    await setDoc(userDocRef, profile);
-                    setUserProfile(profile);
-                }
+                await fetchUserProfile(user);
             } else {
                 setUserProfile(null);
             }
@@ -87,7 +93,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [fetchUserProfile]);
+
+     const refreshUserProfile = useCallback(async () => {
+        if (user) {
+            setLoading(true);
+            await fetchUserProfile(user);
+            setLoading(false);
+        }
+    }, [user, fetchUserProfile]);
     
     const login = (email: string, pass: string) => {
         return signInWithEmailAndPassword(auth, email, pass);
@@ -95,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signup = async (email: string, pass: string, displayName: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-        await updateProfile(userCredential.user, { displayName });
+        await updateFirebaseAuthProfile(userCredential.user, { displayName });
         
         const updatedUser = { ...userCredential.user, displayName };
         // We set the user object directly for immediate UI update.
@@ -141,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signup,
         logout,
         googleSignIn,
+        refreshUserProfile
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
