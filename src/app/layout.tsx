@@ -3,6 +3,7 @@ import { Playfair_Display, PT_Sans } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
 import { AppProviders } from '@/context/AppProviders'
+import type { Locale } from '@/i18n-config'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
 interface RootLayoutProps {
   children: React.ReactNode;
   params: {
-    lang: string;
+    lang: Locale;
   };
 }
 
@@ -39,8 +40,9 @@ export async function generateStaticParams() {
 
 export default async function RootLayout({
   children,
-  params
+  params: paramsProp
 }: RootLayoutProps) {
+  const params = await paramsProp;
   return (
     <html lang={params.lang} suppressHydrationWarning>
       <body
