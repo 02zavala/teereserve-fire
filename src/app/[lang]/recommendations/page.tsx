@@ -14,7 +14,8 @@ interface RecommendationsPageProps {
   params: { lang: Locale };
 }
 
-export default async function AIRecommendationsPage({ params }: RecommendationsPageProps) {
+export default async function AIRecommendationsPage({ params: paramsProp }: RecommendationsPageProps) {
+  const params = await paramsProp;
   const dictionary = await getDictionary(params.lang);
   const t = dictionary.recommendationsPage;
   let recommendations: any[] = [];

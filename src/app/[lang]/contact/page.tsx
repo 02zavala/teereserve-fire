@@ -8,7 +8,9 @@ interface ContactPageProps {
     params: { lang: Locale };
 }
 
-export default async function ContactPage({ params: { lang } }: ContactPageProps) {
+export default async function ContactPage({ params: paramsProp }: ContactPageProps) {
+    const params = await paramsProp;
+    const lang = params.lang;
     const dictionary = await getDictionary(lang);
     const t = dictionary.contactPage;
 

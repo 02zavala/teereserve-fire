@@ -7,13 +7,14 @@ import { Header } from "@/components/layout/Header";
 import { type Locale } from "@/i18n-config";
 import { AdminAuthGuard } from "@/components/auth/AdminAuthGuard";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
-  params,
+  params: paramsProp,
 }: {
   children: React.ReactNode,
   params: { lang: Locale }
 }) {
+  const params = await paramsProp;
   const lang = params.lang;
   return (
     <AdminAuthGuard>

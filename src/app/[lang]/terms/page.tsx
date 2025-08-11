@@ -8,7 +8,9 @@ interface TermsPageProps {
     params: { lang: Locale };
 }
 
-export default async function TermsPage({ params: { lang } }: TermsPageProps) {
+export default async function TermsPage({ params: paramsProp }: TermsPageProps) {
+    const params = await paramsProp;
+    const lang = params.lang;
     const dictionary = await getDictionary(lang);
     const t = dictionary.termsPage;
 

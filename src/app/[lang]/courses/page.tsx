@@ -12,7 +12,8 @@ interface CoursesPageProps {
     searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({ params, searchParams }: CoursesPageProps): Promise<Metadata> {
+export async function generateMetadata({ params: paramsProp, searchParams }: CoursesPageProps): Promise<Metadata> {
+    const params = await paramsProp;
     const dictionary = await getDictionary(params.lang);
     return {
         title: `${dictionary.coursesPage.title} - TeeReserve`,
@@ -20,7 +21,8 @@ export async function generateMetadata({ params, searchParams }: CoursesPageProp
     };
 }
 
-export default async function CoursesPage({ params, searchParams }: CoursesPageProps) {
+export default async function CoursesPage({ params: paramsProp, searchParams }: CoursesPageProps) {
+    const params = await paramsProp;
     const dictionary = await getDictionary(params.lang);
     const location = typeof searchParams.location === 'string' ? searchParams.location : 'all';
 

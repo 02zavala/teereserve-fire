@@ -15,7 +15,9 @@ interface AboutPageProps {
     params: { lang: Locale };
 }
 
-export default async function AboutPage({ params: { lang } }: AboutPageProps) {
+export default async function AboutPage({ params: paramsProp }: AboutPageProps) {
+    const params = await paramsProp;
+    const lang = params.lang;
     const dictionary = await getDictionary(lang);
     const t = dictionary.aboutPage;
 

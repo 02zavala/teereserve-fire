@@ -8,7 +8,9 @@ interface PrivacyPageProps {
     params: { lang: Locale };
 }
 
-export default async function PrivacyPage({ params: { lang } }: PrivacyPageProps) {
+export default async function PrivacyPage({ params: paramsProp }: PrivacyPageProps) {
+    const params = await paramsProp;
+    const lang = params.lang;
     const dictionary = await getDictionary(lang);
     const t = dictionary.privacyPage;
 

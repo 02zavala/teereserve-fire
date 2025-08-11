@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { ArrowLeft, Phone, Mail, MessageCircle } from "lucide-react";
 import { getDictionary } from "@/lib/get-dictionary";
@@ -11,7 +12,9 @@ interface HelpPageProps {
     params: { lang: Locale };
 }
 
-export default async function HelpPage({ params: { lang } }: HelpPageProps) {
+export default async function HelpPage({ params: paramsProp }: HelpPageProps) {
+  const params = await paramsProp;
+  const lang = params.lang;
   const dictionary = await getDictionary(lang);
   const t = dictionary.helpPage;
 
