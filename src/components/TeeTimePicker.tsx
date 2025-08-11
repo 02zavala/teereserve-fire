@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send, MessageSquare, CheckCircle } from "lucide-react"
+import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send, MessageSquare, CheckCircle, Info, Star, ShieldCheck, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -18,6 +18,7 @@ import { Locale } from "@/i18n-config"
 import { Skeleton } from "./ui/skeleton"
 import { Textarea } from "./ui/textarea"
 import { Label } from "./ui/label"
+import { Separator } from "./ui/separator"
 
 interface TeeTimePickerProps {
     courseId: string
@@ -27,7 +28,7 @@ interface TeeTimePickerProps {
 
 export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>();
-    const [players, setPlayers] = useState<number | 'group'>(2)
+    const [players, setPlayers] = useState<number>(2)
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isPending, startTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
@@ -43,7 +44,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
 
     useEffect(() => {
         if (!date) return;
-        setSelectedTeeTime(null); // Reset selection when date changes
+        setSelectedTeeTime(null); 
         startTransition(async () => {
             const fetchedTeeTimes = await getTeeTimesForCourse(courseId, date, basePrice);
             setTeeTimes(fetchedTeeTimes);
@@ -52,7 +53,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     
     const availableTimes = teeTimes.filter(t => t.status === 'available');
     
-    const totalPrice = selectedTeeTime ? selectedTeeTime.price * (players as number) : 0;
+    const totalPrice = selectedTeeTime ? selectedTeeTime.price * players : 0;
     
     const bookingUrl = selectedTeeTime
     ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date!, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${totalPrice}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
@@ -62,7 +63,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-3xl text-primary">Reservar Tee Time</CardTitle>
+                    <CardTitle className="font-headline text-2xl text-primary">Book a Tee Time</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -81,67 +82,58 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-3xl text-primary">Reservar Tee Time</CardTitle>
+                <CardTitle className="font-headline text-2xl text-primary">Book a Tee Time</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground flex items-center"><CalendarIcon className="mr-2 h-4 w-4" /> Date</label>
-                         <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                variant={"outline"}
-                                className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !date && "text-muted-foreground"
-                                )}
-                                disabled={players === 'group'}
-                                >
-                                {date ? format(date, "PPP") : <span>Pick a date</span>}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={(d) => d && setDate(d)}
-                                    initialFocus
-                                    disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                />
-                            </PopoverContent>
-                        </Popover>
+            <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column: Date, Players, Times */}
+                <div className="space-y-6">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground flex items-center"><CalendarIcon className="mr-2 h-4 w-4" /> Date</label>
+                             <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !date && "text-muted-foreground"
+                                    )}
+                                    >
+                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={(d) => d && setDate(d)}
+                                        initialFocus
+                                        disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                         <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground flex items-center"><Users className="mr-2 h-4 w-4" /> Players</label>
+                             <Select onValueChange={(val) => setPlayers(parseInt(val))} defaultValue={players.toString()}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select players" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground flex items-center"><Users className="mr-2 h-4 w-4" /> Players</label>
-                         <Select onValueChange={(val) => setPlayers(val === 'group' ? 'group' : parseInt(val))} defaultValue={players.toString()}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select players" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
-                                <SelectItem value="group">8+ Players (Group)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
 
-                {players === 'group' ? (
-                     <div className="text-center py-4 bg-primary/10 rounded-lg">
-                        <p className="text-sm text-primary/90 mb-3">For groups of 8+ or tournaments, please contact us.</p>
-                        <Button asChild>
-                            <Link href={`/${lang}/contact`}>
-                               <Send className="mr-2 h-4 w-4" /> Contact Us for Group Booking
-                            </Link>
-                        </Button>
-                    </div>
-                ) : (
                     <div>
+                        <h4 className="font-medium mb-2 text-center text-muted-foreground">Select a Tee Time</h4>
                         {isPending ? (
                             <div className="flex justify-center items-center py-8">
                                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                             </div>
                         ) : availableTimes.length > 0 ? (
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2">
                                 {availableTimes.map(teeTime => {
                                     const isSelected = selectedTeeTime?.id === teeTime.id;
                                     return (
@@ -153,43 +145,96 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                             onClick={() => setSelectedTeeTime(teeTime)}
                                         >
                                             <span className="font-semibold text-base">{teeTime.time}</span>
-                                            <span className={cn("text-xs", isSelected ? "text-primary-foreground/80" : "text-muted-foreground")}>
-                                                ${teeTime.price * (players as number)}
-                                            </span>
                                         </Button>
                                     )
                                 })}
                             </div>
                         ) : (
-                            <div className="text-center py-8 text-muted-foreground">
-                                No available tee times for this period. Please try another selection.
-                            </div>
-                        )}
-
-                        {selectedTeeTime && (
-                            <div className="mt-6 pt-6 border-t animate-in fade-in-50">
-                                <div className="space-y-2">
-                                    <Label htmlFor="comments" className="flex items-center">
-                                        <MessageSquare className="mr-2 h-4 w-4"/>
-                                        Additional Comments (Optional)
-                                    </Label>
-                                    <Textarea
-                                        id="comments"
-                                        placeholder="e.g., Club rental needed, person with a disability, etc."
-                                        value={comments}
-                                        onChange={(e) => setComments(e.target.value)}
-                                    />
-                                </div>
-                                <Button asChild size="lg" className="w-full mt-4 font-bold text-base">
-                                     <Link href={bookingUrl}>
-                                        <CheckCircle className="mr-2 h-5 w-5" />
-                                        Book for ${totalPrice}
-                                    </Link>
-                                </Button>
+                            <div className="text-center py-8 text-muted-foreground text-sm">
+                                No available tee times for this selection.
                             </div>
                         )}
                     </div>
-                )}
+                </div>
+
+                {/* Right Column: Booking Summary */}
+                 <div className={cn("space-y-4 border rounded-lg p-4 bg-card", !selectedTeeTime && "flex items-center justify-center text-center")}>
+                   {selectedTeeTime ? (
+                    <>
+                        <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
+                            <p className="font-bold text-primary">{format(date, 'eeee')}</p>
+                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy')}</p>
+                            <Separator className="my-2 bg-primary/20" />
+                            <p className="font-bold text-primary">{selectedTeeTime.time}</p>
+                            <p className="text-sm text-primary/90">{players} Players (18 Holes)</p>
+                        </div>
+                        
+                        <div className="text-sm space-y-1">
+                            {Array.from({length: players}).map((_, i) => (
+                                <div key={i} className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">Player {i+1}</span>
+                                    <span className="font-medium">${selectedTeeTime.price}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <Separator />
+                        
+                        <div>
+                             <h5 className="font-semibold text-xs text-muted-foreground mb-2 flex items-center"><Info className="mr-1.5 h-3 w-3"/>RATE INCLUDES / NOTES</h5>
+                             <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
+                                <li>18 Holes of Golf</li>
+                                <li>Shared Golf Cart</li>
+                                <li>Access to Practice Facilities</li>
+                                <li>All Applicable Taxes</li>
+                                <li>Free Cancellation (up to 24h before)</li>
+                             </ul>
+                        </div>
+                        
+                         <div className="space-y-2">
+                            <Label htmlFor="comments" className="text-xs text-muted-foreground flex items-center">
+                                <MessageSquare className="mr-1.5 h-3 w-3"/>
+                                Additional Comments (Optional)
+                            </Label>
+                            <Textarea
+                                id="comments"
+                                placeholder="e.g., Club rental needed, person with a disability, etc."
+                                value={comments}
+                                onChange={(e) => setComments(e.target.value)}
+                                className="text-xs min-h-[60px]"
+                            />
+                        </div>
+
+                        <Button asChild size="lg" className="w-full font-bold text-base h-12">
+                             <Link href={bookingUrl} className="flex justify-between items-center">
+                                <span>Book Now</span>
+                                <span className="bg-primary-foreground/20 px-3 py-1 rounded-md text-sm">${totalPrice}</span>
+                            </Link>
+                        </Button>
+                        
+                        <div className="flex justify-around items-center text-center text-xs text-muted-foreground pt-2">
+                             <div className="flex flex-col items-center gap-1">
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                <span>Instant Booking</span>
+                            </div>
+                             <div className="flex flex-col items-center gap-1">
+                                <Star className="h-5 w-5 text-yellow-500" />
+                                <span>Trusted Platform</span>
+                            </div>
+                             <div className="flex flex-col items-center gap-1">
+                                <ShieldCheck className="h-5 w-5 text-blue-500" />
+                                <span>Secure Payment</span>
+                            </div>
+                        </div>
+
+                    </>
+                   ) : (
+                       <div className="text-muted-foreground p-8">
+                         <p className="font-semibold">Your booking summary will appear here.</p>
+                         <p className="text-sm">Please select an available tee time to continue.</p>
+                       </div>
+                   )}
+                </div>
             </CardContent>
         </Card>
     )
