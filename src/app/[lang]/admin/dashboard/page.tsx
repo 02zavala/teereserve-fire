@@ -1,7 +1,94 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
+
+"use client";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, Users, CreditCard, Activity, Loader2 } from "lucide-react";
+import { getDashboardStats, getRevenueLast7Days } from "@/lib/data";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import type { Booking } from "@/types";
+import { format } from "date-fns";
+import Link from "next/link";
+import { RevenueChart } from "@/components/admin/RevenueChart";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface DashboardStats {
+    totalRevenue: number;
+    totalUsers: number;
+    totalBookings: number;
+    recentBookings: Booking[];
+}
+
+function getStatusVariant(status: Booking['status']) {
+    switch (status) {
+        case 'Confirmed': return 'default';
+        case 'Completed': return 'secondary';
+        case 'Cancelled': return 'destructive';
+        case 'Pending':
+        default:
+            return 'outline';
+    }
+}
+
+function RecentBookingRow({ booking }: { booking: Booking }) {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Safe client-side date formatting
+        if (booking.date) {
+            setFormattedDate(format(new Date(booking.date), "PPP"));
+        }
+    }, [booking.date]);
+
+    return (
+        <TableRow>
+            <TableCell>
+                <div className="font-medium">{booking.userName}</div>
+            </TableCell>
+            <TableCell>{booking.courseName}</TableCell>
+            <TableCell className="hidden md:table-cell">
+                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
+            </TableCell>
+            <TableCell className="text-right">${booking.totalPrice.toFixed(2)}</TableCell>
+            <TableCell className="text-right">
+                <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+            </TableCell>
+        </TableRow>
+    );
+}
 
 export default function DashboardPage() {
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [revenueData, setRevenueData] = useState<{ date: string; revenue: number }[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [statsData, revenueChartData] = await Promise.all([
+                    getDashboardStats(),
+                    getRevenueLast7Days(),
+                ]);
+                setStats(statsData);
+                setRevenueData(revenueChartData);
+            } catch (error) {
+                console.error("Failed to fetch dashboard data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+    
+    if (loading || !stats) {
+        return (
+            <div className="flex justify-center items-center h-full">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        )
+    }
+
     return (
         <div>
             <h1 className="text-3xl font-bold font-headline text-primary mb-6">Dashboard</h1>
@@ -14,9 +101,9 @@ export default function DashboardPage() {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">$45,231.89</div>
+                        <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
                         <p className="text-xs text-muted-foreground">
-                            +20.1% from last month
+                            Based on completed bookings
                         </p>
                     </CardContent>
                 </Card>
@@ -28,9 +115,9 @@ export default function DashboardPage() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+2350</div>
+                        <div className="text-2xl font-bold">+{stats.totalUsers}</div>
                         <p className="text-xs text-muted-foreground">
-                            +180.1% from last month
+                            Total registered users
                         </p>
                     </CardContent>
                 </Card>
@@ -40,9 +127,9 @@ export default function DashboardPage() {
                         <CreditCard className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+12,234</div>
+                        <div className="text-2xl font-bold">+{stats.totalBookings}</div>
                         <p className="text-xs text-muted-foreground">
-                            +19% from last month
+                            Across all statuses
                         </p>
                     </CardContent>
                 </Card>
@@ -54,20 +141,45 @@ export default function DashboardPage() {
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+57.3%</div>
+                        <div className="text-2xl font-bold">73.5%</div>
                         <p className="text-xs text-muted-foreground">
-                            +2.1% since last hour
+                           Calculation placeholder
                         </p>
                     </CardContent>
                 </Card>
             </div>
-             <div className="mt-8">
-                <Card>
+             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mt-8">
+                <Card className="col-span-4">
                     <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
+                        <CardTitle>Overview</CardTitle>
+                        <CardDescription>Your revenue for the last 7 days.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pl-2">
+                        <RevenueChart data={revenueData} />
+                    </CardContent>
+                </Card>
+                 <Card className="col-span-3">
+                    <CardHeader>
+                        <CardTitle>Recent Bookings</CardTitle>
+                        <CardDescription>The last 5 bookings made on the platform.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-muted-foreground">Recent bookings and user registrations will appear here.</p>
+                         <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>User</TableHead>
+                                    <TableHead>Course</TableHead>
+                                    <TableHead className="hidden md:table-cell">Date</TableHead>
+                                    <TableHead className="text-right">Amount</TableHead>
+                                    <TableHead className="text-right">Status</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {stats.recentBookings.map((booking) => (
+                                    <RecentBookingRow key={booking.id} booking={booking} />
+                                ))}
+                            </TableBody>
+                        </Table>
                     </CardContent>
                 </Card>
             </div>

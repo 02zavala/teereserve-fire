@@ -4,7 +4,7 @@ import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, U
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { format, startOfDay } from 'date-fns';
+import { format, startOfDay, subDays, isAfter } from 'date-fns';
 
 interface CourseDataInput {
     name: string;
@@ -28,11 +28,11 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 150,
       imageUrls: [
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
+        "/courses/solmar/solmar-1.jpg",
+        "/courses/solmar/solmar-2.jpg",
+        "/courses/solmar/solmar-3.jpg",
+        "/courses/solmar/solmar-4.jpg",
+        "/courses/solmar/solmar-5.jpg",
       ],
       latLng: { lat: 22.876, lng: -109.931 }
     },
@@ -44,11 +44,11 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 250,
       imageUrls: [
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
-        "https://placehold.co/800x600.png",
+        "/courses/palmilla/palmilla-1.jpg",
+        "/courses/palmilla/palmilla-2.jpg",
+        "/courses/palmilla/palmilla-3.jpg",
+        "/courses/palmilla/palmilla-4.jpg",
+        "/courses/palmilla/palmilla-5.jpg",
       ],
       latLng: { lat: 23.013, lng: -109.736 }
     },
@@ -59,7 +59,13 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Dos cursos: Desert con cambios de elevación dramáticos, terreno desértico y vistas al Mar de Cortés; Ocean diseñado por Jack Nicklaus, donde el desierto se encuentra con el océano, con 7 hoyos junto a la costa. Incluye arroyos como cañones y bunkering dramático. Oasis de lujo con vistas panorámicas.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 200,
-        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        imageUrls: [
+            "/courses/cabo-del-sol/cds-1.jpg", 
+            "/courses/cabo-del-sol/cds-2.jpg", 
+            "/courses/cabo-del-sol/cds-3.jpg", 
+            "/courses/cabo-del-sol/cds-4.jpg", 
+            "/courses/cabo-del-sol/cds-5.jpg"
+        ],
         latLng: { lat: 22.918, lng: -109.831 }
     },
     {
@@ -69,7 +75,13 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Instalación de 27 hoyos con tres combinaciones de 18, diseñadas por Jack Nicklaus y Greg Norman. Fairways ondulantes, greens elevados y vistas al Mar de Cortés. Incluye comida/drink stations gratuitas cada pocos hoyos. Ubicado en una comunidad planificada de 2,000 acres.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 180,
-        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        imageUrls: [
+            "/courses/puerto-los-cabos/plc-1.jpg", 
+            "/courses/puerto-los-cabos/plc-2.jpg",
+            "/courses/puerto-los-cabos/plc-3.jpg",
+            "/courses/puerto-los-cabos/plc-4.jpg",
+            "/courses/puerto-los-cabos/plc-5.jpg"
+        ],
         latLng: { lat: 23.064, lng: -109.682 }
     },
     {
@@ -505,4 +517,71 @@ export async function getUserScorecards(userId: string): Promise<Scorecard[]> {
 export async function deleteUserScorecard(userId: string, scorecardId: string): Promise<void> {
     const scorecardDocRef = doc(db, 'users', userId, 'scorecards', scorecardId);
     await deleteDoc(scorecardDocRef);
+}
+
+// *** Dashboard Functions ***
+export async function getDashboardStats() {
+    // Get total revenue from completed bookings
+    const bookingsCol = collection(db, 'bookings');
+    const revenueQuery = query(bookingsCol, where('status', '==', 'Completed'));
+    const revenueSnapshot = await getDocs(revenueQuery);
+    const totalRevenue = revenueSnapshot.docs.reduce((sum, doc) => sum + doc.data().totalPrice, 0);
+
+    // Get total users
+    const usersCol = collection(db, 'users');
+    const usersSnapshot = await getDocs(usersCol);
+    const totalUsers = usersSnapshot.size;
+
+    // Get total bookings
+    const bookingsSnapshot = await getDocs(bookingsCol);
+    const totalBookings = bookingsSnapshot.size;
+    
+    // Get recent bookings
+    const recentBookingsQuery = query(bookingsCol, orderBy('createdAt', 'desc'), limit(5));
+    const recentBookingsSnapshot = await getDocs(recentBookingsQuery);
+    const recentBookings = recentBookingsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
+
+    return {
+        totalRevenue,
+        totalUsers,
+        totalBookings,
+        recentBookings
+    };
+}
+
+export async function getRevenueLast7Days(): Promise<{ date: string; revenue: number }[]> {
+    const today = startOfDay(new Date());
+    const sevenDaysAgo = subDays(today, 7);
+    
+    const bookingsCol = collection(db, 'bookings');
+    const q = query(
+        bookingsCol, 
+        where('status', '==', 'Completed'),
+        where('createdAt', '>=', sevenDaysAgo.toISOString())
+    );
+    
+    const snapshot = await getDocs(q);
+    
+    const dailyRevenue: { [key: string]: number } = {};
+
+    // Initialize the last 7 days with 0 revenue
+    for (let i = 0; i < 7; i++) {
+        const date = format(subDays(today, i), 'MMM d');
+        dailyRevenue[date] = 0;
+    }
+
+    snapshot.docs.forEach(doc => {
+        const booking = doc.data() as Booking;
+        const bookingDate = new Date(booking.createdAt);
+        if (isAfter(bookingDate, sevenDaysAgo)) {
+            const dateStr = format(bookingDate, 'MMM d');
+            if (dailyRevenue.hasOwnProperty(dateStr)) {
+                dailyRevenue[dateStr] += booking.totalPrice;
+            }
+        }
+    });
+
+    return Object.entries(dailyRevenue)
+        .map(([date, revenue]) => ({ date, revenue }))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
