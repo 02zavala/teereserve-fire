@@ -26,7 +26,7 @@ function ReviewCard({ review }: { review: Review }) {
     const [timeAgo, setTimeAgo] = useState<string | null>(null);
 
     useEffect(() => {
-        // This effect runs only on the client, after hydration
+        // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
           setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true }));
         }
@@ -255,3 +255,5 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
         </Card>
     )
 }
+
+    
