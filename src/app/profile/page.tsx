@@ -14,21 +14,21 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface FormattedBooking extends Omit<Booking, 'createdAt'> {
+interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
     id: string;
     createdAt?: string; 
-    formattedDate: string;
+    date: string | Date;
+    formattedDate?: string;
 }
 
 export default function ProfilePage() {
     const { user, loading: authLoading } = useAuth();
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
-    const [memberSince, setMemberSince] = useState('');
+    const [memberSince, setMemberSince] = useState<string | null>(null);
 
     useEffect(() => {
         if (user) {
-            // Client-side only date formatting to prevent hydration mismatch
             if (user.metadata.creationTime) {
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
@@ -48,7 +48,6 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         } else if (!authLoading) {
-            // If there's no user and we're not loading, stop loading bookings.
             setLoadingBookings(false);
         }
     }, [user, authLoading]);
@@ -127,7 +126,7 @@ export default function ProfilePage() {
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div>
                                         <p className="font-bold text-lg">{booking.courseName}</p>
-                                        <p className="text-sm text-muted-foreground">{booking.formattedDate}</p>
+                                        <p className="text-sm text-muted-foreground">{booking.formattedDate || <Skeleton className="h-4 w-40" />}</p>
                                     </div>
                                      <div className="text-right">
                                         <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>

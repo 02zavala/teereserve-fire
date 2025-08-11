@@ -87,10 +87,10 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
             <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column: Date, Players, Times */}
                 <div className="space-y-6">
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                         <div className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
                             <label className="text-sm font-medium text-muted-foreground flex items-center"><CalendarIcon className="mr-2 h-4 w-4" /> Date</label>
-                             <Popover>
+                            <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
                                     variant={"outline"}
@@ -113,9 +113,9 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                 </PopoverContent>
                             </Popover>
                         </div>
-                         <div className="space-y-2">
+                        <div className="space-y-2">
                             <label className="text-sm font-medium text-muted-foreground flex items-center"><Users className="mr-2 h-4 w-4" /> Players</label>
-                             <Select onValueChange={(val) => setPlayers(parseInt(val))} defaultValue={players.toString()}>
+                            <Select onValueChange={(val) => setPlayers(parseInt(val))} defaultValue={players.toString()}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select players" />
                                 </SelectTrigger>
@@ -158,7 +158,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                 </div>
 
                 {/* Right Column: Booking Summary */}
-                 <div className={cn("space-y-4 border rounded-lg p-4 bg-card", !selectedTeeTime && "flex items-center justify-center text-center")}>
+                <div className={cn("space-y-4 border rounded-lg p-4 bg-card", !selectedTeeTime && "flex items-center justify-center text-center")}>
                    {selectedTeeTime ? (
                     <>
                         <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
