@@ -4,6 +4,7 @@ import './globals.css'
 import { cn } from '@/lib/utils'
 import { AppProviders } from '@/context/AppProviders'
 import type { Locale } from '@/i18n-config'
+import { i18n } from '@/i18n-config'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -34,7 +35,7 @@ interface RootLayoutProps {
 }
 
 export async function generateStaticParams() {
-  return [{ lang: 'en' }, { lang: 'es' }]
+  return i18n.locales.map((locale) => ({ lang: locale }))
 }
 
 
