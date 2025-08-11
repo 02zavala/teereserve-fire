@@ -29,6 +29,7 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (user && !authLoading) {
+            // Safe client-side date formatting
             if (user.metadata.creationTime) {
                 setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
@@ -98,7 +99,7 @@ export default function ProfilePage() {
                     <AvatarFallback className="text-4xl">{getInitials()}</AvatarFallback>
                 </Avatar>
                 <div className="text-center md:text-left flex-1">
-                    <h1 className="font-headline text-4xl font-bold text-primary">{user.displayName || 'TeeReserve User'}</h1>
+                    <h1 className="font-headline text-4xl font-bold text-primary">{user.displayName || user.email || 'TeeReserve User'}</h1>
                     <p className="text-muted-foreground mt-1">{user.email}</p>
                     {memberSince ? (
                        <p className="text-muted-foreground text-sm mt-2">Member since {memberSince}</p>

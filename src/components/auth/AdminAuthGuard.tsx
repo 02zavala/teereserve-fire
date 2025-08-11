@@ -3,53 +3,44 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { UserProfile } from "@/types";
+import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
+    const { user, userProfile, loading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [isVerifying, setIsVerifying] = useState(true);
-
     const lang = pathname.split('/')[1] || 'en';
 
     useEffect(() => {
+        // Don't do anything until loading is false.
         if (loading) {
-            return; // Wait until Firebase auth state is loaded
+            return;
         }
 
+        // If not loading and there's no user, redirect to login.
         if (!user) {
             router.push(`/${lang}/login?redirect=${pathname}`);
             return;
         }
 
-        const checkAdminRole = async () => {
-            const userDocRef = doc(db, 'users', user.uid);
-            const docSnap = await getDoc(userDocRef);
+        // If we have a user but are still waiting for the profile, do nothing yet.
+        // The effect will re-run when userProfile is available.
+        if (!userProfile) {
+            return;
+        }
 
-            if (docSnap.exists()) {
-                const userProfile = docSnap.data() as UserProfile;
-                if (userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin') {
-                    setIsAuthorized(true);
-                } else {
-                    router.push(`/${lang}`); // Redirect non-admins to home
-                }
-            } else {
-                router.push(`/${lang}`); // Redirect if no profile found
-            }
-            setIsVerifying(false);
-        };
+        // Once we have the profile, check the role.
+        const isAuthorized = userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin';
 
-        checkAdminRole();
+        if (!isAuthorized) {
+            router.push(`/${lang}`); // Redirect non-admins to home.
+        }
 
-    }, [user, loading, router, lang, pathname]);
+    }, [user, userProfile, loading, router, lang, pathname]);
 
-    if (isVerifying) {
+    // Show loader while waiting for auth state or user profile.
+    if (loading || !userProfile) {
         return (
             <div className="flex items-center justify-center h-screen w-full">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -57,10 +48,13 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
             </div>
         );
     }
-
-    if (!isAuthorized) {
-        return null; // Render nothing while redirecting
+    
+    // If the user is an admin, show the protected content.
+    // If not, the useEffect will have already initiated a redirect.
+    if (userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin') {
+        return <>{children}</>;
     }
 
-    return <>{children}</>;
+    // Render nothing while redirecting non-admin users.
+    return null;
 }
