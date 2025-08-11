@@ -99,14 +99,10 @@ export function Header({ dictionary, lang }: HeaderProps) {
                     </SheetContent>
                 </Sheet>
                 
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    <div className="w-full flex-1 md:w-auto md:flex-none">
-                       <LanguageSwitcher lang={lang} />
-                    </div>
-                    <nav className="flex items-center gap-2">
-                        <ThemeToggle />
-                        <UserNav />
-                    </nav>
+                <div className="flex flex-1 items-center justify-end space-x-2">
+                    <LanguageSwitcher lang={lang} />
+                    <ThemeToggle />
+                    <UserNav />
                 </div>
             </div>
         </header>
