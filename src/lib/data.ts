@@ -28,7 +28,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 150,
       imageUrls: [
-        "/hero-1.jpg",
+        "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
@@ -44,7 +44,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 250,
       imageUrls: [
-        "/hero-2.jpg",
+        "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
         "https://placehold.co/800x600.png",
@@ -59,7 +59,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Dos cursos: Desert con cambios de elevación dramáticos, terreno desértico y vistas al Mar de Cortés; Ocean diseñado por Jack Nicklaus, donde el desierto se encuentra con el océano, con 7 hoyos junto a la costa. Incluye arroyos como cañones y bunkering dramático. Oasis de lujo con vistas panorámicas.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 200,
-        imageUrls: ['/hero-3.jpg', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
         latLng: { lat: 22.918, lng: -109.831 }
     },
     {
@@ -69,7 +69,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Instalación de 27 hoyos con tres combinaciones de 18, diseñadas por Jack Nicklaus y Greg Norman. Fairways ondulantes, greens elevados y vistas al Mar de Cortés. Incluye comida/drink stations gratuitas cada pocos hoyos. Ubicado en una comunidad planificada de 2,000 acres.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 180,
-        imageUrls: ['/hero-4.jpg', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
+        imageUrls: ['https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png', 'https://placehold.co/800x600.png'],
         latLng: { lat: 23.064, lng: -109.682 }
     },
     {
