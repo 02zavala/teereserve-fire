@@ -37,3 +37,4 @@ enableIndexedDbPersistence(db)
 
 
 export { db, auth, storage };
+

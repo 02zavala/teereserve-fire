@@ -72,8 +72,10 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     })
     
     useEffect(() => {
-        // Set date only on the client side
-        form.setValue('date', new Date());
+        // Set date only on the client side to prevent hydration errors.
+        if (!form.getValues('date')) {
+            form.setValue('date', new Date());
+        }
     }, [form]);
     
     const lang = pathname.split('/')[1] || 'en';
