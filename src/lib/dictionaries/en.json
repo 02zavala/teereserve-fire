@@ -413,7 +413,7 @@
         "title": "Your Personalized Recommendations",
         "subtitle": "Based on your preferences, we've found {count} perfect courses for you.",
         "refresh": "Refresh",
-        "recommendationBadge": "Recommendation",
+        "recommendationBadge": "#1 Recommendation",
         "perPlayer": "per player",
         "greatMatch": "Why it's a great match for you",
         "bookNow": "Book Now",
