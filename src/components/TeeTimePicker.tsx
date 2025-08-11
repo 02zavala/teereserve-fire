@@ -37,6 +37,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
 
     useEffect(() => {
         setIsClient(true);
+        // Set date only on the client side to prevent hydration errors.
         if (!date) {
             setDate(new Date());
         }
@@ -55,8 +56,8 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     
     const totalPrice = selectedTeeTime ? selectedTeeTime.price * players : 0;
     
-    const bookingUrl = selectedTeeTime
-    ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date!, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${totalPrice}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
+    const bookingUrl = selectedTeeTime && date
+    ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${totalPrice}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
     : '#';
 
     if (!isClient || !date) {
