@@ -8,7 +8,7 @@ import { getCourseById } from '@/lib/data';
 import type { GolfCourse } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, User, Calendar, Clock, Users, DollarSign, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Loader2, User, Calendar, Clock, Users, DollarSign, ArrowLeft, MessageSquare, Lock } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { createBooking } from '@/lib/data';
@@ -16,6 +16,8 @@ import { format } from 'date-fns';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { Locale } from '@/i18n-config';
 import { Skeleton } from './ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Separator } from './ui/separator';
 
 export default function CheckoutForm() {
     const stripe = useStripe();
@@ -31,6 +33,7 @@ export default function CheckoutForm() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState('');
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     const courseId = searchParams.get('courseId');
     const date = searchParams.get('date');
@@ -53,12 +56,11 @@ export default function CheckoutForm() {
                 description: "You need to be logged in to book a tee time.",
                 variant: "destructive"
             });
-            router.push(`/login?redirect=/book/confirm?${searchParams.toString()}`);
+            router.push(`/${lang}/login?redirect=/book/confirm?${searchParams.toString()}`);
             return;
         }
 
         if (date) {
-            // Client-side date formatting to prevent hydration mismatch
             setFormattedDate(format(new Date(date), "PPP"));
         }
 
@@ -69,7 +71,15 @@ export default function CheckoutForm() {
             setIsLoading(false);
         });
 
-    }, [courseId, router, user, authLoading, searchParams, toast, date]);
+    }, [courseId, router, user, authLoading, searchParams, toast, date, lang]);
+
+    const handleProceedToPayment = () => {
+        if (!stripe || !elements) {
+            toast({ title: "Payment system not ready. Please wait a moment.", variant: "destructive" });
+            return;
+        }
+        setIsPaymentModalOpen(true);
+    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -79,6 +89,7 @@ export default function CheckoutForm() {
         }
 
         setIsProcessing(true);
+        setErrorMessage(null);
 
         const { error: submitError } = await elements.submit();
         if (submitError) {
@@ -86,12 +97,13 @@ export default function CheckoutForm() {
             setIsProcessing(false);
             return;
         }
-
+        
         const clientSecret = new URLSearchParams(window.location.search).get(
-            "payment_intent_client_secret"
+            "clientSecret"
         );
         
         if (!clientSecret) {
+            setErrorMessage("Payment session expired. Please refresh the page.");
             setIsProcessing(false);
             return;
         }
@@ -100,7 +112,7 @@ export default function CheckoutForm() {
             elements,
             clientSecret,
             confirmParams: {
-                return_url: `${window.location.origin}/profile`,
+                return_url: `${window.location.origin}/${lang}/book/success`,
             },
             redirect: 'if_required',
         });
@@ -109,7 +121,6 @@ export default function CheckoutForm() {
             setErrorMessage(error.message || "An unexpected error occurred during payment.");
             setIsProcessing(false);
         } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-            // Payment succeeded, now create the booking in the database
             try {
                 await createBooking({
                     userId: user.uid,
@@ -124,15 +135,14 @@ export default function CheckoutForm() {
                     teeTimeId,
                     comments: comments || undefined,
                 });
+                
+                const successUrl = new URL(`${window.location.origin}/${lang}/book/success`);
+                searchParams.forEach((value, key) => successUrl.searchParams.append(key, value));
+                router.push(successUrl.toString());
 
-                toast({
-                    title: "Booking Confirmed!",
-                    description: "Your tee time has been successfully booked. Redirecting to your profile.",
-                });
-                router.push('/profile');
             } catch (bookingError) {
                  console.error("Failed to create booking after payment:", bookingError);
-                 setErrorMessage("Your payment was successful, but we failed to save your booking. Please contact support.");
+                 setErrorMessage("Your payment was successful, but we failed to save your booking. Please contact support immediately.");
                  setIsProcessing(false);
             }
         } else {
@@ -142,20 +152,20 @@ export default function CheckoutForm() {
 
     if (isLoading || authLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <div className="container mx-auto max-w-4xl px-4 py-12">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <Skeleton className="h-96 w-full" />
+                     <Skeleton className="h-96 w-full" />
+                 </div>
             </div>
         );
     }
     
     if (!course) {
-        return <div className="text-center">Course not found.</div>;
+        return <div className="text-center py-12">Course not found.</div>;
     }
-
-    const paymentElementOptions = {
-        layout: "tabs" as const,
-        defaultCollapsed: false,
-    };
+    
+    const paymentElementOptions = { layout: "tabs" as const };
 
     return (
         <div className="container mx-auto max-w-4xl px-4 py-12">
@@ -163,73 +173,90 @@ export default function CheckoutForm() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Course
             </Button>
-            <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h1 className="font-headline text-3xl font-bold text-primary mb-4">Confirm & Pay</h1>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="font-headline text-2xl">{course.name}</CardTitle>
-                                <CardDescription>{course.location}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex items-center">
-                                        <User className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span>Booking for: <span className="font-semibold">{user?.displayName || user?.email}</span></span>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                {/* Left Column: Summary */}
+                <Card className="sticky top-24">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl text-primary">Booking Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="relative aspect-video w-full rounded-lg overflow-hidden mb-4">
+                            <Image
+                                src={course.imageUrls[0]}
+                                alt={course.name}
+                                fill
+                                className="object-cover"
+                                data-ai-hint="golf course"
+                            />
+                        </div>
+                        <h3 className="text-xl font-bold">{course.name}</h3>
+                        <p className="text-sm text-muted-foreground">{course.location}</p>
+                        <Separator />
+                        <div className="space-y-2 text-sm">
+                            <div className="flex items-center"><User className="h-4 w-4 mr-3 text-muted-foreground" /><span><span className="font-semibold">{players}</span> Player(s)</span></div>
+                            <div className="flex items-center"><Calendar className="h-4 w-4 mr-3 text-muted-foreground" /><span>{formattedDate || <Skeleton className="h-4 w-24 inline-block" />}</span></div>
+                            <div className="flex items-center"><Clock className="h-4 w-4 mr-3 text-muted-foreground" /><span><span className="font-semibold">{time}</span> Tee Time</span></div>
+                             {comments && (
+                                <div className="flex items-start pt-2">
+                                    <MessageSquare className="h-4 w-4 mr-3 mt-1 text-muted-foreground" />
+                                    <div>
+                                        <span className="font-semibold">Comments:</span>
+                                        <p className="text-muted-foreground text-xs italic">{comments}</p>
                                     </div>
-                                    <div className="flex items-center">
-                                        <Calendar className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span>Date: <span className="font-semibold">{formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}</span></span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Clock className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span>Time: <span className="font-semibold">{time}</span></span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Users className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span>Players: <span className="font-semibold">{players}</span></span>
-                                    </div>
-                                    {comments && (
-                                        <div className="flex items-start pt-2 border-t mt-2">
-                                            <MessageSquare className="h-4 w-4 mr-3 mt-1 text-muted-foreground" />
-                                            <div>
-                                                <span className="font-semibold">Additional Comments:</span>
-                                                <p className="text-muted-foreground text-xs italic">{comments}</p>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
-                                <div className="pt-4 border-t">
-                                    <PaymentElement options={paymentElementOptions} />
-                                </div>
-                                <div className="flex items-center pt-2 border-t mt-4">
-                                    <DollarSign className="h-5 w-5 mr-3 text-muted-foreground" />
-                                    <span className="text-lg">Total Price: <span className="font-bold text-accent">${price}</span></span>
-                                </div>
-                                 {errorMessage && <div className="text-destructive text-sm font-medium">{errorMessage}</div>}
-                            </CardContent>
-                            <CardFooter>
-                                <Button type="submit" className="w-full text-lg font-bold" disabled={!stripe || isProcessing}>
-                                    {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Processing...</> : `Pay $${price} and Confirm`}
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </div>
-                    <div className="hidden md:block">
-                        <Image
-                            src={course.imageUrls[0]}
-                            alt={course.name}
-                            width={800}
-                            height={600}
-                            className="rounded-lg object-cover aspect-video"
-                            data-ai-hint="golf course"
-                        />
-                    </div>
-                </div>
-            </form>
+                            )}
+                        </div>
+                    </CardContent>
+                    <CardFooter className="bg-card flex justify-between items-center p-6 border-t">
+                        <span className="text-lg">Total Price:</span>
+                        <span className="text-2xl font-bold text-accent">${price}</span>
+                    </CardFooter>
+                </Card>
+
+                {/* Right Column: Action */}
+                <Card>
+                    <CardHeader>
+                         <CardTitle className="font-headline text-2xl">Complete Your Booking</CardTitle>
+                         <CardDescription>Confirm your details and proceed to our secure payment portal.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                            <h4 className="font-semibold text-primary">Booking For</h4>
+                            <p className="text-sm">{user?.displayName || 'N/A'}</p>
+                            <p className="text-sm text-muted-foreground">{user?.email}</p>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                            By clicking the button below, you agree to our <Link href="/terms" className="underline hover:text-primary">Terms of Service</Link> and the course's cancellation policy.
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={handleProceedToPayment} className="w-full text-lg font-bold h-12">
+                            <Lock className="mr-2 h-5 w-5"/>
+                            Proceed to Payment
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+
+            {/* Payment Modal */}
+            <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle className="font-headline text-2xl text-primary">Secure Payment</DialogTitle>
+                        <DialogDescription>
+                            Enter your payment details below. Your transaction is secure and encrypted.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit} className="space-y-6 py-4">
+                         <PaymentElement options={paymentElementOptions} />
+                         {errorMessage && <div className="text-destructive text-sm font-medium">{errorMessage}</div>}
+                         <Button type="submit" className="w-full text-lg font-bold" disabled={!stripe || isProcessing}>
+                            {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Processing...</> : `Pay $${price} and Confirm`}
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
-
-    
