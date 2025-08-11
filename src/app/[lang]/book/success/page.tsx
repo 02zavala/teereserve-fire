@@ -15,6 +15,8 @@ import { Locale } from '@/i18n-config';
 import { useAuth } from '@/context/AuthContext';
 import { Separator } from '@/components/ui/separator';
 
+const TAX_RATE = 0.16;
+
 function SuccessPageContent() {
     const router = useRouter();
     const pathname = usePathname();
@@ -24,12 +26,13 @@ function SuccessPageContent() {
     const [course, setCourse] = useState<GolfCourse | null>(null);
     const [loading, setLoading] = useState(true);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [totalPrice, setTotalPrice] = useState<string | null>(null);
 
     const courseId = searchParams.get('courseId');
     const date = searchParams.get('date');
     const time = searchParams.get('time');
     const players = searchParams.get('players');
-    const price = searchParams.get('price');
+    const price = searchParams.get('price'); // This is now subtotal
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
@@ -37,6 +40,12 @@ function SuccessPageContent() {
         if (!courseId) {
             router.push(`/${lang}/courses`);
             return;
+        }
+
+        if (price) {
+            const subtotalNum = parseFloat(price);
+            const total = subtotalNum * (1 + TAX_RATE);
+            setTotalPrice(total.toFixed(2));
         }
 
         // Safe client-side date formatting to prevent hydration mismatch
@@ -54,12 +63,12 @@ function SuccessPageContent() {
         }).finally(() => {
             setLoading(false);
         });
-    }, [courseId, router, lang, date]);
+    }, [courseId, router, lang, date, price]);
     
     const handlePrint = () => window.print();
 
     const getShareMessage = () => {
-        const message = `Booking Confirmation:\n\nCourse: ${course?.name}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal: $${price}\n\nBooked via TeeReserve!`;
+        const message = `Booking Confirmation:\n\nCourse: ${course?.name}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal: $${totalPrice}\n\nBooked via TeeReserve!`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         // Basic share API for other apps
         if (navigator.share) {
@@ -76,7 +85,7 @@ function SuccessPageContent() {
 
     const getEmailMessage = () => {
         const subject = `Your Booking Confirmation for ${course?.name}`;
-        const body = `Hello,\n\nHere are the details of your confirmed booking:\n\nCourse: ${course?.name}\nLocation: ${course?.location}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal Price: $${price}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
+        const body = `Hello,\n\nHere are the details of your confirmed booking:\n\nCourse: ${course?.name}\nLocation: ${course?.location}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal Price: $${totalPrice}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
         return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
@@ -145,7 +154,7 @@ function SuccessPageContent() {
                                 </div>
                                 <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{time}</span></div>
                                 <div className="flex items-center text-muted-foreground"><Users className="h-4 w-4 mr-2" /> Players: <span className="font-medium text-foreground ml-1">{players}</span></div>
-                                <div className="flex items-center text-muted-foreground"><DollarSign className="h-4 w-4 mr-2" /> Total: <span className="font-medium text-foreground ml-1">${price}</span></div>
+                                <div className="flex items-center text-muted-foreground"><DollarSign className="h-4 w-4 mr-2" /> Total: <span className="font-medium text-foreground ml-1">${totalPrice}</span></div>
                             </div>
                         </CardContent>
                     </Card>

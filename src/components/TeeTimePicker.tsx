@@ -26,6 +26,8 @@ interface TeeTimePickerProps {
     lang: Locale,
 }
 
+const TAX_RATE = 0.16; // 16%
+
 export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>();
     const [players, setPlayers] = useState<number>(2)
@@ -54,10 +56,12 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     
     const availableTimes = teeTimes.filter(t => t.status === 'available');
     
-    const totalPrice = selectedTeeTime ? selectedTeeTime.price * players : 0;
-    
+    const subtotal = selectedTeeTime ? selectedTeeTime.price * players : 0;
+    const taxes = subtotal * TAX_RATE;
+    const totalPrice = subtotal + taxes;
+
     const bookingUrl = selectedTeeTime && date
-    ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${totalPrice}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
+    ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${subtotal.toFixed(2)}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
     : '#';
 
     if (!isClient || !date) {
@@ -171,12 +175,14 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                         </div>
                         
                         <div className="text-sm space-y-1">
-                            {Array.from({length: players}).map((_, i) => (
-                                <div key={i} className="flex justify-between items-center">
-                                    <span className="text-muted-foreground">Player {i+1}</span>
-                                    <span className="font-medium">${selectedTeeTime.price}</span>
-                                </div>
-                            ))}
+                             <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Subtotal</span>
+                                <span className="font-medium">${subtotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Taxes (16%)</span>
+                                <span className="font-medium">${taxes.toFixed(2)}</span>
+                            </div>
                         </div>
 
                         <Separator />
@@ -209,7 +215,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                         <Button asChild size="lg" className="w-full font-bold text-base h-12">
                              <Link href={bookingUrl} className="flex justify-between items-center">
                                 <span>Book Now</span>
-                                <span className="bg-primary-foreground/20 px-3 py-1 rounded-md text-sm">${totalPrice}</span>
+                                <span className="bg-primary-foreground/20 px-3 py-1 rounded-md text-sm">${totalPrice.toFixed(2)}</span>
                             </Link>
                         </Button>
                         

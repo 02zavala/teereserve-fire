@@ -6,21 +6,32 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { createPaymentIntent } from '@/ai/flows/create-payment-intent';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import CheckoutForm from '@/components/CheckoutForm';
 import { Loader2 } from 'lucide-react';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
+const TAX_RATE = 0.16; // 16%
+
 function ConfirmPageContent() {
     const searchParams = useSearchParams();
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    
+    // useMemo to prevent re-running on every render
+    const params = useMemo(() => ({
+      price: searchParams.get('price'),
+    }), [searchParams]);
+
 
     useEffect(() => {
-        const amount = searchParams.get('price');
-        if (amount) {
-            createPaymentIntent({ amount: Math.round(parseFloat(amount) * 100) }) // Convert to cents
+        if (params.price) {
+            const subtotal = parseFloat(params.price);
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + tax;
+
+            createPaymentIntent({ amount: Math.round(total * 100) }) // Convert to cents
                 .then(data => {
                     setClientSecret(data.clientSecret);
                 })
@@ -29,7 +40,7 @@ function ConfirmPageContent() {
                     setError("Could not initialize payment. Please try again.");
                 });
         }
-    }, [searchParams]);
+    }, [params]);
 
     if (error) {
         return <div className="text-center text-destructive">{error}</div>;

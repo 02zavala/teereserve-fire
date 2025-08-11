@@ -19,6 +19,8 @@ import { Skeleton } from './ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Separator } from './ui/separator';
 
+const TAX_RATE = 0.16; // 16%
+
 export default function CheckoutForm() {
     const stripe = useStripe();
     const elements = useElements();
@@ -34,12 +36,18 @@ export default function CheckoutForm() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    
+    const [priceDetails, setPriceDetails] = useState({
+        subtotal: 0,
+        tax: 0,
+        total: 0,
+    });
 
     const courseId = searchParams.get('courseId');
     const date = searchParams.get('date');
     const time = searchParams.get('time');
     const players = searchParams.get('players');
-    const price = searchParams.get('price');
+    const price = searchParams.get('price'); // This is the subtotal
     const teeTimeId = searchParams.get('teeTimeId');
     const comments = searchParams.get('comments');
     
@@ -60,6 +68,18 @@ export default function CheckoutForm() {
             return;
         }
 
+        // Calculate prices
+        if (price) {
+            const subtotalNum = parseFloat(price);
+            const taxNum = subtotalNum * TAX_RATE;
+            const totalNum = subtotalNum + taxNum;
+            setPriceDetails({
+                subtotal: subtotalNum,
+                tax: taxNum,
+                total: totalNum
+            });
+        }
+
         // Safe client-side date formatting
         if (date) {
             setFormattedDate(format(new Date(date), "PPP"));
@@ -72,7 +92,7 @@ export default function CheckoutForm() {
             setIsLoading(false);
         });
 
-    }, [courseId, router, user, authLoading, searchParams, toast, date, lang]);
+    }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price]);
 
     const handleProceedToPayment = () => {
         if (!stripe || !elements) {
@@ -131,7 +151,7 @@ export default function CheckoutForm() {
                     date,
                     time,
                     players: parseInt(players),
-                    totalPrice: parseFloat(price),
+                    totalPrice: priceDetails.total,
                     status: 'Confirmed',
                     teeTimeId,
                     comments: comments || undefined,
@@ -208,10 +228,21 @@ export default function CheckoutForm() {
                                 </div>
                             )}
                         </div>
+                         <Separator />
+                         <div className="space-y-1 text-sm">
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Subtotal</span>
+                                <span>${priceDetails.subtotal.toFixed(2)}</span>
+                            </div>
+                             <div className="flex justify-between">
+                                <span className="text-muted-foreground">Taxes (16%)</span>
+                                <span>${priceDetails.tax.toFixed(2)}</span>
+                            </div>
+                        </div>
                     </CardContent>
                     <CardFooter className="bg-card flex justify-between items-center p-6 border-t">
                         <span className="text-lg">Total Price:</span>
-                        <span className="text-2xl font-bold text-accent">${price}</span>
+                        <span className="text-2xl font-bold text-accent">${priceDetails.total.toFixed(2)}</span>
                     </CardFooter>
                 </Card>
 
@@ -253,7 +284,7 @@ export default function CheckoutForm() {
                          <PaymentElement options={paymentElementOptions} />
                          {errorMessage && <div className="text-destructive text-sm font-medium">{errorMessage}</div>}
                          <Button type="submit" className="w-full text-lg font-bold" disabled={!stripe || isProcessing}>
-                            {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Processing...</> : `Pay $${price} and Confirm`}
+                            {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Processing...</> : `Pay $${priceDetails.total.toFixed(2)} and Confirm`}
                         </Button>
                     </form>
                 </DialogContent>
