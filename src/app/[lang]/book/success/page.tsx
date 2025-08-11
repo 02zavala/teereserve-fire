@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, Mail, Printer, Share2, Info, User, Calendar, Clock, Users, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { getCourseById } from '@/lib/data';
-import type { GolfCourse, UserProfile } from '@/types';
+import type { GolfCourse } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { Locale } from '@/i18n-config';
@@ -39,6 +39,7 @@ function SuccessPageContent() {
             return;
         }
 
+        // Format date on the client side to avoid hydration mismatch
         if (date) {
             setFormattedDate(format(new Date(date), "PPP"));
         }
@@ -131,7 +132,12 @@ function SuccessPageContent() {
                         <CardContent>
                              <h3 className="font-semibold text-lg">{course?.name}</h3>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mt-2">
-                                <div className="flex items-center text-muted-foreground"><Calendar className="h-4 w-4 mr-2" /> Date: <span className="font-medium text-foreground ml-1">{formattedDate || ''}</span></div>
+                                <div className="flex items-center text-muted-foreground">
+                                    <Calendar className="h-4 w-4 mr-2" /> Date: 
+                                    <span className="font-medium text-foreground ml-1">
+                                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
+                                    </span>
+                                </div>
                                 <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{time}</span></div>
                                 <div className="flex items-center text-muted-foreground"><Users className="h-4 w-4 mr-2" /> Players: <span className="font-medium text-foreground ml-1">{players}</span></div>
                                 <div className="flex items-center text-muted-foreground"><DollarSign className="h-4 w-4 mr-2" /> Total: <span className="font-medium text-foreground ml-1">${price}</span></div>

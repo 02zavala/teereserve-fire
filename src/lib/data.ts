@@ -2,7 +2,7 @@
 
 import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile } from '@/types';
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { format, startOfDay } from 'date-fns';
 
@@ -257,6 +257,13 @@ export const updateCourse = async (courseId: string, courseData: CourseDataInput
         basePrice: restOfData.basePrice,
         imageUrls: allImageUrls
     });
+}
+
+export const deleteCourse = async (courseId: string): Promise<void> => {
+    // Note: This will not delete subcollections like reviews or tee times automatically.
+    // For a production app, a Cloud Function would be needed to handle cascading deletes.
+    const courseDocRef = doc(db, 'courses', courseId);
+    await deleteDoc(courseDocRef);
 }
 
 // *** Tee Time Functions ***

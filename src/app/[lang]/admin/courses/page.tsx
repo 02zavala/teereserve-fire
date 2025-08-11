@@ -5,7 +5,8 @@ import { getCourses } from "@/lib/data";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { DeleteCourseButton } from "./DeleteCourseButton";
 
 
 export default async function CoursesAdminPage() {
@@ -67,7 +68,8 @@ export default async function CoursesAdminPage() {
                                                 <DropdownMenuItem asChild>
                                                    <Link href={`/admin/courses/edit/${course.id}`}>Edit</Link>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DeleteCourseButton courseId={course.id} courseName={course.name} />
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
