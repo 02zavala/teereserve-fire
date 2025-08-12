@@ -166,7 +166,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Form {...form}>
+                        <Form form={form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <FormField
                                     control={form.control}

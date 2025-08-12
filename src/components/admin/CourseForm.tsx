@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -95,7 +96,7 @@ export function CourseForm({ course }: CourseFormProps) {
   return (
     <Card>
         <CardContent className="pt-6">
-            <Form {...form}>
+            <Form form={form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                          <FormField
