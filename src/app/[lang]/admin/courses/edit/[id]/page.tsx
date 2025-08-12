@@ -12,8 +12,7 @@ interface EditCoursePageProps {
     }
 }
 
-export default async function EditCoursePage({ params: paramsProp }: EditCoursePageProps) {
-    const params = await paramsProp;
+export default async function EditCoursePage({ params }: EditCoursePageProps) {
     const course = await getCourseById(params.id);
 
     if (!course) {
