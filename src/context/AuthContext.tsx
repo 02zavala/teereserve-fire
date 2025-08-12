@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
@@ -18,7 +17,7 @@ import {
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, enableIndexedDbPersistence } from 'firebase/firestore';
 import type { UserProfile } from '@/types';
 import { updateUserProfile } from '@/lib/data';
 
@@ -83,24 +82,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         // Set persistence on the client-side
-        setPersistence(auth, browserLocalPersistence)
-            .then(() => {
-                const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                    setLoading(true);
-                    setUser(user);
-                    if (user) {
-                        await fetchUserProfile(user);
-                    } else {
-                        setUserProfile(null);
-                    }
-                    setLoading(false);
-                });
-                return () => unsubscribe();
-            })
-            .catch((error) => {
-                console.error("Firebase persistence error", error);
+        Promise.all([
+            setPersistence(auth, browserLocalPersistence),
+            enableIndexedDbPersistence(db)
+        ]).then(() => {
+            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                setLoading(true);
+                setUser(user);
+                if (user) {
+                    await fetchUserProfile(user);
+                } else {
+                    setUserProfile(null);
+                }
                 setLoading(false);
             });
+            return () => unsubscribe();
+        }).catch((error) => {
+            console.error("Firebase persistence error:", error.code);
+            // Fallback for browsers that don't support persistence or have issues
+            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                setLoading(true);
+                setUser(user);
+                if (user) {
+                    await fetchUserProfile(user);
+                } else {
+                    setUserProfile(null);
+                }
+                setLoading(false);
+            });
+            return () => unsubscribe();
+        });
     }, [fetchUserProfile]);
 
      const refreshUserProfile = useCallback(async () => {
