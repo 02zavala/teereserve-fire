@@ -127,23 +127,57 @@ The admin panel features a real-time analytics dashboard with advanced visualiza
 
 ## 7. Installation and Deployment
 
-**Local Development:**
+### Step 1: Local Setup
 
-1.  **Prerequisites:** Node.js, Firebase CLI.
-2.  **Clone Repository:** `git clone ...`
-3.  **Install Dependencies:** `npm install`
-4.  **Environment Variables:** Create a `.env.local` file from `.env.example` and populate it with your Firebase project configuration and API keys (Stripe, Google Maps).
-5.  **Run Development Server:** `npm run dev`
+1.  **Download the Code:** If you haven't already, download the project code as a ZIP file and unzip it on your computer.
+2.  **Prerequisites:** Make sure you have [Node.js](https://nodejs.org/) (version 18 or higher) and the [Firebase CLI](https://firebase.google.com/docs/cli) installed.
+3.  **Install Dependencies:** Open your terminal in the project's root folder and run:
+    ```bash
+    npm install
+    ```
+4.  **Environment Variables:** Create a `.env.local` file by copying the `.env.example` file. Populate it with your Firebase project configuration and API keys (Stripe, Google Maps, etc.).
+5.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
 
-**Production Deployment:**
+### Step 2: Upload to GitHub
+
+1.  **Create a Repository:** Go to [GitHub](https://github.com/new) and create a new, empty repository. Do **not** initialize it with a README or .gitignore file.
+2.  **Initialize Git:** In your project's root folder in the terminal, run:
+    ```bash
+    git init -b main
+    git add .
+    git commit -m "Initial commit"
+    ```
+3.  **Connect to GitHub:** Copy the commands from your new GitHub repository page (under "...or push an existing repository from the command line") and run them. They will look like this:
+    ```bash
+    git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+    git push -u origin main
+    ```
+
+### Step 3: Deploy to Firebase Hosting
 
 Deployment is fully automated via Firebase Hosting.
 
-1.  **Connect to Firebase:** `firebase use <your-project-id>`
-2.  **Build Project:** `npm run build`
-3.  **Deploy:** `firebase deploy --only hosting`
+1.  **Connect to Firebase:** If you haven't already, log in to Firebase from your terminal:
+    ```bash
+    firebase login
+    ```
+    Then, connect your local project to your Firebase project:
+    ```bash
+    firebase use <your-project-id>
+    ```
+2.  **Build Project:** Create a production-ready build of your Next.js app:
+    ```bash
+    npm run build
+    ```
+3.  **Deploy:** Deploy your application to Firebase Hosting with one command:
+    ```bash
+    firebase deploy --only hosting
+    ```
 
-Firebase automatically handles provisioning the serverless infrastructure, CDN configuration, and SSL certificate.
+Firebase will automatically handle provisioning the serverless infrastructure, CDN configuration, and SSL certificate. After a few moments, it will give you the live URL for your application!
 
 ---
 
@@ -156,5 +190,3 @@ Firebase automatically handles provisioning the serverless infrastructure, CDN c
     -   Integrated help desk functionality.
     -   Real-time chat support via WhatsApp Business API.
 -   **Uptime & Status:** A public status page will report on the health of all system components.
-
-    
