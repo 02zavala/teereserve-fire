@@ -1,13 +1,11 @@
 
 
-// Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
-import { getAuth, browserLocalPersistence } from "firebase/auth";
+import { initializeAuth, browserLocalPersistence, browserPopupRedirectResolver } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
-// This configuration is simplified to the essentials for Auth, Firestore, and Storage.
 const firebaseConfig = {
   apiKey: "AIzaSyAGbLMGcxSRumk--pywW6PvytcTwRn4j1E",
   authDomain: "teereserve-golf.firebaseapp.com",
@@ -21,12 +19,16 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
-const auth = getAuth(app);
-auth.setPersistence(browserLocalPersistence);
+
+// Initialize Firebase Authentication with persistence
+const auth = initializeAuth(app, {
+  persistence: browserLocalPersistence,
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
 
 const storage = getStorage(app);
 
-// Enable offline persistence
+// Enable offline persistence for Firestore
 enableIndexedDbPersistence(db)
   .catch((err) => {
     if (err.code == 'failed-precondition') {
@@ -40,6 +42,3 @@ enableIndexedDbPersistence(db)
 
 
 export { db, auth, storage };
-
-
-
