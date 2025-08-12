@@ -13,36 +13,32 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     const lang = pathname.split('/')[1] || 'en';
 
     useEffect(() => {
+        // Don't do anything until the initial loading is complete
         if (loading) {
-            // Still waiting for auth state to resolve, do nothing.
             return;
         }
 
+        // If not logged in, redirect to login page
         if (!user) {
-            // No user found, redirect to login.
             router.push(`/${lang}/login?redirect=${pathname}`);
             return;
         }
-
-        if (user && !userProfile) {
-            // User object is present, but profile is still loading.
-            // This happens right after login. We wait for the profile.
-            return;
-        }
-
+        
+        // If logged in, but profile is not yet loaded, wait.
+        // Once profile is loaded, check the role.
         if (userProfile) {
-            // Profile is loaded, now we can check the role.
             const isAuthorized = userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin';
             if (!isAuthorized) {
-                // Not an admin, redirect to home page.
+                // If not an admin, redirect to home.
                 router.push(`/${lang}`);
             }
         }
 
     }, [user, userProfile, loading, router, lang, pathname]);
 
-    // Show a loader if auth state is loading OR if we have a user but are still waiting for their profile.
-    if (loading || (user && !userProfile)) {
+    // Show a loader while the initial auth state is being determined,
+    // or while waiting for the user profile to load after authentication.
+    if (loading || !userProfile) {
         return (
             <div className="flex items-center justify-center h-screen w-full">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -51,12 +47,12 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
         );
     }
     
-    // If we've passed all checks and the user has an admin role, render the children.
-    if (user && userProfile && (userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin')) {
+    // If the user is authenticated and has an admin role, render the children.
+    if (userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin') {
         return <>{children}</>;
     }
 
-    // Fallback loader while redirecting non-admin users.
+    // Fallback: show a loader while redirecting non-admin users.
     return (
         <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
