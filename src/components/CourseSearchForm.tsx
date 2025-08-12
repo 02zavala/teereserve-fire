@@ -109,119 +109,117 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     return (
         <Card className="bg-card/90 backdrop-blur-sm border-border/60 shadow-lg">
             <CardContent className="p-4 md:p-6">
-                <Form form={form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 lg:items-end">
-                        <FormField
-                            control={form.control}
-                            name="location"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><MapPin className="mr-1 h-3 w-3" /> {dictionary.location}</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a location" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="all">{dictionary.allLocations}</SelectItem>
-                                            {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="date"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><CalendarIcon className="mr-1 h-3 w-3" /> {dictionary.date}</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            disabled={isGroupBooking}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>{dictionary.pickDate}</span>
-                                            )}
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                disabled={(date) =>
-                                                date < new Date(new Date().setHours(0,0,0,0)) || isGroupBooking
-                                                }
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="players"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><Users className="mr-1 h-3 w-3" /> {dictionary.players}</FormLabel>
-                                    <Select onValueChange={handlePlayersChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select players" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} {p > 1 ? dictionary.multiplePlayers : dictionary.onePlayer}</SelectItem>)}
-                                            <SelectItem value="group">{dictionary.groupBooking}</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="time"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="flex items-center text-xs text-muted-foreground"><Clock className="mr-1 h-3 w-3" /> {dictionary.time}</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Any time" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="any">{dictionary.anyTime}</SelectItem>
-                                            <SelectItem value="afternoon">{dictionary.afternoon}</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="lg:col-span-1">
-                            <Button type="submit" className="w-full text-base font-bold h-10">
-                                {isGroupBooking ? <Send className="mr-2 h-4 w-4" /> : null}
-                                {isGroupBooking ? dictionary.contactUs : dictionary.search}
-                            </Button>
-                        </div>
-                    </form>
+                <Form form={form} onSubmit={onSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 lg:items-end">
+                    <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground"><MapPin className="mr-1 h-3 w-3" /> {dictionary.location}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a location" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="all">{dictionary.allLocations}</SelectItem>
+                                        {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="date"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground"><CalendarIcon className="mr-1 h-3 w-3" /> {dictionary.date}</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                        disabled={isGroupBooking}
+                                        >
+                                        {field.value ? (
+                                            format(field.value, "PPP")
+                                        ) : (
+                                            <span>{dictionary.pickDate}</span>
+                                        )}
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) =>
+                                            date < new Date(new Date().setHours(0,0,0,0)) || isGroupBooking
+                                            }
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="players"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground"><Users className="mr-1 h-3 w-3" /> {dictionary.players}</FormLabel>
+                                <Select onValueChange={handlePlayersChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select players" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} {p > 1 ? dictionary.multiplePlayers : dictionary.onePlayer}</SelectItem>)}
+                                        <SelectItem value="group">{dictionary.groupBooking}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="time"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground"><Clock className="mr-1 h-3 w-3" /> {dictionary.time}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Any time" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="any">{dictionary.anyTime}</SelectItem>
+                                        <SelectItem value="afternoon">{dictionary.afternoon}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="lg:col-span-1">
+                        <Button type="submit" className="w-full text-base font-bold h-10">
+                            {isGroupBooking ? <Send className="mr-2 h-4 w-4" /> : null}
+                            {isGroupBooking ? dictionary.contactUs : dictionary.search}
+                        </Button>
+                    </div>
                 </Form>
             </CardContent>
         </Card>
