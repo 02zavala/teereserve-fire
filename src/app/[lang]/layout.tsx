@@ -17,7 +17,7 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { lang: Locale };
 }) {
-  const params = React.use(paramsProp);
+  const params = await paramsProp;
   const dictionary = await getDictionary(params.lang);
 
   return (
