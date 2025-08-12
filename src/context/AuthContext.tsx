@@ -6,7 +6,6 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback 
 import { 
     onAuthStateChanged, 
     User, 
-    Auth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
