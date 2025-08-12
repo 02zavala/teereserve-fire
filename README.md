@@ -1,35 +1,35 @@
-# TeeReserve Golf - Premium Golf Booking Platform (Enterprise Vision)
+# TeeReserve Golf - Plataforma Premium de Reservas de Golf (Visión Empresarial)
 
-TeeReserve Golf is evolving from a premium booking application into a scalable, secure, and robust multi-tenant SaaS platform for enterprise-level golf course management in Los Cabos, Mexico, and beyond. This document outlines the architectural vision and strategic plan for this transformation.
+TeeReserve Golf está evolucionando de una aplicación de reservas premium a una plataforma SaaS multi-inquilino escalable, segura y robusta para la gestión de campos de golf a nivel empresarial en Los Cabos, México, y más allá. Este documento describe la visión arquitectónica y el plan estratégico para esta transformación.
 
-## Core Pillars of the Enterprise Solution
+## Pilares Fundamentales de la Solución Empresarial
 
-1.  **Multi-Tenant Architecture:** Support multiple golf courses, each with its own subdomain, branding, and custom configurations.
-2.  **Enterprise-Grade Security:** Achieve PCI DSS Level 1 compliance with advanced fraud detection and robust security protocols.
-3.  **Superior User Experience:** Deliver a high-performance Progressive Web App (PWA) with offline capabilities and real-time features.
-4.  **Data-Driven Operations:** Provide a comprehensive analytics dashboard for real-time business intelligence.
-5.  **Extensibility and Integration:** Offer public APIs for seamless integration with external systems.
-6.  **AI & Automation:** Leverage artificial intelligence for dynamic pricing, demand forecasting, and personalized marketing.
+1.  **Arquitectura Multi-Inquilino (Multi-Tenant):** Soportar múltiples campos de golf, cada uno con su propio subdominio, marca y configuraciones personalizadas.
+2.  **Seguridad de Nivel Empresarial:** Alcanzar el cumplimiento de PCI DSS Nivel 1 con detección avanzada de fraudes y protocolos de seguridad robustos.
+3.  **Experiencia de Usuario Superior:** Ofrecer una Progressive Web App (PWA) de alto rendimiento con capacidades sin conexión y funciones en tiempo real.
+4.  **Operaciones Basadas en Datos:** Proporcionar un panel de análisis completo para inteligencia de negocio en tiempo real.
+5.  **Extensibilidad e Integración:** Ofrecer APIs públicas para una integración perfecta con sistemas externos.
+6.  **IA y Automatización:** Aprovechar la inteligencia artificial para precios dinámicos, previsión de la demanda y marketing personalizado.
 
 ---
 
-## 1. System Architecture (Multi-Tenant)
+## 1. Arquitectura del Sistema (Multi-Inquilino)
 
-The platform is built on a multi-tenant architecture where each golf course (a "tenant") operates within a shared infrastructure but with data and branding isolation.
+La plataforma se basa en una arquitectura multi-inquilino donde cada campo de golf (un "inquilino") opera dentro de una infraestructura compartida pero con aislamiento de datos y marca.
 
-**Data Structuring (Firestore):**
+**Estructura de Datos (Firestore):**
 
-The Firestore database is structured around a `tenantId` (which is the `courseId`) to ensure strict data segregation.
+La base de datos de Firestore está estructurada en torno a un `tenantId` (que es el `courseId`) para garantizar una segregación estricta de los datos.
 
 ```
-/courses/{courseId}  // Represents a Tenant
+/courses/{courseId}  // Representa un Inquilino
   - name: "Palmilla Golf Club"
   - subdomain: "palmilla"
   - branding: { primaryColor: "#...", logoUrl: "..." }
   - settings: { operatingHours: [...], bookingPolicy: "...", currency: "usd" }
-  - (other course-specific data...)
+  - (otros datos específicos del campo...)
 
-  // Subcollections for tenant-specific data
+  // Subcolecciones para datos específicos del inquilino
   /courses/{courseId}/teeTimes/{date_time}
   /courses/{courseId}/bookings/{bookingId}
   /courses/{courseId}/reviews/{reviewId}
@@ -38,155 +38,155 @@ The Firestore database is structured around a `tenantId` (which is the `courseId
   - email: "user@example.com"
   - displayName: "John Doe"
   - roles: {
-      "{courseId}": "Admin",        // User is an Admin for a specific course
+      "{courseId}": "Admin",        // El usuario es un Admin para un campo específico
       "{anotherCourseId}": "Staff"
     }
 ```
 
-**Subdomain Handling (Next.js Middleware):**
+**Manejo de Subdominios (Middleware de Next.js):**
 
-The Next.js middleware (`src/middleware.ts`) is responsible for identifying the tenant based on the request's hostname (e.g., `palmilla.teereserve.golf`). It extracts the subdomain, maps it to a `courseId`, and rewrites the request internally. This allows the application to dynamically load the correct branding, settings, and data for the active tenant.
-
----
-
-## 2. Security Strategy
-
-Security is paramount. The platform is designed to meet PCI DSS Level 1 standards and protect against modern threats.
-
--   **PCI DSS Compliance:**
-    -   **Payment Processing:** All payment processing is delegated to **Stripe**, which is PCI DSS Level 1 certified. Sensitive cardholder data is sent directly to Stripe's servers via tokenization (using Stripe Elements) and never touches our application servers.
-    -   **3D Secure:** Stripe Payments is configured to automatically trigger 3D Secure for transactions that meet certain risk criteria, adding a crucial layer of authentication.
-    -   **TLS 1.3:** All traffic is enforced to use TLS 1.3 through Firebase Hosting and Cloudflare configurations.
-
--   **AI-Powered Fraud Detection:**
-    -   A **Genkit Flow** will be created to analyze booking attempts before payment. This flow will score the transaction's risk based on factors like: amount, location mismatch (IP vs. billing), user history, and time of day.
-    -   Based on the risk score, the system will automatically:
-        1.  **Approve:** Low-risk transactions proceed directly.
-        2.  **Challenge:** Medium-risk transactions are forced to complete 3D Secure.
-        3.  **Manual Review:** High-risk transactions are flagged for admin review.
-        4.  **Block:** Extremely high-risk attempts are blocked.
-
--   **Infrastructure Security:**
-    -   **Firebase Security Rules:** Firestore access is rigorously controlled with rules that enforce tenant data isolation (e.g., a user can only access data related to their `courseId`).
-    -   **Firebase App Check:** Ensures that requests to our backend originate from our legitimate app, preventing abuse.
-    -   **Cloudflare WAF & DDoS Protection:** Firebase Hosting's integration with Cloudflare provides an enterprise-grade Web Application Firewall and robust protection against DDoS attacks.
+El middleware de Next.js (`src/middleware.ts`) es responsable de identificar al inquilino basándose en el hostname de la solicitud (p. ej., `palmilla.teereserve.golf`). Extrae el subdominio, lo mapea a un `courseId` y reescribe la solicitud internamente. Esto permite que la aplicación cargue dinámicamente la marca, configuración y datos correctos para el inquilino activo.
 
 ---
 
-## 3. Technology Stack
+## 2. Estrategia de Seguridad
 
-The solution leverages a modern, serverless, and highly scalable tech stack.
+La seguridad es primordial. La plataforma está diseñada para cumplir con los estándares PCI DSS Nivel 1 y proteger contra amenazas modernas.
 
--   **Frontend:** **Next.js 15 (App Router)** with React, Tailwind CSS, and ShadCN UI.
--   **Backend & AI:** **Google Genkit** for orchestrating AI flows and server-side logic, running on serverless infrastructure.
--   **Database:** **Firebase Firestore** for scalable, real-time NoSQL data storage.
--   **Authentication:** **Firebase Authentication** with support for email/password, OAuth, and role-based access control (RBAC).
--   **File Storage:** **Firebase Storage** for course images and user-uploaded content.
--   **Payments:** **Stripe** for secure, PCI-compliant payment processing.
--   **Hosting & CDN:** **Firebase Hosting** for global, low-latency content delivery, automatically configured with a CDN and SSL.
+-   **Cumplimiento PCI DSS:**
+    -   **Procesamiento de Pagos:** Todo el procesamiento de pagos se delega a **Stripe**, que cuenta con la certificación PCI DSS Nivel 1. Los datos sensibles de los titulares de tarjetas se envían directamente a los servidores de Stripe mediante tokenización (usando Stripe Elements) y nunca tocan nuestros servidores de aplicación.
+    -   **3D Secure:** Stripe Payments está configurado para activar automáticamente 3D Secure en transacciones que cumplen ciertos criterios de riesgo, añadiendo una capa crucial de autenticación.
+    -   **TLS 1.3:** Se fuerza todo el tráfico a usar TLS 1.3 a través de las configuraciones de Firebase Hosting y Cloudflare.
 
----
+-   **Detección de Fraude con IA:**
+    -   Se creará un **Flujo de Genkit** para analizar los intentos de reserva antes del pago. Este flujo puntuará el riesgo de la transacción basándose en factores como: importe, discrepancia de ubicación (IP vs. facturación), historial del usuario y hora del día.
+    -   Según la puntuación de riesgo, el sistema automáticamente:
+        1.  **Aprobará:** Las transacciones de bajo riesgo proceden directamente.
+        2.  **Desafiará:** Las transacciones de riesgo medio se fuerzan a completar 3D Secure.
+        3.  **Revisión Manual:** Las transacciones de alto riesgo se marcan para revisión administrativa.
+        4.  **Bloqueará:** Los intentos de riesgo extremadamente alto se bloquean.
 
-## 4. Progressive Web App (PWA) & Offline Support
-
-The application is a fully-featured PWA to provide a native-app-like experience.
-
--   **Service Workers:** A service worker (`next-pwa`) caches critical application assets (shell, static data) to enable offline browsing of course information and previously viewed data.
--   **Offline Data Sync:** Key user data, like their own bookings, are stored locally using IndexedDB. When the user is offline, they can still view their upcoming reservations. Any actions made offline (like drafting a review) are queued and synced automatically when connectivity is restored.
--   **Push Notifications:** Firebase Cloud Messaging (FCM) is used to send push notifications for booking confirmations, reminders, and special offers.
-
----
-
-## 5. Analytics Dashboard
-
-The admin panel features a real-time analytics dashboard with advanced visualizations.
-
--   **Real-Time Metrics:**
-    -   **Revenue:** Aggregated in real-time using Firebase Extensions that sync data to a dedicated analytics store (like BigQuery).
-    -   **Occupancy Rate:** Calculated via scheduled functions that analyze `teeTimes` status.
-    -   **Net Promoter Score (NPS):** Collected via post-booking surveys.
--   **Visualizations:**
-    -   **Charts & Graphs:** Using `shadcn/charts` and Recharts to display trends in revenue, bookings, and user growth.
-    -   **Heatmaps:** A visual representation of tee time popularity by day and hour.
+-   **Seguridad de la Infraestructura:**
+    -   **Reglas de Seguridad de Firebase:** El acceso a Firestore se controla rigurosamente con reglas que aplican el aislamiento de datos del inquilino (p. ej., un usuario solo puede acceder a datos relacionados con su `courseId`).
+    -   **Firebase App Check:** Asegura que las solicitudes a nuestro backend se originen desde nuestra aplicación legítima, previniendo abusos.
+    -   **Cloudflare WAF y Protección DDoS:** La integración de Firebase Hosting con Cloudflare proporciona un Web Application Firewall de nivel empresarial y una protección robusta contra ataques DDoS.
 
 ---
 
-## 6. Public APIs & Integrations
+## 3. Stack Tecnológico
 
--   **RESTful API:**
-    -   Firebase Functions are used to expose RESTful endpoints for public consumption (e.g., `GET /api/courses/{courseId}/availability`).
-    -   **Authentication:** Access is managed via secure, tenant-specific API keys.
-    -   **Documentation:** An OpenAPI (Swagger) specification is auto-generated and hosted for developers.
--   **Webhooks:** The system can send webhook notifications to external services on events like `booking.confirmed`.
--   **External Integrations:**
-    -   **Google Calendar:** Users can one-click add their booking to their Google Calendar.
-    -   **WhatsApp Business:** Automated booking confirmations and reminders are sent via the WhatsApp API.
-    -   **Stripe Radar:** Integrated for advanced, pre-built fraud detection rules.
+La solución aprovecha un stack tecnológico moderno, sin servidor y altamente escalable.
+
+-   **Frontend:** **Next.js 15 (App Router)** con React, Tailwind CSS y ShadCN UI.
+-   **Backend e IA:** **Google Genkit** para orquestar flujos de IA y lógica del lado del servidor, ejecutándose en infraestructura sin servidor.
+-   **Base de Datos:** **Firebase Firestore** para almacenamiento de datos NoSQL escalable y en tiempo real.
+-   **Autenticación:** **Firebase Authentication** con soporte para correo/contraseña, OAuth y control de acceso basado en roles (RBAC).
+-   **Almacenamiento de Archivos:** **Firebase Storage** para imágenes de campos y contenido subido por usuarios.
+-   **Pagos:** **Stripe** para procesamiento de pagos seguro y compatible con PCI.
+-   **Hosting y CDN:** **Firebase Hosting** para entrega de contenido global de baja latencia, configurado automáticamente con un CDN y SSL.
 
 ---
 
-## 7. Installation and Deployment
+## 4. Progressive Web App (PWA) y Soporte Sin Conexión
 
-### Step 1: Local Setup
+La aplicación es una PWA con todas las funciones para proporcionar una experiencia similar a la de una aplicación nativa.
 
-1.  **Download the Code:** If you haven't already, download the project code as a ZIP file and unzip it on your computer.
-2.  **Prerequisites:** Make sure you have [Node.js](https://nodejs.org/) (version 18 or higher) and the [Firebase CLI](https://firebase.google.com/docs/cli) installed.
-3.  **Install Dependencies:** Open your terminal in the project's root folder and run:
+-   **Service Workers:** Un service worker (`next-pwa`) almacena en caché los activos críticos de la aplicación (la estructura base, datos estáticos) para permitir la navegación sin conexión de la información de los cursos y datos vistos previamente.
+-   **Sincronización de Datos Sin Conexión:** Los datos clave del usuario, como sus propias reservas, se almacenan localmente usando IndexedDB. Cuando el usuario está sin conexión, todavía puede ver sus próximas reservas. Cualquier acción realizada sin conexión (como redactar una reseña) se pone en cola y se sincroniza automáticamente cuando se restablece la conectividad.
+-   **Notificaciones Push:** Se utiliza Firebase Cloud Messaging (FCM) para enviar notificaciones push para confirmaciones de reservas, recordatorios y ofertas especiales.
+
+---
+
+## 5. Panel de Análisis
+
+El panel de administración cuenta con un panel de análisis en tiempo real con visualizaciones avanzadas.
+
+-   **Métricas en Tiempo Real:**
+    -   **Ingresos:** Agregados en tiempo real utilizando Extensiones de Firebase que sincronizan los datos a un almacén de análisis dedicado (como BigQuery).
+    -   **Tasa de Ocupación:** Calculada mediante funciones programadas que analizan el estado de los `teeTimes`.
+    -   **Net Promoter Score (NPS):** Recopilado a través de encuestas posteriores a la reserva.
+-   **Visualizaciones:**
+    -   **Gráficos y Diagramas:** Usando `shadcn/charts` y Recharts para mostrar tendencias en ingresos, reservas y crecimiento de usuarios.
+    -   **Mapas de Calor:** Una representación visual de la popularidad de los tee times por día y hora.
+
+---
+
+## 6. APIs Públicas e Integraciones
+
+-   **API RESTful:**
+    -   Se utilizan Firebase Functions para exponer endpoints RESTful para consumo público (p. ej., `GET /api/courses/{courseId}/availability`).
+    -   **Autenticación:** El acceso se gestiona mediante claves de API seguras y específicas del inquilino.
+    -   **Documentación:** Se genera y aloja automáticamente una especificación OpenAPI (Swagger) para los desarrolladores.
+-   **Webhooks:** El sistema puede enviar notificaciones webhook a servicios externos en eventos como `booking.confirmed`.
+-   **Integraciones Externas:**
+    -   **Google Calendar:** Los usuarios pueden añadir su reserva a su Google Calendar con un solo clic.
+    -   **WhatsApp Business:** Se envían confirmaciones y recordatorios de reserva automatizados a través de la API de WhatsApp.
+    -   **Stripe Radar:** Integrado para reglas avanzadas y preconstruidas de detección de fraudes.
+
+---
+
+## 7. Instalación y Despliegue
+
+### Paso 1: Configuración Local
+
+1.  **Descarga el Código:** Si aún no lo has hecho, descarga el código del proyecto como un archivo ZIP y descomprímelo en tu computadora.
+2.  **Prerrequisitos:** Asegúrate de tener instalados [Node.js](https://nodejs.org/) (versión 18 o superior) y la [Firebase CLI](https://firebase.google.com/docs/cli).
+3.  **Instalar Dependencias:** Abre tu terminal en la carpeta raíz del proyecto y ejecuta:
     ```bash
     npm install
     ```
-4.  **Environment Variables:** Create a `.env.local` file by copying the `.env.example` file. Populate it with your Firebase project configuration and API keys (Stripe, Google Maps, etc.).
-5.  **Run Development Server:**
+4.  **Variables de Entorno:** Crea un archivo `.env.local` copiando el archivo `.env.example`. Complétalo con la configuración de tu proyecto de Firebase y tus claves de API (Stripe, Google Maps, etc.).
+5.  **Ejecutar Servidor de Desarrollo:**
     ```bash
     npm run dev
     ```
 
-### Step 2: Upload to GitHub
+### Paso 2: Subir a GitHub
 
-1.  **Create a Repository:** Go to [GitHub](https://github.com/new) and create a new, empty repository. Do **not** initialize it with a README or .gitignore file.
-2.  **Initialize Git:** In your project's root folder in the terminal, run:
+1.  **Crear un Repositorio:** Ve a [GitHub](https://github.com/new) y crea un nuevo repositorio vacío. **No** lo inicialices con un archivo README o .gitignore.
+2.  **Inicializar Git:** En la carpeta raíz de tu proyecto en la terminal, ejecuta:
     ```bash
     git init -b main
     git add .
-    git commit -m "Initial commit"
+    git commit -m "Commit inicial"
     ```
-3.  **Connect to GitHub:** Copy the commands from your new GitHub repository page (under "...or push an existing repository from the command line") and run them. They will look like this:
+3.  **Conectar con GitHub:** Copia los comandos de la página de tu nuevo repositorio de GitHub (en "...o sube un repositorio existente desde la línea de comandos") y ejecútalos. Se verán así:
     ```bash
-    git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+    git remote add origin https://github.com/TU_USUARIO/TU_REPOSITORIO.git
     git push -u origin main
     ```
 
-### Step 3: Deploy to Firebase Hosting
+### Paso 3: Desplegar en Firebase Hosting
 
-Deployment is fully automated via Firebase Hosting.
+El despliegue está completamente automatizado a través de Firebase Hosting.
 
-1.  **Connect to Firebase:** If you haven't already, log in to Firebase from your terminal:
+1.  **Conectar con Firebase:** Si aún no lo has hecho, inicia sesión en Firebase desde tu terminal:
     ```bash
     firebase login
     ```
-    Then, connect your local project to your Firebase project:
+    Luego, conecta tu proyecto local con tu proyecto de Firebase:
     ```bash
-    firebase use <your-project-id>
+    firebase use <tu-id-de-proyecto>
     ```
-2.  **Build Project:** Create a production-ready build of your Next.js app:
+2.  **Construir Proyecto:** Crea una compilación lista para producción de tu aplicación Next.js:
     ```bash
     npm run build
     ```
-3.  **Deploy:** Deploy your application to Firebase Hosting with one command:
+3.  **Desplegar:** Despliega tu aplicación en Firebase Hosting con un solo comando:
     ```bash
     firebase deploy --only hosting
     ```
 
-Firebase will automatically handle provisioning the serverless infrastructure, CDN configuration, and SSL certificate. After a few moments, it will give you the live URL for your application!
+Firebase se encargará automáticamente de aprovisionar la infraestructura sin servidor, la configuración del CDN y el certificado SSL. ¡Después de unos momentos, te dará la URL en vivo de tu aplicación!
 
 ---
 
-## 8. Support and Monitoring Strategy
+## 8. Estrategia de Soporte y Monitoreo
 
--   **24/7 Monitoring:**
-    -   **Google Cloud Operations (formerly Stackdriver):** Provides comprehensive logging, monitoring, and alerting for all Firebase services.
-    -   **Alerts:** Automated alerts are configured for critical events, such as error spikes, high latency, or security rule denials.
--   **User Support:**
-    -   Integrated help desk functionality.
-    -   Real-time chat support via WhatsApp Business API.
--   **Uptime & Status:** A public status page will report on the health of all system components.
+-   **Monitoreo 24/7:**
+    -   **Google Cloud Operations (antes Stackdriver):** Proporciona registro, monitoreo y alertas completos para todos los servicios de Firebase.
+    -   **Alertas:** Se configuran alertas automáticas para eventos críticos, como picos de errores, alta latencia o denegaciones de reglas de seguridad.
+-   **Soporte al Usuario:**
+    -   Funcionalidad de mesa de ayuda integrada.
+    -   Soporte por chat en tiempo real a través de la API de WhatsApp Business.
+-   **Disponibilidad y Estado:** Una página de estado pública informará sobre la salud de todos los componentes del sistema.
