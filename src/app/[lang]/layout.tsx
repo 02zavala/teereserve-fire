@@ -1,5 +1,5 @@
 
-import { Locale, i18n } from "@/i18n-config";
+import { Locale, i1n } from "@/i18n-config";
 import { CookieConsent } from "@/components/CookieConsent";
 import { getDictionary } from "@/lib/get-dictionary";
 import { Header } from "@/components/layout/Header";
