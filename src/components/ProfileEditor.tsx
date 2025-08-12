@@ -19,11 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { updateUserProfile } from "@/lib/data";
+import { updateUserProfile, uploadProfilePicture } from "@/lib/data";
 import { User } from "firebase/auth";
 import type { UserProfile } from "@/types";
 import { updateProfile } from "firebase/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, UploadCloud } from "lucide-react";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 
 interface ProfileEditorProps {
@@ -42,6 +44,8 @@ type ProfileFormValues = z.infer<typeof formSchema>;
 
 export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: ProfileEditorProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(userProfile.photoURL);
   const { toast } = useToast();
 
   const form = useForm<ProfileFormValues>({
@@ -52,18 +56,33 @@ export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: 
     },
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const onSubmit = async (values: ProfileFormValues) => {
     try {
+      let photoURL = userProfile.photoURL;
       const updates: Partial<UserProfile> = {};
+
+      if (imageFile) {
+        photoURL = await uploadProfilePicture(user.uid, imageFile);
+        updates.photoURL = photoURL;
+      }
+
       if (values.displayName !== userProfile.displayName) {
         updates.displayName = values.displayName;
-        await updateProfile(user, { displayName: values.displayName });
       }
       if (values.handicap !== userProfile.handicap) {
         updates.handicap = values.handicap;
       }
       
       if (Object.keys(updates).length > 0) {
+        await updateProfile(user, { displayName: updates.displayName, photoURL: updates.photoURL });
         await updateUserProfile(user.uid, updates);
       }
       
@@ -95,6 +114,18 @@ export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+            <div className="flex flex-col items-center space-y-4">
+                <Avatar className="h-24 w-24">
+                    <AvatarImage src={imagePreview || `https://i.pravatar.cc/128?u=${user.uid}`} />
+                    <AvatarFallback>{userProfile.displayName?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <Label htmlFor="picture" className="cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+                    <UploadCloud className="h-4 w-4" />
+                    Change Picture
+                </Label>
+                <Input id="picture" type="file" accept="image/*" className="hidden" onChange={handleImageChange}/>
+            </div>
+
             <FormField
               control={form.control}
               name="displayName"

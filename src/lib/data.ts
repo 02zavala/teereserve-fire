@@ -193,6 +193,14 @@ export const uploadReviewImage = async (courseId: string, userId: string, file: 
     return getDownloadURL(snapshot.ref);
 };
 
+export const uploadProfilePicture = async (userId: string, file: File): Promise<string> => {
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+    const storageRef = ref(storage, `profile-pictures/${userId}/${Date.now()}-${cleanFileName}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return getDownloadURL(snapshot.ref);
+};
+
+
 // *** Firestore Data Functions ***
 
 export const getCourses = async ({ location }: { location?: string }): Promise<GolfCourse[]> => {
@@ -492,10 +500,11 @@ export async function updateUserRole(uid: string, role: UserProfile['role']): Pr
     await updateDoc(userDocRef, { role });
 }
 
-export async function updateUserProfile(uid: string, data: { displayName?: string, handicap?: number }): Promise<void> {
+export async function updateUserProfile(uid: string, data: Partial<UserProfile>): Promise<void> {
     const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, data);
 }
+
 
 // *** Scorecard Functions ***
 export async function addUserScorecard(scorecardData: ScorecardInput): Promise<string> {
