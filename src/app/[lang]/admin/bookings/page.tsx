@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -28,24 +28,20 @@ interface FormattedBooking extends Omit<Booking, 'date'> {
 }
 
 function BookingRow({ booking }: { booking: FormattedBooking }) {
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
-
-    useEffect(() => {
-        // Safe client-side date formatting to prevent hydration mismatch.
+    const formattedDate = useMemo(() => {
         if (booking.date) {
             try {
-                // Ensure date is treated as a valid Date object before formatting
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    setFormattedDate(format(dateObj, 'PPP'));
-                } else {
-                    throw new Error("Invalid date value");
+                    return format(dateObj, 'PPP');
                 }
+                throw new Error("Invalid date value");
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
-                setFormattedDate("Invalid Date");
+                return "Invalid Date";
             }
         }
+        return null;
     }, [booking.date, booking.id]);
 
     return (
