@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { getUserBookings } from "@/lib/data";
 import type { Booking, UserProfile } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { ScorecardManager } from "@/components/ScorecardManager";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
     id: string;
@@ -73,41 +73,44 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
 export default function ProfilePage() {
     const { user, userProfile, loading, refreshUserProfile } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
+
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
     const [memberSince, setMemberSince] = useState<string | null>(null);
 
+    // Effect for redirecting if not logged in
     useEffect(() => {
-        if (loading) {
-            return; // Wait for the auth state to be resolved
+        if (!loading && !user) {
+            const lang = pathname.split('/')[1] || 'en';
+            router.push(`/${lang}/login`);
         }
-        if (!user) {
-            router.push('/login'); // Redirect if not logged in
-            return;
+    }, [user, loading, router, pathname]);
+
+    // Effect for fetching user-specific data
+    useEffect(() => {
+        if (user) {
+            setLoadingBookings(true);
+            if (user.metadata.creationTime) {
+                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
+            }
+
+            getUserBookings(user.uid)
+                .then(userBookings => {
+                    setBookings(userBookings);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch bookings", err);
+                })
+                .finally(() => {
+                    setLoadingBookings(false);
+                });
         }
-
-        // At this point, user is available
-        setLoadingBookings(true);
-        if (user.metadata.creationTime) {
-            setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
-        }
-
-        getUserBookings(user.uid)
-            .then(userBookings => {
-                setBookings(userBookings);
-            })
-            .catch(err => {
-                console.error("Failed to fetch bookings", err);
-            })
-            .finally(() => {
-                setLoadingBookings(false);
-            });
-
-    }, [user, loading, router]);
+    }, [user]);
     
-    const onProfileUpdate = (updatedProfile: Partial<UserProfile>) => {
+    const onProfileUpdate = useCallback(() => {
         refreshUserProfile();
-    };
+    }, [refreshUserProfile]);
 
     if (loading || !user || !userProfile) {
         return (
