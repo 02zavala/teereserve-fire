@@ -4,6 +4,7 @@
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { getCourseById } from '@/lib/data';
 import type { GolfCourse } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -259,7 +260,7 @@ export default function CheckoutForm() {
                             <p className="text-sm text-muted-foreground">{user?.email}</p>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                            By clicking the button below, you agree to our <Link href="/terms" className="underline hover:text-primary">Terms of Service</Link> and the course's cancellation policy.
+                            By clicking the button below, you agree to our <Link href={`/${lang}/terms`} className="underline hover:text-primary">Terms of Service</Link> and the course's cancellation policy.
                         </div>
                     </CardContent>
                     <CardFooter>
