@@ -15,19 +15,18 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { ScorecardManager } from "@/components/ScorecardManager";
+import { useRouter } from "next/navigation";
 
 interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
     id: string;
     createdAt?: string; 
     date: string | Date;
-    formattedDate?: string;
 }
 
 function BookingRow({ booking }: { booking: FormattedBooking }) {
     const formattedDate = useMemo(() => {
         if (booking.date && booking.time) {
             try {
-                // Ensure we have a valid Date object before formatting
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
                     return `${format(dateObj, 'PPP')} at ${booking.time}`;
@@ -37,7 +36,7 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
                 return "Invalid Date";
             }
         }
-        return null;
+        return "Invalid Date";
     }, [booking.date, booking.time, booking.id]);
 
 
@@ -58,7 +57,7 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
                 <div>
                     <p className="font-bold text-lg">{booking.courseName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-40" />}
+                      {formattedDate}
                     </p>
                 </div>
                  <div className="text-right">
@@ -72,50 +71,48 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
 
 
 export default function ProfilePage() {
-    const { user, userProfile, loading: authLoading, refreshUserProfile } = useAuth();
+    const { user, userProfile, loading, refreshUserProfile } = useAuth();
+    const router = useRouter();
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
     const [memberSince, setMemberSince] = useState<string | null>(null);
 
     useEffect(() => {
-        if (user && !authLoading) {
-            // Safe client-side date formatting
-            if (user.metadata.creationTime) {
-                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
-            }
-
-            setLoadingBookings(true);
-            getUserBookings(user.uid)
-                .then(userBookings => {
-                    setBookings(userBookings);
-                })
-                .catch(err => {
-                    console.error("Failed to fetch bookings", err);
-                })
-                .finally(() => {
-                    setLoadingBookings(false);
-                });
-        } else if (!authLoading) {
-            setLoadingBookings(false);
+        if (loading) {
+            return; // Wait for the auth state to be resolved
         }
-    }, [user, authLoading]);
+        if (!user) {
+            router.push('/login'); // Redirect if not logged in
+            return;
+        }
+
+        // At this point, user is available
+        setLoadingBookings(true);
+        if (user.metadata.creationTime) {
+            setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
+        }
+
+        getUserBookings(user.uid)
+            .then(userBookings => {
+                setBookings(userBookings);
+            })
+            .catch(err => {
+                console.error("Failed to fetch bookings", err);
+            })
+            .finally(() => {
+                setLoadingBookings(false);
+            });
+
+    }, [user, loading, router]);
     
     const onProfileUpdate = (updatedProfile: Partial<UserProfile>) => {
         refreshUserProfile();
     };
 
-    if (authLoading) {
+    if (loading || !user || !userProfile) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-        )
-    }
-
-    if (!user || !userProfile) {
-        return (
-             <div className="container mx-auto max-w-4xl px-4 py-12 text-center">
-                <h1 className="text-2xl font-bold">Please log in to view your profile.</h1>
             </div>
         )
     }
