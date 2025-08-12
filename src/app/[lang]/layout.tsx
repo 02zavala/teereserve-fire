@@ -1,4 +1,5 @@
 
+import * as React from 'react';
 import { Locale, i18n } from "@/i18n-config";
 import { CookieConsent } from "@/components/CookieConsent";
 import { getDictionary } from "@/lib/get-dictionary";
@@ -16,7 +17,7 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { lang: Locale };
 }) {
-  const params = await paramsProp;
+  const params = React.use(paramsProp);
   const dictionary = await getDictionary(params.lang);
 
   return (
