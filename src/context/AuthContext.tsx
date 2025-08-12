@@ -12,7 +12,9 @@ import {
     updateProfile as updateFirebaseAuthProfile,
     GoogleAuthProvider,
     signInWithPopup,
-    UserCredential
+    UserCredential,
+    setPersistence,
+    browserLocalPersistence
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
@@ -80,18 +82,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setLoading(true);
-            setUser(user);
-            if (user) {
-                await fetchUserProfile(user);
-            } else {
-                setUserProfile(null);
-            }
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
+        // Set persistence on the client-side
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => {
+                const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                    setLoading(true);
+                    setUser(user);
+                    if (user) {
+                        await fetchUserProfile(user);
+                    } else {
+                        setUserProfile(null);
+                    }
+                    setLoading(false);
+                });
+                return () => unsubscribe();
+            })
+            .catch((error) => {
+                console.error("Firebase persistence error", error);
+                setLoading(false);
+            });
     }, [fetchUserProfile]);
 
      const refreshUserProfile = useCallback(async () => {
