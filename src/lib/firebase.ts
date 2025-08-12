@@ -1,4 +1,5 @@
 
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
@@ -40,4 +41,5 @@ enableIndexedDbPersistence(db)
 
 
 export { db, auth, storage };
+
 
