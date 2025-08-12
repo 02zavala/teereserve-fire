@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Mail, Phone, Globe, MapPin } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Mail, Phone, Globe } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
 import { ProtectedDashboardLink } from "./ProtectedDashboardLink";
 import { Logo } from "../Logo";
