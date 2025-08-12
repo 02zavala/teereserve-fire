@@ -115,7 +115,9 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                         name="location"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="flex items-center text-xs text-muted-foreground"><MapPin className="mr-1 h-3 w-3" /> {dictionary.location}</FormLabel>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground">
+ <MapPin className="mr-1 h-3 w-3" /> {dictionary.location}
+ </FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
                                     <FormControl>
                                         <SelectTrigger>
@@ -136,7 +138,9 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                         name="date"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="flex items-center text-xs text-muted-foreground"><CalendarIcon className="mr-1 h-3 w-3" /> {dictionary.date}</FormLabel>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground">
+ <CalendarIcon className="mr-1 h-3 w-3" /> {dictionary.date}
+ </FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                     <FormControl>
@@ -177,7 +181,9 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                         name="players"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="flex items-center text-xs text-muted-foreground"><Users className="mr-1 h-3 w-3" /> {dictionary.players}</FormLabel>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground">
+ <Users className="mr-1 h-3 w-3" /> {dictionary.players}
+ </FormLabel>
                                 <Select onValueChange={handlePlayersChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
@@ -198,7 +204,9 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                         name="time"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="flex items-center text-xs text-muted-foreground"><Clock className="mr-1 h-3 w-3" /> {dictionary.time}</FormLabel>
+                                <FormLabel className="flex items-center text-xs text-muted-foreground">
+ <Clock className="mr-1 h-3 w-3" /> {dictionary.time}
+ </FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isGroupBooking}>
                                     <FormControl>
                                         <SelectTrigger>

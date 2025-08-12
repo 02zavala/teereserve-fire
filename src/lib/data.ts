@@ -204,22 +204,52 @@ export const uploadProfilePicture = async (userId: string, file: File): Promise<
 // *** Firestore Data Functions ***
 
 export const getCourses = async ({ location }: { location?: string }): Promise<GolfCourse[]> => {
-  let courses = initialCourses.map(c => ({...c, reviews: [] as Review[]}));
+  const coursesMap = new Map<string, GolfCourse>();
 
-  if (location && location !== 'all') {
-    courses = courses.filter(course => course.location === location);
+  // Add initial static courses to the map
+  initialCourses.forEach(course => {
+      coursesMap.set(course.id, { ...course, reviews: [] });
+  });
+
+  // Fetch courses from Firestore
+  try {
+      const coursesCol = collection(db, 'courses');
+      const firestoreSnapshot = await getDocs(coursesCol);
+      firestoreSnapshot.forEach(doc => {
+          const courseData = doc.data() as Omit<GolfCourse, 'id' | 'reviews'>;
+          coursesMap.set(doc.id, {
+              id: doc.id,
+              ...courseData,
+              reviews: [] // Reviews will be fetched on detail page
+          });
+      });
+  } catch (error) {
+      console.error("Error fetching courses from Firestore:", error);
   }
   
-  // This function now primarily returns the static course data for list views.
-  // The full details with reviews are fetched in getCourseById.
-  // This improves performance and avoids unnecessary Firestore reads on the home/courses pages.
-  return courses;
+  let allCourses = Array.from(coursesMap.values());
+
+  if (location && location !== 'all') {
+    allCourses = allCourses.filter(course => course.location === location);
+  }
+  
+  return allCourses;
 };
 
 export const getCourseById = async (id: string): Promise<GolfCourse | undefined> => {
     if (!id) return undefined;
     
-    // Find the course in our static data
+    // First, check Firestore for a dynamically added course
+    const courseDocRef = doc(db, 'courses', id);
+    const courseSnap = await getDoc(courseDocRef);
+
+    if (courseSnap.exists()) {
+        const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
+        courseData.reviews = await getReviewsForCourse(id);
+        return courseData;
+    }
+    
+    // If not in Firestore, find the course in our static data
     const courseFromStatic = initialCourses.find(c => c.id === id);
 
     if (courseFromStatic) {
@@ -228,22 +258,12 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
         return courseData;
     } 
     
-    // Fallback to Firestore for dynamically added courses if not found in static list
-    const courseDocRef = doc(db, 'courses', id);
-    const courseSnap = await getDoc(courseDocRef);
-
-    if (courseSnap.exists()) {
-        const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-        courseData.reviews = await getReviewsForCourse(id);
-        return courseData;
-    } 
-    
     console.log("No such document!");
     return undefined;
 };
 
 export const getCourseLocations = async (): Promise<string[]> => {
-    const courseList = initialCourses;
+    const courseList = await getCourses({});
     return [...new Set(courseList.map(c => c.location))];
 }
 
@@ -594,3 +614,4 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
         .map(([date, revenue]) => ({ date, revenue }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
+
