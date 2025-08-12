@@ -13,33 +13,31 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     const lang = pathname.split('/')[1] || 'en';
 
     useEffect(() => {
-        // Don't do anything until loading is false.
+        // If still loading, wait.
         if (loading) {
             return;
         }
 
-        // If not loading and there's no user, redirect to login.
+        // If not loading and no user, redirect to login.
         if (!user) {
             router.push(`/${lang}/login?redirect=${pathname}`);
             return;
         }
 
-        // If we have a user but are still waiting for the profile, do nothing yet.
-        // The effect will re-run when userProfile is available.
+        // If user exists but profile is still loading, wait. The hook will re-run when userProfile is available.
         if (!userProfile) {
             return;
         }
-
-        // Once we have the profile, check the role.
+        
+        // At this point, we have user and userProfile. Check authorization.
         const isAuthorized = userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin';
-
         if (!isAuthorized) {
             router.push(`/${lang}`); // Redirect non-admins to home.
         }
 
     }, [user, userProfile, loading, router, lang, pathname]);
 
-    // Show loader while waiting for auth state or user profile.
+    // Show loader while waiting for auth state or user profile to be fully loaded.
     if (loading || !userProfile) {
         return (
             <div className="flex items-center justify-center h-screen w-full">
@@ -49,12 +47,12 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
         );
     }
     
-    // If the user is an admin, show the protected content.
-    // If not, the useEffect will have already initiated a redirect.
+    // Once everything is loaded, if the user is authorized, show the content.
+    // If not authorized, the useEffect will have already initiated a redirect.
     if (userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin') {
         return <>{children}</>;
     }
 
-    // Render nothing while redirecting non-admin users.
+    // Render nothing while redirecting non-admin users. This avoids a flash of content.
     return null;
 }
