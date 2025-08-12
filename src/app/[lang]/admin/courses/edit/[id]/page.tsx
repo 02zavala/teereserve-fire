@@ -3,10 +3,12 @@ import { CourseForm } from "@/components/admin/CourseForm";
 import { TeeTimeManager } from "@/components/admin/TeeTimeManager";
 import { getCourseById } from "@/lib/data";
 import { notFound } from "next/navigation";
+import type { Locale } from "@/i18n-config";
 
 interface EditCoursePageProps {
     params: {
         id: string;
+        lang: Locale;
     }
 }
 

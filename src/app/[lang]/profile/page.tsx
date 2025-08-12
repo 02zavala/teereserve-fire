@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getUserBookings } from "@/lib/data";
 import type { Booking, UserProfile } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -24,14 +24,22 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 }
 
 function BookingRow({ booking }: { booking: FormattedBooking }) {
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
-
-    useEffect(() => {
-        // Safe client-side date formatting to prevent hydration mismatch.
+    const formattedDate = useMemo(() => {
         if (booking.date && booking.time) {
-            setFormattedDate(`${format(new Date(booking.date), 'PPP')} at ${booking.time}`);
+            try {
+                // Ensure we have a valid Date object before formatting
+                const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
+                if (!isNaN(dateObj.getTime())) {
+                    return `${format(dateObj, 'PPP')} at ${booking.time}`;
+                }
+            } catch (e) {
+                console.error("Invalid date format for booking:", booking.id, booking.date);
+                return "Invalid Date";
+            }
         }
-    }, [booking.date, booking.time]);
+        return null;
+    }, [booking.date, booking.time, booking.id]);
+
 
     const getStatusVariant = (status: Booking['status']) => {
         switch (status) {
