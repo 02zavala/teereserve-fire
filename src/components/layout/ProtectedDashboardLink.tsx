@@ -8,12 +8,14 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { UserProfile } from "@/types";
+import { Locale } from "@/i18n-config";
 
 interface ProtectedDashboardLinkProps {
     dictionary: Awaited<ReturnType<typeof getDictionary>>['footer'];
+    lang: Locale;
 }
 
-export function ProtectedDashboardLink({ dictionary }: ProtectedDashboardLinkProps) {
+export function ProtectedDashboardLink({ dictionary, lang }: ProtectedDashboardLinkProps) {
     const { user } = useAuth();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
@@ -39,7 +41,7 @@ export function ProtectedDashboardLink({ dictionary }: ProtectedDashboardLinkPro
     return (
         <li>
             <Link 
-                href="/admin/dashboard" 
+                href={`/${lang}/admin/dashboard`} 
                 className="text-muted-foreground hover:text-primary transition-colors flex items-center group"
             >
                 <span className="w-1 h-1 bg-primary/50 rounded-full mr-3 group-hover:bg-primary transition-colors"></span>

@@ -62,7 +62,7 @@ export default async function Home({ params: paramsProp }: { params: { lang: Loc
            </Suspense>
          </div>
        </section>
-       <Footer dictionary={dictionary} />
+       <Footer dictionary={dictionary} lang={lang} />
     </>
   )
 }

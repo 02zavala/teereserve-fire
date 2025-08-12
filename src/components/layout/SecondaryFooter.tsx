@@ -7,6 +7,8 @@ import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Clock, Star, Sparkle
 import type { getDictionary } from "@/lib/get-dictionary";
 import { ProtectedDashboardLink } from "./ProtectedDashboardLink";
 import { Logo } from "../Logo";
+import { usePathname } from "next/navigation";
+import { Locale } from "@/i18n-config";
 
 interface FooterProps {
     dictionary: Awaited<ReturnType<typeof getDictionary>>['secondaryFooter'];
@@ -14,6 +16,8 @@ interface FooterProps {
 
 export function SecondaryFooter({ dictionary }: FooterProps) {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const pathname = usePathname();
+  const lang = (pathname.split('/')[1] || 'en') as Locale;
 
   useEffect(() => {
     // This effect runs only on the client, after hydration
@@ -67,7 +71,7 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
             <ul className="space-y-3">
               <li>
                 <Link 
-                  href="/courses" 
+                  href={`/${lang}/courses`} 
                   className="text-background/80 hover:text-white transition-colors flex items-center group"
                 >
                   <span className="w-1 h-1 bg-primary/80 rounded-full mr-3 group-hover:bg-primary transition-colors"></span>
@@ -76,14 +80,14 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
               </li>
               <li>
                 <Link 
-                  href="/courses" 
+                  href={`/${lang}/courses`}
                   className="text-background/80 hover:text-white transition-colors flex items-center group"
                 >
                   <span className="w-1 h-1 bg-primary/80 rounded-full mr-3 group-hover:bg-primary transition-colors"></span>
                   {dictionary.book}
                 </Link>
               </li>
-               <ProtectedDashboardLink dictionary={{ adminDashboard: dictionary.adminDashboard }} />
+               <ProtectedDashboardLink dictionary={{ adminDashboard: dictionary.adminDashboard }} lang={lang} />
             </ul>
           </div>
 
@@ -136,7 +140,7 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
               <div className="bg-white/10 rounded-lg p-4 mt-6">
                 <h5 className="text-white font-semibold mb-2">{dictionary.needHelp}</h5>
                 <Link 
-                  href="/contact"
+                  href={`/${lang}/contact`}
                   className="text-primary hover:text-primary/80 text-sm transition-colors"
                 >
                   {dictionary.contact} →
@@ -153,13 +157,13 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
             </div>
             <div className="flex flex-wrap gap-6">
               <Link 
-                href="/privacy" 
+                href={`/${lang}/privacy`}
                 className="text-background/80 hover:text-white text-sm transition-colors"
               >
                 {dictionary.privacyPolicy}
               </Link>
               <Link 
-                href="/terms" 
+                href={`/${lang}/terms`}
                 className="text-background/80 hover:text-white text-sm transition-colors"
               >
                 {dictionary.termsOfService}

@@ -8,14 +8,16 @@ import type { getDictionary } from "@/lib/get-dictionary";
 import { ProtectedDashboardLink } from "./ProtectedDashboardLink";
 import { Logo } from "../Logo";
 import { useAuth } from "@/context/AuthContext";
+import { Locale } from "@/i18n-config";
 
 
 interface FooterProps {
     dictionary: Awaited<ReturnType<typeof getDictionary>>;
+    lang: Locale;
 }
 
 
-export function Footer({ dictionary }: FooterProps) {
+export function Footer({ dictionary, lang }: FooterProps) {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
   const { user } = useAuth();
 
@@ -24,7 +26,7 @@ export function Footer({ dictionary }: FooterProps) {
     setCurrentYear(new Date().getFullYear());
   }, []);
 
-  const reservationsLink = user ? "/profile#bookings" : "/login";
+  const reservationsLink = user ? `/${lang}/profile#bookings` : `/${lang}/login`;
 
   return (
     <footer className="bg-card text-card-foreground border-t">
@@ -46,7 +48,7 @@ export function Footer({ dictionary }: FooterProps) {
             <ul className="space-y-2">
               <li>
                 <Link 
-                  href="/courses" 
+                  href={`/${lang}/courses`}
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {dictionary.footer.courses}
@@ -60,7 +62,7 @@ export function Footer({ dictionary }: FooterProps) {
                   {dictionary.footer.reservations}
                 </Link>
               </li>
-               <ProtectedDashboardLink dictionary={dictionary.footer} />
+               <ProtectedDashboardLink dictionary={dictionary.footer} lang={lang} />
             </ul>
           </div>
 
@@ -71,7 +73,7 @@ export function Footer({ dictionary }: FooterProps) {
             <ul className="space-y-2">
               <li>
                 <Link 
-                  href="/help" 
+                  href={`/${lang}/help`}
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {dictionary.footer.helpCenter}
@@ -79,7 +81,7 @@ export function Footer({ dictionary }: FooterProps) {
               </li>
               <li>
                 <Link 
-                  href="/contact" 
+                  href={`/${lang}/contact`}
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {dictionary.footer.contact}
@@ -172,13 +174,13 @@ export function Footer({ dictionary }: FooterProps) {
             </p>
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <Link 
-                href="/privacy" 
+                href={`/${lang}/privacy`}
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
                 {dictionary.footer.privacyPolicy}
               </Link>
               <Link 
-                href="/terms" 
+                href={`/${lang}/terms`}
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
                 {dictionary.footer.termsOfService}
