@@ -17,9 +17,8 @@ import {
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc, getDoc, serverTimestamp, enableIndexedDbPersistence } from 'firebase/firestore';
+import { doc, setDoc, getDoc, enableIndexedDbPersistence } from 'firebase/firestore';
 import type { UserProfile } from '@/types';
-import { updateUserProfile } from '@/lib/data';
 
 interface AuthContextType {
     user: User | null;
@@ -59,14 +58,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     
+    useEffect(() => {
+        // This effect runs once on mount to enable persistence.
+        const enablePersistence = async () => {
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                await enableIndexedDbPersistence(db);
+            } catch (error: any) {
+                if (error.code !== 'failed-precondition') {
+                    console.error("Firebase persistence error:", error);
+                }
+            }
+        };
+        enablePersistence();
+    }, []);
+
     const fetchUserProfile = useCallback(async (firebaseUser: User) => {
         const userDocRef = doc(db, 'users', firebaseUser.uid);
         const docSnap = await getDoc(userDocRef);
         if (docSnap.exists()) {
             setUserProfile(docSnap.data() as UserProfile);
         } else {
-            // This case can happen if a user is created in Auth but not in Firestore.
-            // We'll create their profile now.
             const profile: UserProfile = {
                 uid: firebaseUser.uid,
                 email: firebaseUser.email,
@@ -81,37 +93,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-        // Set persistence on the client-side
-        Promise.all([
-            setPersistence(auth, browserLocalPersistence),
-            enableIndexedDbPersistence(db)
-        ]).then(() => {
-            const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                setLoading(true);
-                setUser(user);
-                if (user) {
-                    await fetchUserProfile(user);
-                } else {
-                    setUserProfile(null);
-                }
-                setLoading(false);
-            });
-            return () => unsubscribe();
-        }).catch((error) => {
-            console.error("Firebase persistence error:", error.code);
-            // Fallback for browsers that don't support persistence or have issues
-            const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                setLoading(true);
-                setUser(user);
-                if (user) {
-                    await fetchUserProfile(user);
-                } else {
-                    setUserProfile(null);
-                }
-                setLoading(false);
-            });
-            return () => unsubscribe();
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true);
+            setUser(user);
+            if (user) {
+                await fetchUserProfile(user);
+            } else {
+                setUserProfile(null);
+            }
+            setLoading(false);
         });
+        return () => unsubscribe();
     }, [fetchUserProfile]);
 
      const refreshUserProfile = useCallback(async () => {
@@ -131,8 +123,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await updateFirebaseAuthProfile(userCredential.user, { displayName });
         
         const updatedUser = { ...userCredential.user, displayName };
-        // We set the user object directly for immediate UI update.
-        // The onAuthStateChanged listener will handle fetching/creating the Firestore profile.
         setUser(updatedUser);
         
         const role: UserProfile['role'] = email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer';
