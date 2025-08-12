@@ -14,29 +14,35 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (loading) {
-            return; // Wait until loading is false
+            // Still waiting for auth state to resolve, do nothing.
+            return;
         }
 
         if (!user) {
+            // No user found, redirect to login.
             router.push(`/${lang}/login?redirect=${pathname}`);
             return;
         }
 
-        // Now we know we have a user, but we might not have the profile yet.
-        // The loading flag from useAuth should cover both.
+        if (user && !userProfile) {
+            // User object is present, but profile is still loading.
+            // This happens right after login. We wait for the profile.
+            return;
+        }
+
         if (userProfile) {
+            // Profile is loaded, now we can check the role.
             const isAuthorized = userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin';
             if (!isAuthorized) {
-                router.push(`/${lang}`); // Redirect non-admins to home.
+                // Not an admin, redirect to home page.
+                router.push(`/${lang}`);
             }
         }
-        // If user exists but no profile, the context is still loading it.
-        // The loader below will show. The effect will re-run when userProfile is available.
 
     }, [user, userProfile, loading, router, lang, pathname]);
 
-    // Show loader while waiting for auth state or user profile to be fully loaded.
-    if (loading) {
+    // Show a loader if auth state is loading OR if we have a user but are still waiting for their profile.
+    if (loading || (user && !userProfile)) {
         return (
             <div className="flex items-center justify-center h-screen w-full">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -45,17 +51,16 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
         );
     }
     
-    // Once everything is loaded, if the user and profile exist, and the role is correct, show content.
+    // If we've passed all checks and the user has an admin role, render the children.
     if (user && userProfile && (userProfile.role === 'Admin' || userProfile.role === 'SuperAdmin')) {
         return <>{children}</>;
     }
 
-    // This will be shown briefly for non-admins while redirecting.
-    // Or if there's a state mismatch (e.g., user but no profile after loading).
+    // Fallback loader while redirecting non-admin users.
     return (
         <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="ml-4 text-muted-foreground">Verifying access...</p>
+            <p className="ml-4 text-muted-foreground">Redirecting...</p>
         </div>
     );
 }
