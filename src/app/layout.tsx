@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { AppProviders } from '@/context/AppProviders'
 import type { Locale } from '@/i18n-config'
 import { i18n } from '@/i18n-config'
+import { ThemeProvider } from '@/components/layout/ThemeProvider'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -54,9 +55,16 @@ export default async function RootLayout({
           fontBody.variable
         )}
       >
-        <AppProviders>
-            {children}
-        </AppProviders>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+          <AppProviders>
+              {children}
+          </AppProviders>
+        </ThemeProvider>
       </body>
     </html>
   )
