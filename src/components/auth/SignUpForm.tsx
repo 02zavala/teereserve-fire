@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/context/AuthContext"
 import { FirebaseError } from "firebase/app"
+import { Loader2 } from "lucide-react"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -52,6 +53,7 @@ export function SignUpForm() {
         description: "Welcome! You have been successfully signed up.",
       })
       router.push(`/${lang}/profile`)
+      router.refresh();
     } catch (error) {
         console.error("Signup failed:", error)
         let description = "An unexpected error occurred. Please try again."
@@ -83,6 +85,7 @@ export function SignUpForm() {
         description: "Welcome!",
       });
       router.push(`/${lang}/profile`);
+      router.refresh();
     } catch (error) {
       console.error("Google Sign-In failed:", error);
       toast({
@@ -140,6 +143,7 @@ export function SignUpForm() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>

@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/context/AuthContext"
 import { FirebaseError } from "firebase/app"
+import { Loader2 } from "lucide-react"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -50,6 +51,7 @@ export function LoginForm() {
         description: "Welcome back!",
       })
       router.push(`/${lang}/profile`)
+      router.refresh(); // Forces a refresh to update user state across the app
     } catch (error) {
        console.error("Login failed:", error)
        let description = "An unexpected error occurred. Please try again."
@@ -80,6 +82,7 @@ export function LoginForm() {
         description: "Welcome!",
       });
       router.push(`/${lang}/profile`);
+      router.refresh();
     } catch (error) {
       console.error("Google Sign-In failed:", error);
       toast({
@@ -125,6 +128,7 @@ export function LoginForm() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {form.formState.isSubmitting ? 'Logging In...' : 'Log In'}
             </Button>
           </form>
