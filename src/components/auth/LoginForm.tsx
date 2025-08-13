@@ -94,7 +94,7 @@ export function LoginForm() {
   return (
     <Card>
       <CardContent className="pt-6">
-        <Form form={form}>
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
               <FormField
