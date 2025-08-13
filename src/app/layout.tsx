@@ -7,6 +7,9 @@ import { AppProviders } from '@/context/AppProviders'
 import type { Locale } from '@/i18n-config'
 import { i18n } from '@/i18n-config'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -62,7 +65,15 @@ export default async function RootLayout({
             disableTransitionOnChange
         >
           <AppProviders>
-              {children}
+            <ErrorBoundary>
+                <Suspense fallback={
+                    <div className="flex h-screen w-full items-center justify-center">
+                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    </div>
+                }>
+                    {children}
+                </Suspense>
+            </ErrorBoundary>
           </AppProviders>
         </ThemeProvider>
       </body>

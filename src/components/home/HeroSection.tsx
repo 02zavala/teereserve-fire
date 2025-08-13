@@ -23,10 +23,10 @@ interface HeroSectionProps {
 }
 
 const heroImages = [
-    'https://placehold.co/1920x1080.png',
-    'https://placehold.co/1920x1080.png',
-    'https://placehold.co/1920x1080.png',
-    'https://placehold.co/1920x1080.png'
+    '/hero/hero-1.jpg',
+    '/hero/hero-2.jpg',
+    '/hero/hero-3.jpg',
+    '/hero/hero-4.jpg'
 ]
 
 export function HeroSection({ dictionary, lang }: HeroSectionProps) {

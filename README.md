@@ -1,3 +1,4 @@
+
 # TeeReserve Golf - Plataforma Premium de Reservas de Golf (Visión Empresarial)
 
 TeeReserve Golf está evolucionando de una aplicación de reservas premium a una plataforma SaaS multi-inquilino escalable, segura y robusta para la gestión de campos de golf a nivel empresarial en Los Cabos, México, y más allá. Este documento describe la visión arquitectónica y el plan estratégico para esta transformación.
@@ -129,34 +130,23 @@ El panel de administración cuenta con un panel de análisis en tiempo real con 
 
 ### Paso 1: Configuración Local
 
-1.  **Descarga el Código:** Si aún no lo has hecho, descarga el código del proyecto como un archivo ZIP y descomprímelo en tu computadora.
+1.  **Clonar el Repositorio:** Abre tu terminal y clona el proyecto desde GitHub:
+    ```bash
+    git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+    cd TU_REPOSITORIO
+    ```
 2.  **Prerrequisitos:** Asegúrate de tener instalados [Node.js](https://nodejs.org/) (versión 18 o superior) y la [Firebase CLI](https://firebase.google.com/docs/cli).
-3.  **Instalar Dependencias:** Abre tu terminal en la carpeta raíz del proyecto y ejecuta:
+3.  **Instalar Dependencias:**
     ```bash
     npm install
     ```
-4.  **Variables de Entorno:** Crea un archivo `.env.local` copiando el archivo `.env.example`. Complétalo con la configuración de tu proyecto de Firebase y tus claves de API (Stripe, Google Maps, etc.).
+4.  **Variables de Entorno:** Crea un archivo `.env.local` copiando el archivo `.env.local.example`. Complétalo con la configuración de tu proyecto de Firebase y tus claves de API (Stripe, Google Maps, etc.).
 5.  **Ejecutar Servidor de Desarrollo:**
     ```bash
     npm run dev
     ```
 
-### Paso 2: Subir a GitHub
-
-1.  **Crear un Repositorio:** Ve a [GitHub](https://github.com/new) y crea un nuevo repositorio vacío. **No** lo inicialices con un archivo README o .gitignore.
-2.  **Inicializar Git:** En la carpeta raíz de tu proyecto en la terminal, ejecuta:
-    ```bash
-    git init -b main
-    git add .
-    git commit -m "Commit inicial"
-    ```
-3.  **Conectar con GitHub:** Copia los comandos de la página de tu nuevo repositorio de GitHub (en "...o sube un repositorio existente desde la línea de comandos") y ejecútalos. Se verán así:
-    ```bash
-    git remote add origin https://github.com/TU_USUARIO/TU_REPOSITORIO.git
-    git push -u origin main
-    ```
-
-### Paso 3: Desplegar en Firebase Hosting
+### Paso 2: Desplegar en Firebase Hosting
 
 El despliegue está completamente automatizado a través de Firebase Hosting.
 

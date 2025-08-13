@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -9,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
                 alt="TeeReserve Logo"
                 width={150}
                 height={40}
-                className="h-full w-auto"
+                className="h-full w-auto dark:invert"
                 priority
             />
         </div>
