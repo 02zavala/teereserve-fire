@@ -22,6 +22,7 @@ export function ContactForm({ dictionary }: ContactFormProps) {
     const { executeRecaptcha } = useGoogleReCaptcha();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [serverError, setServerError] = useState<string | null>(null);
 
     const formSchema = z.object({
         name: z.string().min(2, dictionary.errors.name),
@@ -43,33 +44,42 @@ export function ContactForm({ dictionary }: ContactFormProps) {
     const onSubmit = useCallback(async (data: FormData) => {
         setIsSubmitting(true);
         setSubmitStatus('idle');
+        setServerError(null);
 
         if (!executeRecaptcha) {
             console.error("reCAPTCHA not ready");
             setSubmitStatus('error');
+            setServerError("reCAPTCHA is not available. Please try again later.");
             setIsSubmitting(false);
             return;
         }
 
         try {
-            const token = await executeRecaptcha('contact_form');
-            // Here you would typically send the data AND the token to an API endpoint
-            // The backend would then verify the token with Google
-            console.log('Form data:', data);
-            console.log('reCAPTCHA token:', token);
+            const recaptchaToken = await executeRecaptcha('contact_form');
             
-            // Simulate API call delay
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...data, recaptchaToken }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to send message.');
+            }
 
             setSubmitStatus('success');
             form.reset();
         } catch (error) {
             console.error("Submission error:", error);
             setSubmitStatus('error');
+            setServerError(error instanceof Error ? error.message : dictionary.errorMessage);
         } finally {
             setIsSubmitting(false);
         }
-    }, [executeRecaptcha, form]);
+    }, [executeRecaptcha, form, dictionary.errorMessage]);
 
     return (
         <Card className="border">
@@ -127,7 +137,7 @@ export function ContactForm({ dictionary }: ContactFormProps) {
                             <p className="text-sm font-medium text-green-600">{dictionary.successMessage}</p>
                         )}
                         {submitStatus === 'error' && (
-                            <p className="text-sm font-medium text-destructive">{dictionary.errorMessage}</p>
+                            <p className="text-sm font-medium text-destructive">{serverError || dictionary.errorMessage}</p>
                         )}
                     </form>
                 </Form>
