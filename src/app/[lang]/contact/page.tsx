@@ -1,8 +1,9 @@
 
 import { getDictionary } from "@/lib/get-dictionary";
 import type { Locale } from "@/i18n-config";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, AlertTriangle } from "lucide-react";
 import { ContactPageClient } from "./ContactPageClient";
+import { Card, CardContent } from "@/components/ui/card";
 
 
 interface ContactPageProps {
@@ -27,7 +28,19 @@ export default async function ContactPage({ params: paramsProp }: ContactPagePro
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
                     {/* Form Section */}
                     <div className="md:col-span-3">
-                        <ContactPageClient dictionary={t.form} recaptchaKey={recaptchaKey} />
+                         {recaptchaKey && recaptchaKey !== "your_recaptcha_site_key_here" ? (
+                            <ContactPageClient dictionary={t.form} recaptchaKey={recaptchaKey} />
+                        ) : (
+                            <Card className="border-dashed border-2">
+                                <CardContent className="p-8 text-center text-muted-foreground">
+                                    <AlertTriangle className="h-10 w-10 mx-auto mb-4 text-amber-500" />
+                                    <h3 className="font-semibold text-lg text-foreground mb-2">Formulario Deshabilitado</h3>
+                                    <p className="text-sm">
+                                        El envío de formularios está deshabilitado temporalmente. Por favor, contáctanos a través de los métodos a continuación.
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
 
                     {/* Info Section */}
