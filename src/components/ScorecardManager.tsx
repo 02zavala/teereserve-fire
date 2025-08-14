@@ -28,6 +28,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { usePathname } from 'next/navigation';
+import type { Locale } from '@/i18n-config';
+import { dateLocales } from '@/lib/date-utils';
 
 interface ScorecardManagerProps {
     user: User;
@@ -42,7 +45,7 @@ const formSchema = z.object({
 
 type ScorecardFormValues = z.infer<typeof formSchema>;
 
-function ScorecardItem({ scorecard, onDelete }: { scorecard: Scorecard, onDelete: (id: string) => Promise<void> }) {
+function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, onDelete: (id: string) => Promise<void>, lang: Locale }) {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDelete = async () => {
@@ -57,7 +60,7 @@ function ScorecardItem({ scorecard, onDelete }: { scorecard: Scorecard, onDelete
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP')}
+                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] })}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>
@@ -97,6 +100,8 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
     const [scorecards, setScorecards] = useState<Scorecard[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
+    const pathname = usePathname();
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     const form = useForm<ScorecardFormValues>({
         resolver: zodResolver(formSchema),
@@ -233,7 +238,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
                  {isLoading ? (
                     [...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
                 ) : scorecards.length > 0 ? (
-                    scorecards.map(sc => <ScorecardItem key={sc.id} scorecard={sc} onDelete={handleDelete} />)
+                    scorecards.map(sc => <ScorecardItem key={sc.id} scorecard={sc} onDelete={handleDelete} lang={lang} />)
                 ) : (
                     <p className="text-center text-muted-foreground pt-16">You haven't added any scorecards yet.</p>
                 )}
