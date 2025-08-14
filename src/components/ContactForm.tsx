@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,6 +80,8 @@ export function ContactForm({ dictionary }: ContactFormProps) {
             setIsSubmitting(false);
         }
     }, [executeRecaptcha, form, dictionary.errorMessage]);
+    
+    const isButtonDisabled = isSubmitting || !executeRecaptcha;
 
     return (
         <Card className="border">
@@ -129,10 +131,15 @@ export function ContactForm({ dictionary }: ContactFormProps) {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        <Button type="submit" className="w-full" disabled={isButtonDisabled}>
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {isSubmitting ? dictionary.submitting : dictionary.submit}
                         </Button>
+                        {!executeRecaptcha && (
+                            <p className="text-xs text-center text-muted-foreground">
+                                Preparing secure form...
+                            </p>
+                        )}
                         {submitStatus === 'success' && (
                             <p className="text-sm font-medium text-green-600">{dictionary.successMessage}</p>
                         )}

@@ -40,9 +40,19 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
     useEffect(() => {
         // Safe client-side date formatting
         if (booking.date) {
-            setFormattedDate(format(new Date(booking.date), "PPP", { locale: dateLocales[lang] }));
+            try {
+                const dateObj = new Date(booking.date);
+                if (!isNaN(dateObj.getTime())) {
+                     setFormattedDate(format(dateObj, "PPP", { locale: dateLocales[lang] }));
+                } else {
+                    throw new Error("Invalid date value");
+                }
+            } catch (e) {
+                console.error("Invalid date format for booking:", booking.id, booking.date);
+                setFormattedDate("Invalid Date");
+            }
         }
-    }, [booking.date, lang]);
+    }, [booking.date, booking.id, lang]);
 
     return (
         <TableRow>

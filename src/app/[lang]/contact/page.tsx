@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/get-dictionary";
 import type { Locale } from "@/i18n-config";
 import { ContactForm } from "@/components/ContactForm";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
 interface ContactPageProps {
     params: { lang: Locale };
@@ -13,6 +14,7 @@ export default async function ContactPage({ params: paramsProp }: ContactPagePro
     const lang = params.lang;
     const dictionary = await getDictionary(lang);
     const t = dictionary.contactPage;
+    const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
     return (
         <div className="bg-background">
@@ -25,7 +27,13 @@ export default async function ContactPage({ params: paramsProp }: ContactPagePro
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
                     {/* Form Section */}
                     <div className="md:col-span-3">
-                        <ContactForm dictionary={t.form} />
+                         {recaptchaKey ? (
+                            <GoogleReCaptchaProvider reCaptchaKey={recaptchaKey}>
+                                <ContactForm dictionary={t.form} />
+                            </GoogleReCaptchaProvider>
+                        ) : (
+                             <p className="text-destructive text-center">reCAPTCHA is not configured.</p>
+                        )}
                     </div>
 
                     {/* Info Section */}
