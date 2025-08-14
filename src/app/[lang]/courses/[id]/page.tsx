@@ -16,6 +16,8 @@ import { getDictionary } from '@/lib/get-dictionary';
 import type { Locale } from '@/i18n-config';
 import type { GolfCourse } from '@/types';
 import { Badge } from '@/components/ui/badge';
+import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 
 function WeatherPlaceholder() {
     return (
@@ -273,3 +275,5 @@ function RecommendationSkeleton() {
     </div>
   )
 }
+
+    
