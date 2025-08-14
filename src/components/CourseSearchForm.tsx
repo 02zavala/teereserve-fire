@@ -69,18 +69,11 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             location: "all",
-            // date will be set in useEffect to avoid hydration mismatch
+            date: new Date(),
             players: "2",
             time: "any",
         },
     })
-    
-    useEffect(() => {
-        // Set date only on the client side to prevent hydration errors.
-        if (!form.getValues('date')) {
-            form.setValue('date', new Date());
-        }
-    }, [form]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         if(isGroupBooking) {
