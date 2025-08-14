@@ -1552,6 +1552,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { Badge } from '@/components/ui/badge'
 import { formatters } from '@/lib/formatters'
 import type { Locale } from '@/i18n-config'
+import { dateLocales } from "@/lib/date-utils";
 
 interface CourseBookingProps {
   course: {
@@ -1628,7 +1629,7 @@ export function CourseBooking({ course, dictionary, locale }: CourseBookingProps
             onSelect={setSelectedDate}
             disabled={(date) => !isDateAvailable(date)}
             className="rounded-md border"
-            locale={locale}
+            locale={dateLocales[locale]}
           />
         </div>
 
@@ -2433,34 +2434,4 @@ npm run dev
 npm run test
 npm run validate-i18n
 
-# Commit y push
-git commit -m "feat: add French language support"
-git push origin feature/new-language
-```
-
----
-
-## 📞 Soporte y Recursos
-
-### Documentación Adicional
-
-- [Guía de Despliegue](./docs/DEPLOYMENT.md)
-- [API Reference](./docs/API_REFERENCE.md)
-- [Guía de Contribución](./CONTRIBUTING.md)
-- [Changelog](./CHANGELOG.md)
-
-### Comunidad
-
-- **Discord**: [TeeReserve Community](#)
-- **GitHub Issues**: [Reportar problemas](#)
-- **Email**: dev@teereserve.golf
-
-### Licencia
-
-MIT License - ver [LICENSE](./LICENSE) para detalles.
-
----
-
-**TeeReserve** - Plataforma de Golf con i18n y Accesibilidad de Clase Mundial 🌍⛳
-
-*Desarrollado con ❤️ por el equipo de TeeReserve*
+# Commit y
