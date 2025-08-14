@@ -12,8 +12,11 @@ import { format } from "date-fns";
 import { useEffect, useState, useTransition } from "react";
 import type { Review } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePathname } from "next/navigation";
+import type { Locale } from "@/i18n-config";
+import { dateLocales } from "@/lib/date-utils";
 
-function ReviewCard({ review }: { review: Review }) {
+function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [isLoadingModeration, setIsLoadingModeration] = useState(true);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
@@ -25,10 +28,10 @@ function ReviewCard({ review }: { review: Review }) {
         
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
-          setFormattedDate(format(new Date(review.createdAt), "PPP"));
+          setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
         }
 
-    }, [review.text, review.createdAt]);
+    }, [review.text, review.createdAt, lang]);
     
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';
@@ -90,6 +93,8 @@ function ReviewCard({ review }: { review: Review }) {
 
 export default function ReviewsAdminPage() {
     const [reviews, setReviews] = useState<Review[]>([]);
+    const pathname = usePathname();
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
     
     useEffect(() => {
         getAllReviews().then(setReviews);
@@ -109,7 +114,7 @@ export default function ReviewsAdminPage() {
                     <h2 className="text-2xl font-bold mb-4">Pending Reviews ({pendingReviews.length})</h2>
                     <div className="space-y-4">
                         {pendingReviews.length > 0 ? (
-                            pendingReviews.map(review => <ReviewCard key={review.id} review={review} />)
+                            pendingReviews.map(review => <ReviewCard key={review.id} review={review} lang={lang} />)
                         ) : (
                             <p className="text-muted-foreground">No pending reviews.</p>
                         )}
@@ -119,7 +124,7 @@ export default function ReviewsAdminPage() {
                     <h2 className="text-2xl font-bold mb-4">Decided Reviews ({decidedReviews.length})</h2>
                     <div className="space-y-4">
                          {decidedReviews.length > 0 ? (
-                            decidedReviews.map(review => <ReviewCard key={review.id} review={review} />)
+                            decidedReviews.map(review => <ReviewCard key={review.id} review={review} lang={lang} />)
                         ) : (
                              <p className="text-muted-foreground">No decided reviews yet.</p>
                         )}

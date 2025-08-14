@@ -12,6 +12,9 @@ import Link from "next/link";
 import { RevenueChart } from "@/components/admin/RevenueChart";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePathname } from "next/navigation";
+import type { Locale } from "@/i18n-config";
+import { dateLocales } from "@/lib/date-utils";
 
 interface DashboardStats {
     totalRevenue: number;
@@ -31,15 +34,15 @@ function getStatusVariant(status: Booking['status']) {
     }
 }
 
-function RecentBookingRow({ booking }: { booking: Booking }) {
+function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
         // Safe client-side date formatting
         if (booking.date) {
-            setFormattedDate(format(new Date(booking.date), "PPP"));
+            setFormattedDate(format(new Date(booking.date), "PPP", { locale: dateLocales[lang] }));
         }
-    }, [booking.date]);
+    }, [booking.date, lang]);
 
     return (
         <TableRow>
@@ -62,6 +65,8 @@ export default function DashboardPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [revenueData, setRevenueData] = useState<{ date: string; revenue: number }[]>([]);
     const [loading, setLoading] = useState(true);
+    const pathname = usePathname();
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -185,7 +190,7 @@ export default function DashboardPage() {
                             </TableHeader>
                             <TableBody>
                                 {stats.recentBookings.map((booking) => (
-                                    <RecentBookingRow key={booking.id} booking={booking} />
+                                    <RecentBookingRow key={booking.id} booking={booking} lang={lang} />
                                 ))}
                             </TableBody>
                         </Table>

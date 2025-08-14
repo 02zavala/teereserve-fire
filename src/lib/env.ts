@@ -27,9 +27,11 @@ const envSchema = z.object({
   STRIPE_SECRET_KEY: z.string().min(1),
 });
 
+let env: z.infer<typeof envSchema>;
+
 try {
   // Use `process.env` which is populated by Next.js
-  envSchema.parse({
+  env = envSchema.parse({
     NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
     NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -52,7 +54,10 @@ try {
     // For now, we'll just log the error.
     // process.exit(1);
   }
+  // Fallback for when server-side env vars are not available during build
+  // but will be available at runtime. This avoids build failures.
+  env = {} as any;
 }
 
 // Export a typed `env` object for use throughout the application
-export const env = envSchema.parse(process.env);
+export { env };

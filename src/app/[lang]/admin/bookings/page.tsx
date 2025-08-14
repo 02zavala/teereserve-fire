@@ -11,6 +11,9 @@ import { getBookings } from "@/lib/data";
 import type { Booking } from "@/types";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePathname } from "next/navigation";
+import type { Locale } from "@/i18n-config";
+import { dateLocales } from "@/lib/date-utils";
 
 function getStatusVariant(status: Booking['status']) {
     switch (status) {
@@ -27,13 +30,13 @@ interface FormattedBooking extends Omit<Booking, 'date'> {
     date: string | Date;
 }
 
-function BookingRow({ booking }: { booking: FormattedBooking }) {
+function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
     const formattedDate = useMemo(() => {
         if (booking.date) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return format(dateObj, 'PPP');
+                    return format(dateObj, 'PPP', { locale: dateLocales[lang] });
                 }
                 throw new Error("Invalid date value");
             } catch (e) {
@@ -42,7 +45,7 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
             }
         }
         return null;
-    }, [booking.date, booking.id]);
+    }, [booking.date, booking.id, lang]);
 
     return (
         <TableRow>
@@ -69,6 +72,8 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
 export default function BookingsAdminPage() {
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loading, setLoading] = useState(true);
+    const pathname = usePathname();
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         getBookings().then(fetchedBookings => {
@@ -113,7 +118,7 @@ export default function BookingsAdminPage() {
                             </TableHeader>
                             <TableBody>
                                 {bookings.map(booking => (
-                                    <BookingRow key={booking.id} booking={booking} />
+                                    <BookingRow key={booking.id} booking={booking} lang={lang} />
                                 ))}
                             </TableBody>
                         </Table>

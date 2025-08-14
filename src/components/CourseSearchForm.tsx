@@ -36,6 +36,8 @@ import { cn } from "@/lib/utils"
 import { getCourseLocations } from "@/lib/data"
 import { useEffect, useState } from "react"
 import { getDictionary } from "@/lib/get-dictionary"
+import type { Locale } from "@/i18n-config"
+import { dateLocales } from "@/lib/date-utils"
 
 const formSchema = z.object({
   location: z.string().min(1, "Location is required"),
@@ -61,6 +63,8 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
         getCourseLocations().then(setLocations);
     }, []);
 
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -77,8 +81,6 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
             form.setValue('date', new Date());
         }
     }, [form]);
-    
-    const lang = pathname.split('/')[1] || 'en';
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         if(isGroupBooking) {
@@ -153,7 +155,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                         disabled={isGroupBooking}
                                         >
                                         {field.value ? (
-                                            format(field.value, "PPP")
+                                            format(field.value, "PPP", { locale: dateLocales[lang] })
                                         ) : (
                                             <span>{dictionary.pickDate}</span>
                                         )}
@@ -169,6 +171,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                             date < new Date(new Date().setHours(0,0,0,0)) || isGroupBooking
                                             }
                                             initialFocus
+                                            locale={dateLocales[lang]}
                                         />
                                     </PopoverContent>
                                 </Popover>

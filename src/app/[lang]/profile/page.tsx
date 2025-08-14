@@ -16,6 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { ScorecardManager } from "@/components/ScorecardManager";
 import { useRouter, usePathname } from "next/navigation";
+import type { Locale } from "@/i18n-config";
+import { dateLocales } from "@/lib/date-utils";
 
 interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
     id: string;
@@ -23,13 +25,13 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
     date: string | Date;
 }
 
-function BookingRow({ booking }: { booking: FormattedBooking }) {
+function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
     const formattedDate = useMemo(() => {
         if (booking.date && booking.time) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return `${format(dateObj, 'PPP')} at ${booking.time}`;
+                    return `${format(dateObj, 'PPP', { locale: dateLocales[lang] })} at ${booking.time}`;
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
@@ -37,7 +39,7 @@ function BookingRow({ booking }: { booking: FormattedBooking }) {
             }
         }
         return "Invalid Date";
-    }, [booking.date, booking.time, booking.id]);
+    }, [booking.date, booking.time, booking.id, lang]);
 
 
     const getStatusVariant = (status: Booking['status']) => {
@@ -74,6 +76,7 @@ export default function ProfilePage() {
     const { user, userProfile, loading, refreshUserProfile } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
@@ -82,17 +85,16 @@ export default function ProfilePage() {
     // Effect for redirecting if not logged in
     useEffect(() => {
         if (!loading && !user) {
-            const lang = pathname.split('/')[1] || 'en';
             router.push(`/${lang}/login`);
         }
-    }, [user, loading, router, pathname]);
+    }, [user, loading, router, lang]);
 
     // Effect for fetching user-specific data
     useEffect(() => {
         if (user) {
             setLoadingBookings(true);
             if (user.metadata.creationTime) {
-                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
+                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: dateLocales[lang] }));
             }
 
             getUserBookings(user.uid)
@@ -106,7 +108,7 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         }
-    }, [user]);
+    }, [user, lang]);
     
     const onProfileUpdate = useCallback(() => {
         refreshUserProfile();
@@ -177,7 +179,7 @@ export default function ProfilePage() {
                         ))
                     ) : bookings.length > 0 ? (
                         bookings.map(booking => (
-                           <BookingRow key={booking.id} booking={booking} />
+                           <BookingRow key={booking.id} booking={booking} lang={lang} />
                         ))
                     ) : (
                         <p className="text-center text-muted-foreground">You have no upcoming bookings.</p>

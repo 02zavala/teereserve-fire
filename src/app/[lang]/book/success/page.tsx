@@ -11,9 +11,10 @@ import { getCourseById } from '@/lib/data';
 import type { GolfCourse } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { Locale } from '@/i18n-config';
+import type { Locale } from '@/i18n-config';
 import { useAuth } from '@/context/AuthContext';
 import { Separator } from '@/components/ui/separator';
+import { dateLocales } from '@/lib/date-utils';
 
 const TAX_RATE = 0.16;
 
@@ -51,7 +52,7 @@ function SuccessPageContent() {
         // Safe client-side date formatting to prevent hydration mismatch
         if (date) {
             try {
-                setFormattedDate(format(new Date(date), "PPP"));
+                setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
             } catch (e) {
                 console.error("Invalid date format:", date);
                 setFormattedDate("Invalid Date");
