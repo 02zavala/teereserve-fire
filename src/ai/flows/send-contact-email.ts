@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview A Genkit flow for sending a contact form email using Nodemailer.
+ * @fileOverview A Genkit flow for sending a contact form email using Nodemailer with Zoho Mail.
  *
  * - sendContactEmail - A function that handles sending the email.
  * - SendContactEmailInput - The input type for the sendContactEmail function.
@@ -35,19 +35,19 @@ const sendContactEmailFlow = ai.defineFlow(
   async (input) => {
     const { name, email, message } = input;
 
-    // IMPORTANT: You must configure these environment variables in your .env file
+    // IMPORTANT: You must configure Zoho Mail environment variables in your .env file
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: (process.env.SMTP_SECURE === 'true'), // true for 465, false for other ports
+      host: 'smtp.zoho.com', // Using Zoho's SMTP server
+      port: 465,
+      secure: true, // true for 465
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS, // For Gmail, this should be an "App Password"
+        user: process.env.ZOHO_MAIL_FROM,
+        pass: process.env.ZOHO_MAIL_PASSWORD, // Use a generated App Password here
       },
     });
 
     const mailOptions = {
-      from: `"${name}" <${process.env.SMTP_USER}>`, // Sender address (your configured email)
+      from: `"${name}" <${process.env.ZOHO_MAIL_FROM}>`, // Sender address (your configured Zoho email)
       to: process.env.CONTACT_FORM_RECIPIENT, // List of receivers
       replyTo: email, // Set the sender's email as the reply-to address
       subject: `New Contact Form Message from ${name}`,
@@ -68,7 +68,8 @@ const sendContactEmailFlow = ai.defineFlow(
     } catch (error) {
       console.error('Failed to send email:', error);
       // It's important to throw an error here so the frontend knows something went wrong.
-      throw new Error('Failed to send email.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown mailing error.';
+      throw new Error(`Failed to send email: ${errorMessage}`);
     }
   }
 );

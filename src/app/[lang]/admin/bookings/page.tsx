@@ -31,21 +31,25 @@ interface FormattedBooking extends Omit<Booking, 'date'> {
 }
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
-    const formattedDate = useMemo(() => {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    
+    useEffect(() => {
+        // Safe client-side date formatting
         if (booking.date) {
-            try {
+             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return format(dateObj, 'PPP', { locale: dateLocales[lang] });
+                    setFormattedDate(format(dateObj, 'PPP', { locale: dateLocales[lang] }));
+                } else {
+                    throw new Error("Invalid date value");
                 }
-                throw new Error("Invalid date value");
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
-                return "Invalid Date";
+                setFormattedDate("Invalid Date");
             }
         }
-        return null;
     }, [booking.date, booking.id, lang]);
+
 
     return (
         <TableRow>
