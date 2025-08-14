@@ -51,9 +51,9 @@ const useFormField = () => {
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
   }
-
-  const fieldState = form.formState.errors[fieldContext.name]
+  
   const { id } = itemContext
+  const fieldState = form.formState.errors[fieldContext.name]
 
   return {
     id,
