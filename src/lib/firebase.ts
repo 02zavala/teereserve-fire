@@ -1,23 +1,17 @@
 
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, type FirebaseOptions } from "firebase/app";
 import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAGbLMGcxSRumk--pywW6PvytcTwRn4j1E",
-  authDomain: "teereserve-golf.firebaseapp.com",
-  databaseURL: "https://teereserve-golf-default-rtdb.firebaseio.com",
-  projectId: "teereserve-golf",
-  storageBucket: "teereserve-golf.appspot.com",
-  messagingSenderId: "502212139547",
-  appId: "1:502212139547:web:37ebd5c12071689b20b6be",
-  measurementId: "G-HYV3VCD0WW"
-};
-
+let firebaseConfig: FirebaseOptions;
+try {
+  firebaseConfig = JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG!);
+} catch (e) {
+    console.error("Could not parse NEXT_PUBLIC_FIREBASE_CONFIG, have you run `firebase-frameworks:build`? The value should be a JSON string.", e);
+    firebaseConfig = {};
+}
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -29,8 +23,8 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 
 // Initialize Analytics if running in the browser
-if (typeof window !== 'undefined') {
-    const analytics = getAnalytics(app);
+if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+    getAnalytics(app);
 }
 
-export { db, auth, storage };
+export { db, auth, storage, app };

@@ -1,5 +1,6 @@
+
 {
-  "name": "nextn",
+  "name": "teetime-concierge",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,9 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "postinstall": "patch-package",
-    "fix": ""
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
@@ -52,7 +51,6 @@
     "next": "15.3.3",
     "next-pwa": "^5.6.0",
     "next-themes": "^0.3.0",
-    "patch-package": "^8.0.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
