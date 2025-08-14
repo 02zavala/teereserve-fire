@@ -12,6 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { getCourses } from '@/lib/data'; // Import the function to get courses
 
 const RecommendGolfCoursesInputSchema = z.object({
   userId: z.string().describe('The ID of the user for whom to generate recommendations.  If not available, can be an empty string.'),
@@ -42,39 +43,62 @@ export async function recommendGolfCourses(input: RecommendGolfCoursesInput): Pr
   return recommendGolfCoursesFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'recommendGolfCoursesPrompt',
-  input: {schema: RecommendGolfCoursesInputSchema},
-  output: {schema: RecommendGolfCoursesOutputSchema},
-  prompt: `You are an expert golf concierge specializing in recommending golf courses and packages to users.
-
-  Based on the user's history, preferences, and current conditions, provide personalized recommendations for golf courses and packages.
-
-  Consider the following information:
-  - User ID: {{{userId}}}
-  - Current Course ID (if any): {{{courseId}}}
-  - Date: {{{date}}}
-  - Number of Players: {{{numPlayers}}}
-  - Location: {{{location}}}
-
-  Recommend courses that match their playing style, budget, and desired experience.
-
-  Format your recommendations in JSON format.
-  Include a personalized description of why each course is recommended for the user.
-  Include the price, image URL and descriptive tags as well.
-  The imageUrl must be a placeholder image from 'https://placehold.co/800x600.png'.
-  The tags are used to highlight reasons or special offers such as "best value today" or "recommended for your style of play".
-  `,
-});
-
 const recommendGolfCoursesFlow = ai.defineFlow(
   {
     name: 'recommendGolfCoursesFlow',
     inputSchema: RecommendGolfCoursesInputSchema,
     outputSchema: RecommendGolfCoursesOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  async (input) => {
+    // 1. Fetch the list of available golf courses
+    const availableCourses = await getCourses({});
+    
+    // 2. Prepare the course data for the prompt
+    const courseListForPrompt = availableCourses.map(course => ({
+      id: course.id,
+      name: course.name,
+      location: course.location,
+      description: course.description.substring(0, 150) + '...', // Keep it brief
+      basePrice: course.basePrice,
+    }));
+
+    // 3. Define the prompt with the added context
+    const prompt = ai.definePrompt({
+      name: 'recommendGolfCoursesPrompt',
+      prompt: `You are an expert golf concierge specializing in recommending golf courses and packages to users.
+
+      Based on the user's history, preferences, and current conditions, provide personalized recommendations for golf courses from the list of available courses provided below.
+
+      User Information:
+      - User ID: {{{userId}}}
+      - Current Course ID (if any): {{{courseId}}}
+      - Date: {{{date}}}
+      - Number of Players: {{{numPlayers}}}
+      - Location: {{{location}}}
+
+      Available Courses (select from this list):
+      ${JSON.stringify(courseListForPrompt, null, 2)}
+
+      Recommend 3 courses that match their playing style, budget, and desired experience.
+      Do NOT recommend the course if its ID matches the 'Current Course ID'.
+
+      Format your recommendations in JSON format.
+      Include a personalized description of why each course is recommended for the user.
+      Include the price, image URL and descriptive tags as well.
+      The imageUrl must be a placeholder image from 'https://placehold.co/800x600.png'.
+      The tags are used to highlight reasons or special offers such as "best value today" or "recommended for your style of play".
+      `,
+      output: { schema: RecommendGolfCoursesOutputSchema },
+    });
+
+    // 4. Execute the prompt
+    const { output } = await prompt(input);
+    
+    if (!output) {
+        console.error("AI recommendation generation failed to produce output.");
+        return { recommendations: [] };
+    }
+
+    return output;
   }
 );
