@@ -9,12 +9,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     return (
         <GoogleReCaptchaProvider
           reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-          scriptProps={{
-            async: false,
-            defer: false,
-            appendTo: "head",
-            nonce: undefined,
-          }}
         >
             <AuthProvider>
               {children}

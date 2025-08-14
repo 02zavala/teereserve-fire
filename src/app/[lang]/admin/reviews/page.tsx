@@ -93,11 +93,18 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
 
 export default function ReviewsAdminPage() {
     const [reviews, setReviews] = useState<Review[]>([]);
+    const [loading, setLoading] = useState(true);
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
     
     useEffect(() => {
-        getAllReviews().then(setReviews);
+        getAllReviews().then(fetchedReviews => {
+            setReviews(fetchedReviews);
+            setLoading(false);
+        }).catch(err => {
+            console.error("Failed to fetch reviews:", err);
+            setLoading(false);
+        });
     }, []);
 
     const pendingReviews = reviews.filter(r => r.approved === null);
@@ -112,23 +119,35 @@ export default function ReviewsAdminPage() {
             <div className="grid grid-cols-1 gap-8">
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Pending Reviews ({pendingReviews.length})</h2>
-                    <div className="space-y-4">
-                        {pendingReviews.length > 0 ? (
-                            pendingReviews.map(review => <ReviewCard key={review.id} review={review} lang={lang} />)
-                        ) : (
-                            <p className="text-muted-foreground">No pending reviews.</p>
-                        )}
-                    </div>
+                     {loading ? (
+                        <div className="space-y-4">
+                            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full" />)}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {pendingReviews.length > 0 ? (
+                                pendingReviews.map(review => <ReviewCard key={review.id} review={review} lang={lang} />)
+                            ) : (
+                                <p className="text-muted-foreground">No pending reviews.</p>
+                            )}
+                        </div>
+                    )}
                 </div>
                  <div>
                     <h2 className="text-2xl font-bold mb-4">Decided Reviews ({decidedReviews.length})</h2>
-                    <div className="space-y-4">
-                         {decidedReviews.length > 0 ? (
-                            decidedReviews.map(review => <ReviewCard key={review.id} review={review} lang={lang} />)
-                        ) : (
-                             <p className="text-muted-foreground">No decided reviews yet.</p>
-                        )}
-                    </div>
+                    {loading ? (
+                         <div className="space-y-4">
+                            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full" />)}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {decidedReviews.length > 0 ? (
+                                decidedReviews.map(review => <ReviewCard key={review.id} review={review} lang={lang} />)
+                            ) : (
+                                <p className="text-muted-foreground">No decided reviews yet.</p>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
