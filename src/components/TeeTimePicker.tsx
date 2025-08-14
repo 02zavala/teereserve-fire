@@ -24,11 +24,12 @@ interface TeeTimePickerProps {
     courseId: string
     basePrice: number,
     lang: Locale,
+    locale: globalThis.Locale;
 }
 
 const TAX_RATE = 0.16; // 16%
 
-export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
+export function TeeTimePicker({ courseId, basePrice, lang, locale }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>();
     const [players, setPlayers] = useState<number>(2)
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
@@ -104,7 +105,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         !date && "text-muted-foreground"
                                     )}
                                     >
-                                    {date ? format(date, "PPP", { locale: dateLocales[lang] }) : <span>Pick a date</span>}
+                                    {date ? format(date, "PPP", { locale }) : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
@@ -114,7 +115,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         onSelect={(d) => d && setDate(d)}
                                         initialFocus
                                         disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                        locale={dateLocales[lang]}
+                                        locale={locale}
                                     />
                                 </PopoverContent>
                             </Popover>
@@ -168,8 +169,8 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                    {selectedTeeTime ? (
                     <>
                         <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
-                            <p className="font-bold text-primary">{format(date, 'eeee', { locale: dateLocales[lang] })}</p>
-                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy', { locale: dateLocales[lang] })}</p>
+                            <p className="font-bold text-primary">{format(date, 'eeee', { locale })}</p>
+                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy', { locale })}</p>
                             <Separator className="my-2 bg-primary/20" />
                             <p className="font-bold text-primary">{selectedTeeTime.time}</p>
                             <p className="text-sm text-primary/90">{players} Players (18 Holes)</p>
@@ -249,3 +250,4 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
 }
 
     
+

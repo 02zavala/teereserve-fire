@@ -237,7 +237,7 @@ export default function CourseDetailPage() {
                     <aside className="lg:col-span-1">
                         <div className="sticky top-24 space-y-8">
                             <WeatherPlaceholder />
-                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} lang={lang} />
+                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} lang={lang} locale={dateLocales[lang]} />
                         </div>
                     </aside>
                 </div>
