@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -69,7 +69,7 @@ export function ContactForm({ dictionary }: ContactFormProps) {
         } finally {
             setIsSubmitting(false);
         }
-    }, [executeRecaptcha, form, dictionary]);
+    }, [executeRecaptcha, form]);
 
     return (
         <Card className="border">
@@ -78,7 +78,7 @@ export function ContactForm({ dictionary }: ContactFormProps) {
                 <CardDescription>{dictionary.description}</CardDescription>
             </CardHeader>
             <CardContent>
-                <Form form={form}>
+                <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
                             control={form.control}

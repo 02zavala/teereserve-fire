@@ -22,7 +22,7 @@ export default async function ContactPage({ params: paramsProp }: ContactPagePro
                     <p className="mt-2 text-lg text-muted-foreground">{t.subtitle}</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
                     {/* Form Section */}
                     <div className="md:col-span-3">
                         <ContactForm dictionary={t.form} />
@@ -51,7 +51,7 @@ export default async function ContactPage({ params: paramsProp }: ContactPagePro
                                         <p className="font-semibold text-foreground group-hover:text-primary transition-colors">+52 624 135 29 86</p>
                                     </div>
                                 </a>
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-start space-x-3">
                                     <div className="bg-primary/10 p-3 rounded-full">
                                         <MapPin className="h-5 w-5 text-primary" />
                                     </div>
