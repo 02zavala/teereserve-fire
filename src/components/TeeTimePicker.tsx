@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import { format } from "date-fns"
-import { es, enUS } from "date-fns/locale"
+import { dateLocales } from "@/lib/date-utils"
 import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send, MessageSquare, CheckCircle, Info, Star, ShieldCheck, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -27,11 +27,6 @@ interface TeeTimePickerProps {
 }
 
 const TAX_RATE = 0.16; // 16%
-
-const locales = {
-    en: enUS,
-    es: es,
-}
 
 export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>();
@@ -109,7 +104,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         !date && "text-muted-foreground"
                                     )}
                                     >
-                                    {date ? format(date, "PPP", { locale: locales[lang] }) : <span>Pick a date</span>}
+                                    {date ? format(date, "PPP", { locale: dateLocales[lang] }) : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
@@ -119,7 +114,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         onSelect={(d) => d && setDate(d)}
                                         initialFocus
                                         disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                        locale={locales[lang]}
+                                        locale={dateLocales[lang]}
                                     />
                                 </PopoverContent>
                             </Popover>
@@ -173,8 +168,8 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                    {selectedTeeTime ? (
                     <>
                         <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
-                            <p className="font-bold text-primary">{format(date, 'eeee', { locale: locales[lang] })}</p>
-                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy', { locale: locales[lang] })}</p>
+                            <p className="font-bold text-primary">{format(date, 'eeee', { locale: dateLocales[lang] })}</p>
+                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy', { locale: dateLocales[lang] })}</p>
                             <Separator className="my-2 bg-primary/20" />
                             <p className="font-bold text-primary">{selectedTeeTime.time}</p>
                             <p className="text-sm text-primary/90">{players} Players (18 Holes)</p>

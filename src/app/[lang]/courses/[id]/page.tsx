@@ -17,7 +17,7 @@ import type { Locale } from '@/i18n-config';
 import type { GolfCourse } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format } from "date-fns";
-import { es, enUS } from "date-fns/locale";
+import { dateLocales } from "@/lib/date-utils";
 
 function WeatherPlaceholder() {
     return (
