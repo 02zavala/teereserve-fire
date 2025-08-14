@@ -111,7 +111,8 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     return (
         <Card className="bg-card/90 backdrop-blur-sm border-border/60 shadow-lg">
             <CardContent className="p-4 md:p-6">
-                <Form form={form} onSubmit={onSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 lg:items-end">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 lg:items-end">
                     <FormField
                         control={form.control}
                         name="location"
@@ -231,6 +232,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                             {isGroupBooking ? dictionary.contactUs : dictionary.search}
                         </Button>
                     </div>
+                    </form>
                 </Form>
             </CardContent>
         </Card>

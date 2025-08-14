@@ -4,16 +4,16 @@ import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
-import { env } from './env'; // Import the validated environment variables
 
 const firebaseConfig: FirebaseOptions = {
-    apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyAGbLMGcxSRumk--pywW6PvytcTwRn4j1E",
+  authDomain: "teereserve-golf.firebaseapp.com",
+  databaseURL: "https://teereserve-golf-default-rtdb.firebaseio.com",
+  projectId: "teereserve-golf",
+  storageBucket: "teereserve-golf.appspot.com",
+  messagingSenderId: "502212139547",
+  appId: "1:502212139547:web:37ebd5c12071689b20b6be",
+  measurementId: "G-HYV3VCD0WW"
 };
 
 // Initialize Firebase
