@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .then(async (result) => {
                 if (result) {
                     await createUserInFirestore(result.user);
-                    // Optionally fetch user profile again or trust the onAuthStateChanged listener
+                    // onAuthStateChanged will handle fetching the profile
                 }
             })
             .catch((error) => {
@@ -145,9 +145,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     const logout = async () => {
         await signOut(auth);
-        setUser(null);
-        setUserProfile(null);
         router.push('/');
+        // Force a refresh of the page to ensure all server components are re-rendered
+        // and the user state is cleared correctly across the app.
+        router.refresh(); 
     };
 
     const googleSignIn = async () => {
