@@ -1,4 +1,5 @@
 
+import * as React from 'react';
 import { recommendGolfCourses } from '@/ai/flows/recommend-golf-courses';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

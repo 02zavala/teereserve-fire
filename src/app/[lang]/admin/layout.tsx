@@ -1,4 +1,5 @@
 
+import * as React from 'react';
 import { Sidebar, SidebarProvider, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset } from "@/components/ui/sidebar";
 import { Home, GanttChartSquare, BookMarked, Users, Settings, MessageSquareQuote } from "lucide-react";
 import Link from "next/link";

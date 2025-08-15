@@ -1,4 +1,5 @@
 
+import * as React from 'react';
 import { getCourses } from '@/lib/data';
 import { CourseCard } from '@/components/CourseCard';
 import { CourseSearchForm } from '@/components/CourseSearchForm';

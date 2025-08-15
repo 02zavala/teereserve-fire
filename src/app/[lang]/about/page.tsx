@@ -1,4 +1,5 @@
 
+import * as React from 'react';
 import Image from 'next/image';
 import { getDictionary } from "@/lib/get-dictionary";
 import type { Locale } from "@/i18n-config";

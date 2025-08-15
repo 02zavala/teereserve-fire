@@ -1,4 +1,5 @@
 
+import * as React from 'react';
 import Link from "next/link";
 import { ArrowLeft, Phone, Mail, MessageCircle } from "lucide-react";
 import { getDictionary } from "@/lib/get-dictionary";

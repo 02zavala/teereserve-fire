@@ -1,4 +1,5 @@
 
+import * as React from 'react';
 import { getDictionary } from "@/lib/get-dictionary";
 import type { Locale } from "@/i18n-config";
 import { Mail, Phone, MapPin, AlertTriangle } from "lucide-react";
