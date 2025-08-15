@@ -15,7 +15,7 @@ interface CoursesPageProps {
 
 export async function generateMetadata({ params: paramsProp, searchParams: searchParamsProp }: CoursesPageProps): Promise<Metadata> {
     const params = await paramsProp;
-    await searchParamsProp; // Await searchParams
+    await searchParamsProp;
     const dictionary = await getDictionary(params.lang);
     return {
         title: `${dictionary.coursesPage.title} - TeeReserve`,

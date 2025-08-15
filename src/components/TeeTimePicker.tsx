@@ -24,12 +24,11 @@ interface TeeTimePickerProps {
     courseId: string
     basePrice: number,
     lang: Locale,
-    locale: globalThis.Locale;
 }
 
 const TAX_RATE = 0.16; // 16%
 
-export function TeeTimePicker({ courseId, basePrice, lang, locale }: TeeTimePickerProps) {
+export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>();
     const [players, setPlayers] = useState<number>(2)
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
@@ -37,6 +36,7 @@ export function TeeTimePicker({ courseId, basePrice, lang, locale }: TeeTimePick
     const [isClient, setIsClient] = useState(false);
     const [selectedTeeTime, setSelectedTeeTime] = useState<TeeTime | null>(null);
     const [comments, setComments] = useState("");
+    const locale = dateLocales[lang];
 
     useEffect(() => {
         setIsClient(true);
