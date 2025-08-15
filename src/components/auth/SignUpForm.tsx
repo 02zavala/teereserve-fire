@@ -89,6 +89,11 @@ export function SignUpForm() {
       router.push(`/${lang}/profile`);
       router.refresh();
     } catch (error) {
+       if (error instanceof FirebaseError && error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup, do nothing.
+        console.log("Google Sign-In cancelled by user.");
+        return;
+      }
       console.error("Google Sign-In failed:", error);
       toast({
         title: "Sign-In Failed",
