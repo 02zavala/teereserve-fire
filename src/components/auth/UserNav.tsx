@@ -26,7 +26,7 @@ export function UserNav() {
   const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
 
   if (loading) {
-    return <Skeleton className="h-8 w-20 rounded-md" />;
+    return <Skeleton className="h-9 w-24 rounded-md" />;
   }
 
   if (!user) {
@@ -42,8 +42,6 @@ export function UserNav() {
     );
   }
 
-  // Display the user menu as soon as the user object is available,
-  // even if the full userProfile is still loading.
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
