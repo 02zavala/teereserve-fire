@@ -84,7 +84,12 @@ export default function CheckoutForm() {
 
         // Safe client-side date formatting
         if (date) {
-            setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
+            try {
+                setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
+            } catch (e) {
+                console.error("Invalid date format:", date);
+                setFormattedDate("Invalid Date");
+            }
         }
 
         getCourseById(courseId).then(fetchedCourse => {
