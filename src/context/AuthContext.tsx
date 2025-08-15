@@ -127,27 +127,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [user, fetchUserProfile]);
     
-    const login = (email: string, pass: string) => {
-        return signInWithEmailAndPassword(auth, email, pass);
+    const login = async (email: string, pass: string) => {
+      setLoading(true);
+      try {
+        return await signInWithEmailAndPassword(auth, email, pass);
+      } finally {
+        setLoading(false);
+      }
     };
 
     const signup = async (email: string, pass: string, displayName: string, handicap?: number) => {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-        await updateFirebaseAuthProfile(userCredential.user, { displayName });
-        
-        await createUserInFirestore(userCredential.user, handicap);
-        
-        // Refresh local state after creating profile
-        await fetchUserProfile(userCredential.user);
-
-        return userCredential;
+        setLoading(true);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateFirebaseAuthProfile(userCredential.user, { displayName });
+            await createUserInFirestore(userCredential.user, handicap);
+            await fetchUserProfile(userCredential.user);
+            return userCredential;
+        } finally {
+            setLoading(false);
+        }
     };
     
     const logout = async () => {
         await signOut(auth);
         router.push('/');
-        // Force a refresh of the page to ensure all server components are re-rendered
-        // and the user state is cleared correctly across the app.
         router.refresh(); 
     };
 
