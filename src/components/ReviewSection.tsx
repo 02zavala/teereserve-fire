@@ -16,21 +16,23 @@ import { Loader2, Star, CheckCircle, MessageSquarePlus, Upload } from 'lucide-re
 import { useAuth } from '@/context/AuthContext';
 import { addReview, checkIfUserHasPlayed, uploadReviewImage } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { Locale } from '@/i18n-config';
+import { dateLocales } from '@/lib/date-utils';
 
 interface ReviewSectionProps {
     course: GolfCourse;
 }
 
-function ReviewCard({ review }: { review: Review }) {
+function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [timeAgo, setTimeAgo] = useState<string | null>(null);
 
     useEffect(() => {
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
-          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true }));
+          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));
         }
-    }, [review.createdAt]);
+    }, [review.createdAt, lang]);
 
     return (
         <Card>
@@ -56,6 +58,8 @@ function ReviewCard({ review }: { review: Review }) {
 
 export function ReviewSection({ course }: ReviewSectionProps) {
     const [reviews, setReviews] = useState<Review[]>(course.reviews);
+    const pathname = usePathname();
+    const lang = (pathname.split('/')[1] || 'en') as Locale;
     
     const avgRating = reviews.length > 0
         ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length)
@@ -94,7 +98,7 @@ export function ReviewSection({ course }: ReviewSectionProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     {reviews.length > 0 ? reviews.slice(0, 3).map(review => (
-                        <ReviewCard key={review.id} review={review} />
+                        <ReviewCard key={review.id} review={review} lang={lang} />
                     )) : (
                         <p className="text-muted-foreground text-center py-8">Be the first to review this course!</p>
                     )}

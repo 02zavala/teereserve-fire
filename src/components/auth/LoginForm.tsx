@@ -47,8 +47,8 @@ export function LoginForm() {
     try {
       await login(values.email, values.password)
       toast({
-        title: "Logged In",
-        description: "Welcome back!",
+        title: "¡Bienvenido de nuevo!",
+        description: "Has iniciado sesión correctamente.",
       })
       router.push(`/${lang}/profile`)
       router.refresh(); // Forces a refresh to update user state across the app
@@ -78,8 +78,8 @@ export function LoginForm() {
     try {
       await googleSignIn();
       toast({
-        title: "Logged In",
-        description: "Welcome!",
+        title: "¡Bienvenido a TeeReserve!",
+        description: "Has iniciado sesión correctamente.",
       });
       router.push(`/${lang}/profile`);
       router.refresh();

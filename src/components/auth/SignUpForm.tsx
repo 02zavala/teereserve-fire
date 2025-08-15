@@ -49,8 +49,8 @@ export function SignUpForm() {
     try {
       await signup(values.email, values.password, values.name)
       toast({
-        title: "Account Created",
-        description: "Welcome! You have been successfully signed up.",
+        title: "¡Bienvenido a TeeReserve!",
+        description: "Tu cuenta ha sido creada exitosamente.",
       })
       router.push(`/${lang}/profile`)
       router.refresh();
@@ -81,8 +81,8 @@ export function SignUpForm() {
     try {
       await googleSignIn();
       toast({
-        title: "Logged In",
-        description: "Welcome!",
+        title: "¡Bienvenido a TeeReserve!",
+        description: "Has iniciado sesión correctamente.",
       });
       router.push(`/${lang}/profile`);
       router.refresh();
