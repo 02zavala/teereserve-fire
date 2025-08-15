@@ -47,6 +47,7 @@ const createUserInFirestore = async (userCredential: UserCredential) => {
             photoURL: user.photoURL,
             role: role,
             createdAt: new Date().toISOString(),
+            handicap: undefined,
         });
     }
 }
@@ -86,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 photoURL: firebaseUser.photoURL,
                 role: firebaseUser.email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer',
                 createdAt: new Date().toISOString(),
+                handicap: undefined,
             };
             await setDoc(userDocRef, profile);
             setUserProfile(profile);
@@ -133,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             photoURL: updatedUser.photoURL,
             role: role,
             createdAt: new Date().toISOString(),
+            handicap: undefined,
         };
 
         const userDocRef = doc(db, 'users', updatedUser.uid);

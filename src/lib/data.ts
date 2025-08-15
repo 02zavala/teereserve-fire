@@ -622,5 +622,3 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
         .map(([date, revenue]) => ({ date, revenue }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
-
-    

@@ -112,7 +112,7 @@ export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: 
             Make changes to your profile here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <Form form={form}>
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
             <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-24 w-24">
