@@ -54,6 +54,7 @@ export default function CheckoutForm() {
     const comments = searchParams.get('comments');
     
     const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const locale = dateLocales[lang];
 
     useEffect(() => {
         if (!courseId) {
@@ -85,7 +86,7 @@ export default function CheckoutForm() {
         // Safe client-side date formatting
         if (date) {
             try {
-                setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
+                setFormattedDate(format(new Date(date), "PPP", { locale }));
             } catch (e) {
                 console.error("Invalid date format:", date);
                 setFormattedDate("Invalid Date");
@@ -99,7 +100,7 @@ export default function CheckoutForm() {
             setIsLoading(false);
         });
 
-    }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price]);
+    }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price, locale]);
 
     const handleProceedToPayment = () => {
         if (!stripe || !elements) {
