@@ -35,6 +35,7 @@ export function Footer({ dictionary, lang }: FooterProps) {
           <div className="col-span-1">
              <div className="flex items-center space-x-2 mb-4">
                 <Logo className="h-20 w-auto" />
+                <span className="font-headline text-2xl font-bold text-foreground">TeeReserve Golf</span>
             </div>
             <p className="text-muted-foreground text-sm">
               {dictionary.footer.platformDescription}
