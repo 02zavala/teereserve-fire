@@ -59,7 +59,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
             <TableCell>
                 {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
             </TableCell>
-            <TableCell>${booking.totalPrice}</TableCell>
+            <TableCell>${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell>
                 <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
             </TableCell>

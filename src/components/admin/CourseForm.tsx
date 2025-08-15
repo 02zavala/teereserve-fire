@@ -22,6 +22,7 @@ import { addCourse, updateCourse } from "@/lib/data";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ImageUploader } from "./ImageUploader";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(3, "Course name must be at least 3 characters."),
@@ -96,7 +97,7 @@ export function CourseForm({ course }: CourseFormProps) {
   return (
     <Card>
         <CardContent className="pt-6">
-            <Form form={form}>
+            <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                          <FormField
@@ -192,6 +193,7 @@ export function CourseForm({ course }: CourseFormProps) {
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {isSubmitting ? 'Saving...' : (course ? 'Save Changes' : 'Create Course')}
                         </Button>
                     </div>
@@ -201,3 +203,5 @@ export function CourseForm({ course }: CourseFormProps) {
     </Card>
   );
 }
+
+    

@@ -1,5 +1,4 @@
 
-
 import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc } from 'firebase/firestore';
@@ -595,7 +594,7 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
     const q = query(
         bookingsCol, 
         where('status', '==', 'Completed'),
-        where('createdAt', '>=', sevenDaysAgo.toISOString())
+        where('createdAt', '>=' , sevenDaysAgo.toISOString())
     );
     
     const snapshot = await getDocs(q);
