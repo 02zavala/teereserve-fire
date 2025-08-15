@@ -223,8 +223,11 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
               reviews: [] // Reviews will be fetched on detail page
           });
       });
-  } catch (error) {
-      console.error("Error fetching courses from Firestore:", error);
+  } catch (error: any) {
+      console.error("Error fetching courses from Firestore:", error.message);
+      if (error.code === 'not-found' || error.code === 'unauthenticated') {
+        console.warn("Firestore database not found or rules preventing access. The app will run with local data only.");
+      }
   }
   
   let allCourses = Array.from(coursesMap.values());
@@ -240,13 +243,17 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
     if (!id) return undefined;
     
     // First, check Firestore for a dynamically added course
-    const courseDocRef = doc(db, 'courses', id);
-    const courseSnap = await getDoc(courseDocRef);
+    try {
+        const courseDocRef = doc(db, 'courses', id);
+        const courseSnap = await getDoc(courseDocRef);
 
-    if (courseSnap.exists()) {
-        const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-        courseData.reviews = await getReviewsForCourse(id);
-        return courseData;
+        if (courseSnap.exists()) {
+            const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
+            courseData.reviews = await getReviewsForCourse(id);
+            return courseData;
+        }
+    } catch (error) {
+        console.error(`Firestore error fetching course ${id}. Falling back to static data.`, error);
     }
     
     // If not in Firestore, find the course in our static data
@@ -430,54 +437,54 @@ export async function addReview(courseId: string, reviewData: ReviewInput): Prom
 }
 
 export async function getReviewsForCourse(courseId: string, onlyApproved = true): Promise<Review[]> {
-    const reviewsCol = collection(db, 'courses', courseId, 'reviews');
-    let q = query(reviewsCol, orderBy('createdAt', 'desc'));
+    try {
+        const reviewsCol = collection(db, 'courses', courseId, 'reviews');
+        let q = query(reviewsCol, orderBy('createdAt', 'desc'));
 
-    if (onlyApproved) {
-        q = query(reviewsCol, where('approved', '==', true), orderBy('createdAt', 'desc'));
-    }
+        if (onlyApproved) {
+            q = query(reviewsCol, where('approved', '==', true), orderBy('createdAt', 'desc'));
+        }
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            user: {
-                name: data.userName,
-                avatarUrl: data.userAvatar
-            },
-            ...data
-        } as Review
-    });
-}
-
-export async function getAllReviews(): Promise<Review[]> {
-    const coursesSnapshot = await getDocs(collection(db, 'courses'));
-    const allReviews: Review[] = [];
-
-    // Add reviews from static courses
-    for (const course of initialCourses) {
-        const reviews = await getReviewsForCourse(course.id, false);
-        reviews.forEach(r => allReviews.push({ ...r, courseName: course.name }));
-    }
-
-    // Add reviews from dynamically added courses
-    for (const courseDoc of coursesSnapshot.docs) {
-        const courseName = courseDoc.data().name;
-        const reviewsCol = collection(db, 'courses', courseDoc.id, 'reviews');
-        const reviewsSnapshot = await getDocs(query(reviewsCol, orderBy('createdAt', 'desc')));
-        
-        reviewsSnapshot.forEach(reviewDoc => {
-            const data = reviewDoc.data();
-            allReviews.push({
-                id: reviewDoc.id,
-                courseName,
-                ...data,
-                 user: { // Ensure user object exists for type consistency
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                user: {
                     name: data.userName,
                     avatarUrl: data.userAvatar
                 },
-            } as Review);
+                ...data
+            } as Review
+        });
+    } catch (error) {
+        console.error(`Error fetching reviews for course ${courseId}:`, error);
+        return [];
+    }
+}
+
+export async function getAllReviews(): Promise<Review[]> {
+    const allReviews: Review[] = [];
+
+    try {
+        const coursesSnapshot = await getDocs(collection(db, 'courses'));
+        // Add reviews from dynamically added courses
+        for (const courseDoc of coursesSnapshot.docs) {
+            const courseName = courseDoc.data().name;
+            const reviews = await getReviewsForCourse(courseDoc.id, false);
+            reviews.forEach(r => allReviews.push({ ...r, courseName }));
+        }
+    } catch (error) {
+        console.error("Error fetching dynamic courses for reviews:", error);
+    }
+
+    // Add reviews from static courses, avoiding duplicates if they were somehow added to firestore
+    for (const course of initialCourses) {
+        const reviews = await getReviewsForCourse(course.id, false);
+        reviews.forEach(r => {
+            if (!allReviews.some(ar => ar.id === r.id)) {
+                allReviews.push({ ...r, courseName: course.name });
+            }
         });
     }
 
@@ -486,6 +493,7 @@ export async function getAllReviews(): Promise<Review[]> {
 
     return allReviews;
 }
+
 
 export async function updateReviewStatus(courseId: string, reviewId: string, approved: boolean): Promise<void> {
     const reviewDocRef = doc(db, 'courses', courseId, 'reviews', reviewId);
@@ -615,3 +623,4 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
 
+    
