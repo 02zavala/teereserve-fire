@@ -1,15 +1,9 @@
-
 import type { Metadata } from 'next'
 import { Playfair_Display, PT_Sans } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
-import { AppProviders } from '@/context/AppProviders'
+import { ClientLayout } from '@/components/layout/ClientLayout'
 import type { Locale } from '@/i18n-config'
-import { i18n } from '@/i18n-config'
-import { ThemeProvider } from '@/components/layout/ThemeProvider'
-import { ErrorBoundary } from '@/components/ui/error-boundary'
-import { Suspense } from 'react'
-import { Loader2 } from 'lucide-react'
 
 const fontHeadline = Playfair_Display({
   subsets: ['latin'],
@@ -34,21 +28,13 @@ export const metadata: Metadata = {
 
 interface RootLayoutProps {
   children: React.ReactNode;
-  params: {
-    lang: Locale;
-  };
+  params: { lang: Locale };
 }
 
-export async function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ lang: locale }))
-}
-
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
-  params: paramsProp
+  params,
 }: RootLayoutProps) {
-  const params = await paramsProp;
   return (
     <html lang={params.lang} suppressHydrationWarning>
       <body
@@ -58,24 +44,9 @@ export default async function RootLayout({
           fontBody.variable
         )}
       >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-        >
-          <AppProviders>
-            <ErrorBoundary>
-                <Suspense fallback={
-                    <div className="flex h-screen w-full items-center justify-center">
-                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                    </div>
-                }>
-                    {children}
-                </Suspense>
-            </ErrorBoundary>
-          </AppProviders>
-        </ThemeProvider>
+        <ClientLayout lang={params.lang}>
+            {children}
+        </ClientLayout>
       </body>
     </html>
   )
