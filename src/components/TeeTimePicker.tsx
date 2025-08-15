@@ -250,4 +250,3 @@ export function TeeTimePicker({ courseId, basePrice, lang, locale }: TeeTimePick
 }
 
     
-

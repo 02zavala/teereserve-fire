@@ -225,7 +225,7 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
       });
   } catch (error: any) {
       console.error("Error fetching courses from Firestore:", error.message);
-      if (error.code === 'not-found' || error.code === 'unauthenticated') {
+      if (error.code === 'not-found' || error.code === 'unauthenticated' || error.code === 'unavailable') {
         console.warn("Firestore database not found or rules preventing access. The app will run with local data only.");
       }
   }
@@ -344,13 +344,13 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-            // No tee times for this date, so let's generate and save them
+            console.log(`No tee times found for ${dateString}, generating new ones.`);
             const defaultTimes = generateDefaultTeeTimes(basePrice);
             const batch = writeBatch(db);
-            const newTimes: TeeTime[] = [];
+            const newTimesWithIds: TeeTime[] = [];
 
             defaultTimes.forEach(timeData => {
-                const timeDocRef = doc(teeTimesCol); // Auto-generate ID
+                const timeDocRef = doc(teeTimesCol); 
                 const newTeeTime: TeeTime = {
                     ...timeData,
                     id: timeDocRef.id,
@@ -362,17 +362,18 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
                     price: newTeeTime.price,
                     status: newTeeTime.status
                 });
-                newTimes.push(newTeeTime);
+                newTimesWithIds.push(newTeeTime);
             });
             
-            await batch.commit(); // Ensure the batch is committed before returning
-            return newTimes.sort((a,b) => a.time.localeCompare(b.time));
+            await batch.commit();
+            console.log(`Successfully created ${newTimesWithIds.length} tee times for ${dateString}.`);
+            return newTimesWithIds.sort((a,b) => a.time.localeCompare(b.time));
         } else {
             return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as TeeTime)).sort((a,b) => a.time.localeCompare(b.time));
         }
     } catch (error) {
         console.error("Error getting or creating tee times: ", error);
-        return []; // Return an empty array on error to prevent infinite loops
+        return [];
     }
 };
 
