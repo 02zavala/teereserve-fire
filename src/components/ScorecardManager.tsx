@@ -107,7 +107,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             courseName: "",
-            date: format(new Date(), 'yyyy-MM-dd'),
+            date: format(new Date(), 'yyyy-MM-dd', { locale: dateLocales[lang] }),
             score: undefined,
             notes: "",
         },
@@ -142,7 +142,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
             toast({ title: "Scorecard Added!", description: "Your new score has been saved." });
             form.reset({
                  courseName: "",
-                 date: format(new Date(), 'yyyy-MM-dd'),
+                 date: format(new Date(), 'yyyy-MM-dd', { locale: dateLocales[lang] }),
                  score: undefined,
                  notes: "",
             });
