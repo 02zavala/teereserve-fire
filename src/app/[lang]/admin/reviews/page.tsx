@@ -28,7 +28,12 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
         
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
-          setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
+          try {
+            setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
+          } catch(e) {
+            console.error("Invalid date format:", review.createdAt);
+            setFormattedDate("Invalid Date");
+          }
         }
 
     }, [review.text, review.createdAt, lang]);

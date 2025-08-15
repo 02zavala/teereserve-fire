@@ -223,9 +223,10 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
           });
       });
   } catch (error: any) {
-      console.error("Error fetching courses from Firestore:", error.message);
-      if (error.code === 'not-found' || error.code === 'unauthenticated' || error.code === 'unavailable') {
-        console.warn("Firestore database not found or rules preventing access. The app will run with local data only.");
+      if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
+        console.warn("Firestore access denied or unavailable. The app will run with local data only. Error:", error.message);
+      } else {
+        console.error("Error fetching courses from Firestore:", error.message);
       }
   }
   
@@ -622,3 +623,5 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
         .map(([date, revenue]) => ({ date, revenue }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
+
+    
