@@ -29,8 +29,9 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1">
-            <div className="mb-6">
-                <Logo className="h-12" />
+            <div className="flex items-center space-x-2 mb-4">
+                <Logo className="h-12 w-auto" />
+                <span className="font-headline text-xl font-bold text-background">TeeReserve Golf</span>
             </div>
             <p className="text-background/80 text-sm leading-relaxed mb-6">
               {dictionary.platformDescription}
