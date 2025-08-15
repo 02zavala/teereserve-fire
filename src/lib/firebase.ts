@@ -1,20 +1,10 @@
 
-import { initializeApp, getApps, getApp, type FirebaseOptions } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
-
-const firebaseConfig: FirebaseOptions = {
-  apiKey: "AIzaSyAGbLMGcxSRumk--pywW6PvytcTwRn4j1E",
-  authDomain: "teereserve-golf.firebaseapp.com",
-  databaseURL: "https://teereserve-golf-default-rtdb.firebaseio.com",
-  projectId: "teereserve-golf",
-  storageBucket: "teereserve-golf.appspot.com",
-  messagingSenderId: "502212139547",
-  appId: "1:502212139547:web:37ebd5c12071689b20b6be",
-  measurementId: "G-HYV3VCD0WW"
-};
+import { firebaseConfig } from "./firebaseConfig"; // Import the new config
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();

@@ -25,7 +25,7 @@ interface AuthContextType {
     userProfile: UserProfile | null;
     loading: boolean;
     login: (email: string, pass: string) => Promise<any>;
-    signup: (email: string, pass: string, displayName: string) => Promise<any>;
+    signup: (email: string, pass: string, displayName: string, handicap?: number) => Promise<any>;
     logout: () => Promise<void>;
     googleSignIn: () => Promise<any>;
     refreshUserProfile: () => Promise<void>;
@@ -33,7 +33,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const createUserInFirestore = async (userCredential: UserCredential) => {
+const createUserInFirestore = async (userCredential: UserCredential, handicap?: number) => {
     const user = userCredential.user;
     const userDocRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userDocRef);
@@ -47,7 +47,7 @@ const createUserInFirestore = async (userCredential: UserCredential) => {
             photoURL: user.photoURL,
             role: role,
             createdAt: new Date().toISOString(),
-            handicap: undefined,
+            handicap: handicap,
         });
     }
 }
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return signInWithEmailAndPassword(auth, email, pass);
     };
 
-    const signup = async (email: string, pass: string, displayName: string) => {
+    const signup = async (email: string, pass: string, displayName: string, handicap?: number) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         await updateFirebaseAuthProfile(userCredential.user, { displayName });
         
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             photoURL: updatedUser.photoURL,
             role: role,
             createdAt: new Date().toISOString(),
-            handicap: undefined,
+            handicap: handicap,
         };
 
         const userDocRef = doc(db, 'users', updatedUser.uid);
