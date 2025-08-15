@@ -126,7 +126,10 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
     };
 
     useEffect(() => {
-        fetchScorecards();
+        if (user?.uid) {
+            fetchScorecards();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user.uid]);
 
     const onSubmit = async (values: ScorecardFormValues) => {
@@ -171,7 +174,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Form form={form}>
+                        <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                                 <FormField
                                     control={form.control}

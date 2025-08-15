@@ -10,14 +10,14 @@ import {
     signOut,
     updateProfile as updateFirebaseAuthProfile,
     GoogleAuthProvider,
-    signInWithPopup,
-    UserCredential,
+    signInWithRedirect,
+    getRedirectResult,
     setPersistence,
     browserLocalPersistence
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc, getDoc, enableIndexedDbPersistence } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import type { UserProfile } from '@/types';
 
 interface AuthContextType {
@@ -33,8 +33,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const createUserInFirestore = async (userCredential: UserCredential, handicap?: number) => {
-    const user = userCredential.user;
+const createUserInFirestore = async (userCredential: User, handicap?: number) => {
+    const user = userCredential;
     const userDocRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userDocRef);
 
@@ -60,11 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
     
     useEffect(() => {
-        // This effect runs once on mount to enable persistence.
         const enablePersistence = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
-                await enableIndexedDbPersistence(db);
             } catch (error: any) {
                 if (error.code !== 'failed-precondition') {
                     console.error("Firebase persistence error:", error);
@@ -105,6 +103,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             setLoading(false);
         });
+
+        // Handle redirect result
+        getRedirectResult(auth)
+            .then(async (result) => {
+                if (result) {
+                    await createUserInFirestore(result.user);
+                    // Optionally fetch user profile again or trust the onAuthStateChanged listener
+                }
+            })
+            .catch((error) => {
+                console.error("Error getting redirect result:", error);
+            });
+
         return () => unsubscribe();
     }, [fetchUserProfile]);
 
@@ -124,23 +135,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         await updateFirebaseAuthProfile(userCredential.user, { displayName });
         
-        const updatedUser = { ...userCredential.user, displayName };
-        setUser(updatedUser);
+        await createUserInFirestore(userCredential.user, handicap);
         
-        const role: UserProfile['role'] = email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer';
-        const profile: UserProfile = {
-            uid: updatedUser.uid,
-            email: updatedUser.email,
-            displayName: updatedUser.displayName,
-            photoURL: updatedUser.photoURL,
-            role: role,
-            createdAt: new Date().toISOString(),
-            handicap: handicap,
-        };
-
-        const userDocRef = doc(db, 'users', updatedUser.uid);
-        await setDoc(userDocRef, profile);
-        setUserProfile(profile);
+        // Refresh local state after creating profile
+        await fetchUserProfile(userCredential.user);
 
         return userCredential;
     };
@@ -154,12 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const googleSignIn = async () => {
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({
-          prompt: "select_account"
-        });
-        const userCredential = await signInWithPopup(auth, provider);
-        await createUserInFirestore(userCredential);
-        return userCredential;
+        return signInWithRedirect(auth, provider);
     };
 
     const value = {
