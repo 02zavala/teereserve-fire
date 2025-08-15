@@ -154,7 +154,7 @@ export function SignUpForm() {
                 <FormItem>
                   <FormLabel>Handicap Index (Optional)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.1" placeholder="e.g., 12.5" {...field} />
+                    <Input type="number" step="0.1" placeholder="e.g., 12.5" {...field} value={field.value ?? ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
