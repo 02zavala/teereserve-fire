@@ -127,7 +127,7 @@ export default function CheckoutForm() {
         }
         
         const clientSecret = new URLSearchParams(window.location.search).get(
-            "clientSecret"
+            "payment_intent_client_secret"
         );
         
         if (!clientSecret) {

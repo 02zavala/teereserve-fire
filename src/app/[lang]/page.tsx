@@ -11,6 +11,7 @@ import { Footer } from '@/components/layout/Footer'
 import { HowItWorks } from '@/components/home/HowItWorks'
 import { Testimonials } from '@/components/home/Testimonials'
 import { WhyChooseUs } from '@/components/home/WhyChooseUs'
+import { HeroSection } from '@/components/home/HeroSection'
 
 export default async function Home({ params: paramsProp }: { params: { lang: Locale }}) {
   const params = await paramsProp;
@@ -20,16 +21,7 @@ export default async function Home({ params: paramsProp }: { params: { lang: Loc
 
   return (
     <>
-      <section className="relative bg-foreground text-background flex flex-col items-center justify-center pt-32 pb-16 md:pt-48 md:pb-24">
-        <div className="container mx-auto text-center">
-            <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight mb-6">
-                {dictionary.heroSection.title} <span className="text-primary">{dictionary.heroSection.titleHighlight}</span>
-            </h1>
-            <p className="text-lg md:text-xl mb-8 text-background/80 max-w-3xl mx-auto">
-                {dictionary.heroSection.subtitle}
-            </p>
-        </div>
-      </section>
+      <HeroSection dictionary={dictionary.heroSection} lang={lang} />
 
       <div className="relative bg-background z-10">
           <div className="absolute left-1/2 z-20 w-full max-w-6xl -translate-x-1/2 -translate-y-1/2 px-4">
