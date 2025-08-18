@@ -20,6 +20,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [isLoadingModeration, setIsLoadingModeration] = useState(true);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const locale = dateLocales[lang];
 
     useEffect(() => {
         assistReviewModeration({ reviewText: review.text })
@@ -29,14 +30,14 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
           try {
-            setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
+            setFormattedDate(format(new Date(review.createdAt), "PPP", { locale }));
           } catch(e) {
             console.error("Invalid date format:", review.createdAt);
             setFormattedDate("Invalid Date");
           }
         }
 
-    }, [review.text, review.createdAt, lang]);
+    }, [review.text, review.createdAt, lang, locale]);
     
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';
