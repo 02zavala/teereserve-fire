@@ -36,6 +36,7 @@ function getStatusVariant(status: Booking['status']) {
 
 function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const locale = dateLocales[lang];
 
     useEffect(() => {
         // Safe client-side date formatting
@@ -43,7 +44,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
             try {
                 const dateObj = new Date(booking.date);
                 if (!isNaN(dateObj.getTime())) {
-                     setFormattedDate(format(dateObj, "PPP", { locale: dateLocales[lang] }));
+                     setFormattedDate(format(dateObj, "PPP", { locale }));
                 } else {
                     throw new Error("Invalid date value");
                 }
@@ -52,7 +53,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
                 setFormattedDate("Invalid Date");
             }
         }
-    }, [booking.date, booking.id, lang]);
+    }, [booking.date, booking.id, lang, locale]);
 
     return (
         <TableRow>
