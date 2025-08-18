@@ -58,9 +58,11 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     const pathname = usePathname()
     const [locations, setLocations] = useState<string[]>([]);
     const [isGroupBooking, setIsGroupBooking] = useState(false);
+    const [isClient, setIsClient] = useState(false);
     
     useEffect(() => {
         getCourseLocations().then(setLocations);
+        setIsClient(true);
     }, []);
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
@@ -69,11 +71,19 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             location: "all",
-            date: new Date(),
+            // Avoid using new Date() directly here for SSR safety
             players: "2",
             time: "any",
         },
     })
+    
+    // Set the date only on the client-side to prevent hydration mismatch
+    useEffect(() => {
+        if (isClient) {
+            form.setValue('date', new Date());
+        }
+    }, [isClient, form]);
+
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         if(isGroupBooking) {
@@ -146,7 +156,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                             "w-full justify-start text-left font-normal",
                                             !field.value && "text-muted-foreground"
                                         )}
-                                        disabled={isGroupBooking}
+                                        disabled={isGroupBooking || !isClient}
                                         >
                                         {field.value ? (
                                             format(field.value, "PPP", { locale: dateLocales[lang] })

@@ -26,13 +26,14 @@ interface ReviewSectionProps {
 
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [timeAgo, setTimeAgo] = useState<string | null>(null);
+    const locale = dateLocales[lang];
 
     useEffect(() => {
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
-          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));
+          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale }));
         }
-    }, [review.createdAt, lang]);
+    }, [review.createdAt, lang, locale]);
 
     return (
         <Card>
@@ -257,7 +258,5 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
                 </CardContent>
             </form>
         </Card>
-    )
+    );
 }
-
-    
