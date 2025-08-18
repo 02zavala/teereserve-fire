@@ -1,7 +1,7 @@
 
-import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId } from '@/types';
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { format, startOfDay, subDays, isAfter } from 'date-fns';
 
@@ -396,20 +396,49 @@ export const updateTeeTimesForCourse = async (courseId: string, date: Date, teeT
 // *** Booking Functions ***
 
 export async function createBooking(bookingData: BookingInput): Promise<string> {
-    const batch = writeBatch(db);
-
-    // 1. Create a new booking document
     const bookingsCol = collection(db, 'bookings');
     const bookingDocRef = doc(bookingsCol);
-    batch.set(bookingDocRef, { ...bookingData, createdAt: new Date().toISOString() });
-    
-    // 2. Update the tee time status to 'booked'
+    const userDocRef = doc(db, 'users', bookingData.userId);
     const teeTimeDocRef = doc(db, 'courses', bookingData.courseId, 'teeTimes', bookingData.teeTimeId);
-    batch.update(teeTimeDocRef, { status: 'booked' });
 
-    await batch.commit();
+    await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userDocRef);
+        if (!userDoc.exists()) {
+            throw new Error("User does not exist!");
+        }
+
+        const userProfile = userDoc.data() as UserProfile;
+        
+        // 1. Create a new booking document
+        transaction.set(bookingDocRef, { ...bookingData, createdAt: new Date().toISOString() });
+        
+        // 2. Update the tee time status to 'booked'
+        transaction.update(teeTimeDocRef, { status: 'booked' });
+
+        // 3. Update user's gamification profile
+        const newAchievements: AchievementId[] = [...userProfile.achievements];
+        let achievementUnlocked = false;
+
+        // Check for 'firstBooking' achievement
+        if (!userProfile.achievements.includes('firstBooking')) {
+            newAchievements.push('firstBooking');
+            achievementUnlocked = true;
+        }
+
+        const gamificationUpdates: Partial<UserProfile> = {
+            xp: increment(150), // 50 for booking + 100 for completing
+        };
+
+        if (achievementUnlocked) {
+            gamificationUpdates.achievements = newAchievements;
+        }
+        
+        transaction.update(userDocRef, gamificationUpdates);
+    });
+    
     return bookingDocRef.id;
 }
+
 
 export async function getBookings(): Promise<Booking[]> {
     const bookingsCol = collection(db, 'bookings');
@@ -623,5 +652,7 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
         .map(([date, revenue]) => ({ date, revenue }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
+
+    
 
     
