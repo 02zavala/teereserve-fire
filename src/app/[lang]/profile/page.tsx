@@ -26,12 +26,13 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 }
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
+    const locale = dateLocales[lang];
     const formattedDate = useMemo(() => {
         if (booking.date && booking.time) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return `${format(dateObj, 'PPP', { locale: dateLocales[lang] })} at ${booking.time}`;
+                    return `${format(dateObj, 'PPP', { locale })} at ${booking.time}`;
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
@@ -39,7 +40,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
             }
         }
         return "Invalid Date";
-    }, [booking.date, booking.time, booking.id, lang]);
+    }, [booking.date, booking.time, booking.id, lang, locale]);
 
 
     const getStatusVariant = (status: Booking['status']) => {
@@ -77,6 +78,7 @@ export default function ProfilePage() {
     const router = useRouter();
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const locale = dateLocales[lang];
 
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
@@ -94,7 +96,7 @@ export default function ProfilePage() {
         if (user) {
             setLoadingBookings(true);
             if (user.metadata.creationTime) {
-                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: dateLocales[lang] }));
+                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale }));
             }
 
             getUserBookings(user.uid)
@@ -108,7 +110,7 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         }
-    }, [user, lang]);
+    }, [user, lang, locale]);
     
     const onProfileUpdate = useCallback(() => {
         refreshUserProfile();
