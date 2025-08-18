@@ -32,6 +32,7 @@ interface FormattedBooking extends Omit<Booking, 'date'> {
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const locale = dateLocales[lang];
     
     useEffect(() => {
         // Safe client-side date formatting
@@ -39,7 +40,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
              try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    setFormattedDate(format(dateObj, 'PPP', { locale: dateLocales[lang] }));
+                    setFormattedDate(format(dateObj, 'PPP', { locale }));
                 } else {
                     throw new Error("Invalid date value");
                 }
@@ -48,7 +49,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
                 setFormattedDate("Invalid Date");
             }
         }
-    }, [booking.date, booking.id, lang]);
+    }, [booking.date, booking.id, lang, locale]);
 
 
     return (
