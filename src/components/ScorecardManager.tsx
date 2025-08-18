@@ -103,7 +103,6 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
     const { toast } = useToast();
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
-    const locale = dateLocales[lang];
 
     const form = useForm<ScorecardFormValues>({
         resolver: zodResolver(formSchema),
