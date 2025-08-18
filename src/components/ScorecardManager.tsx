@@ -47,6 +47,7 @@ type ScorecardFormValues = z.infer<typeof formSchema>;
 
 function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, onDelete: (id: string) => Promise<void>, lang: Locale }) {
     const [isDeleting, setIsDeleting] = useState(false);
+    const locale = dateLocales[lang];
 
     const handleDelete = async () => {
         setIsDeleting(true);
@@ -60,7 +61,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] })}
+                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP', { locale })}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>
@@ -102,12 +103,13 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
     const { toast } = useToast();
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const locale = dateLocales[lang];
 
     const form = useForm<ScorecardFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             courseName: "",
-            date: format(new Date(), 'yyyy-MM-dd', { locale: dateLocales[lang] }),
+            date: format(new Date(), 'yyyy-MM-dd'),
             score: undefined,
             notes: "",
         },
@@ -142,7 +144,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
             toast({ title: "Scorecard Added!", description: "Your new score has been saved." });
             form.reset({
                  courseName: "",
-                 date: format(new Date(), 'yyyy-MM-dd', { locale: dateLocales[lang] }),
+                 date: format(new Date(), 'yyyy-MM-dd'),
                  score: undefined,
                  notes: "",
             });

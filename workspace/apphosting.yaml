@@ -1,0 +1,22 @@
+# Settings to manage and configure a Firebase App Hosting backend.
+# https://firebase.google.com/docs/app-hosting/configure
+
+runConfig:
+  # Increase this value if you'd like to automatically spin up
+  # more instances in response to increased traffic.
+  maxInstances: 1
+  # These environment variables are available to your app at runtime.
+  # You can bind them to a secret in Google Cloud Secret Manager.
+  # https://firebase.google.com/docs/app-hosting/configure#bind-secrets
+  env:
+    - variable: STRIPE_SECRET_KEY
+      secret: STRIPE_SECRET_KEY
+    - variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+      secret: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+      secret: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+      secret: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+    - variable: GEMINI_API_KEY
+      secret: GEMINI_API_KEY
+
