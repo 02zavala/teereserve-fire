@@ -18,6 +18,7 @@ import { ScorecardManager } from "@/components/ScorecardManager";
 import { useRouter, usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
 import { dateLocales } from "@/lib/date-utils";
+import { GamificationSection } from "@/components/GamificationSection";
 
 interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
     id: string;
@@ -161,6 +162,10 @@ export default function ProfilePage() {
             </div>
 
             <Separator />
+            
+            <div id="gamification" className="mt-12">
+                <GamificationSection userProfile={userProfile} />
+            </div>
 
             <div id="bookings" className="mt-12">
                  <h2 className="font-headline text-3xl font-bold text-primary mb-6">My Bookings</h2>

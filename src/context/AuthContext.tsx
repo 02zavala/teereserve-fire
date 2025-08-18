@@ -48,6 +48,8 @@ const createUserInFirestore = async (userCredential: User, handicap?: number) =>
             role: role,
             createdAt: new Date().toISOString(),
             handicap: handicap,
+            xp: 0,
+            achievements: [],
         });
     }
 }
@@ -86,6 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 role: firebaseUser.email === 'oscargomez@teereserve.golf' ? 'SuperAdmin' : 'Customer',
                 createdAt: new Date().toISOString(),
                 handicap: undefined,
+                xp: 0,
+                achievements: [],
             };
             await setDoc(userDocRef, profile);
             setUserProfile(profile);

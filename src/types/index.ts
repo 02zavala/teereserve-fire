@@ -70,6 +70,8 @@ export interface Booking extends BookingInput {
     createdAt: string; // ISO String
 }
 
+export type AchievementId = 'firstBooking' | 'earlyBird' | 'courseExplorer' | 'trustedReviewer' | 'weekendWarrior';
+
 export interface UserProfile {
     uid: string;
     email: string | null;
@@ -79,6 +81,8 @@ export interface UserProfile {
     createdAt: string;
     assignedCourses?: string[];
     handicap?: number;
+    xp: number;
+    achievements: AchievementId[];
 }
 
 export interface ScorecardInput {

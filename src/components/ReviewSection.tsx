@@ -31,7 +31,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     useEffect(() => {
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
-          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale }));
+          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: locale }));
         }
     }, [review.createdAt, lang, locale]);
 
