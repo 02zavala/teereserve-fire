@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next'
 import { Playfair_Display, PT_Sans } from 'next/font/google'
 import './globals.css'
@@ -18,7 +17,7 @@ const fontBody = PT_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'TeeReserve',
+  title: 'TeeTime Concierge',
   description: 'Book your next golf adventure in Los Cabos.',
   manifest: '/manifest.webmanifest',
   icons: {

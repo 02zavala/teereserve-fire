@@ -1,4 +1,3 @@
-
 import { initializeApp, getApps, getApp, FirebaseOptions } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -20,14 +19,14 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+let analytics;
 
-// Initialize Analytics if supported
 if (typeof window !== 'undefined') {
-  isSupported().then((supported) => {
-    if (supported) {
-      getAnalytics(app);
-    }
-  });
+    isSupported().then(yes => {
+        if (yes) {
+            analytics = getAnalytics(app);
+        }
+    });
 }
 
-export { db, auth, storage, app };
+export { db, auth, storage, app, analytics };
