@@ -36,6 +36,7 @@ function SuccessPageContent() {
     const price = searchParams.get('price'); // This is now subtotal
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const locale = dateLocales[lang];
 
     useEffect(() => {
         if (!courseId) {
@@ -52,7 +53,7 @@ function SuccessPageContent() {
         // Safe client-side date formatting to prevent hydration mismatch
         if (date) {
             try {
-                setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
+                setFormattedDate(format(new Date(date), "PPP", { locale }));
             } catch (e) {
                 console.error("Invalid date format:", date);
                 setFormattedDate("Invalid Date");
@@ -64,7 +65,7 @@ function SuccessPageContent() {
         }).finally(() => {
             setLoading(false);
         });
-    }, [courseId, router, lang, date, price]);
+    }, [courseId, router, lang, date, price, locale]);
     
     const handlePrint = () => window.print();
 
