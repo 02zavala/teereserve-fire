@@ -34,6 +34,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const createUserInFirestore = async (userCredential: User, handicap?: number) => {
+    if (!db) return; // Do nothing if db is not initialized
     const user = userCredential;
     const userDocRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userDocRef);
@@ -62,9 +63,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
     
     useEffect(() => {
+        if (!auth) {
+            setLoading(false);
+            return;
+        };
+
         const enablePersistence = async () => {
             try {
-                await setPersistence(auth, browserLocalPersistence);
+                // Check if auth is not null before using it
+                if (auth) {
+                  await setPersistence(auth, browserLocalPersistence);
+                }
             } catch (error: any) {
                 if (error.code !== 'failed-precondition') {
                     console.error("Firebase persistence error:", error);
@@ -72,9 +81,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         };
         enablePersistence();
+
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true);
+            setUser(user);
+            if (user) {
+                await fetchUserProfile(user);
+            } else {
+                setUserProfile(null);
+            }
+            setLoading(false);
+        });
+
+        getRedirectResult(auth)
+            .then(async (result) => {
+                if (result) {
+                    await createUserInFirestore(result.user);
+                }
+            })
+            .catch((error) => {
+                console.error("Error getting redirect result:", error);
+            });
+
+        return () => unsubscribe();
     }, []);
 
     const fetchUserProfile = useCallback(async (firebaseUser: User) => {
+        if (!db) return;
         const userDocRef = doc(db, 'users', firebaseUser.uid);
         const docSnap = await getDoc(userDocRef);
         if (docSnap.exists()) {
@@ -96,33 +129,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setLoading(true);
-            setUser(user);
-            if (user) {
-                await fetchUserProfile(user);
-            } else {
-                setUserProfile(null);
-            }
-            setLoading(false);
-        });
-
-        // Handle redirect result
-        getRedirectResult(auth)
-            .then(async (result) => {
-                if (result) {
-                    await createUserInFirestore(result.user);
-                    // onAuthStateChanged will handle fetching the profile
-                }
-            })
-            .catch((error) => {
-                console.error("Error getting redirect result:", error);
-            });
-
-        return () => unsubscribe();
-    }, [fetchUserProfile]);
-
      const refreshUserProfile = useCallback(async () => {
         if (user) {
             setLoading(true);
@@ -132,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [user, fetchUserProfile]);
     
     const login = async (email: string, pass: string) => {
+      if (!auth) throw new Error("Authentication is not available.");
       setLoading(true);
       try {
         return await signInWithEmailAndPassword(auth, email, pass);
@@ -141,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const signup = async (email: string, pass: string, displayName: string, handicap?: number) => {
+        if (!auth) throw new Error("Authentication is not available.");
         setLoading(true);
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -154,12 +162,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     
     const logout = async () => {
+        if (!auth) return;
         await signOut(auth);
         router.push('/');
         router.refresh(); 
     };
 
     const googleSignIn = async () => {
+        if (!auth) throw new Error("Authentication is not available.");
         const provider = new GoogleAuthProvider();
         return signInWithRedirect(auth, provider);
     };
