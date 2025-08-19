@@ -176,6 +176,10 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
   ];
 
 const uploadImages = async (courseName: string, files: File[]): Promise<string[]> => {
+    if (!storage) {
+        console.warn("Firebase Storage is not initialized. Skipping image upload.");
+        return [];
+    }
     const uploadPromises = files.map(file => {
         // Sanitize file name
         const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
@@ -186,6 +190,9 @@ const uploadImages = async (courseName: string, files: File[]): Promise<string[]
 };
 
 export const uploadReviewImage = async (courseId: string, userId: string, file: File): Promise<string> => {
+    if (!storage) {
+        throw new Error("Firebase Storage is not initialized.");
+    }
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
     const storageRef = ref(storage, `reviews/${courseId}/${userId}-${Date.now()}-${cleanFileName}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -193,6 +200,9 @@ export const uploadReviewImage = async (courseId: string, userId: string, file: 
 };
 
 export const uploadProfilePicture = async (userId: string, file: File): Promise<string> => {
+    if (!storage) {
+        throw new Error("Firebase Storage is not initialized.");
+    }
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
     const storageRef = ref(storage, `profile-pictures/${userId}/${Date.now()}-${cleanFileName}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -210,23 +220,25 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
       coursesMap.set(course.id, { ...course, reviews: [] });
   });
 
-  // Fetch courses from Firestore
-  try {
-      const coursesCol = collection(db, 'courses');
-      const firestoreSnapshot = await getDocs(coursesCol);
-      firestoreSnapshot.forEach(doc => {
-          const courseData = doc.data() as Omit<GolfCourse, 'id' | 'reviews'>;
-          coursesMap.set(doc.id, {
-              id: doc.id,
-              ...courseData,
-              reviews: [] // Reviews will be fetched on detail page
+  // Fetch courses from Firestore only if db is initialized
+  if (db) {
+      try {
+          const coursesCol = collection(db, 'courses');
+          const firestoreSnapshot = await getDocs(coursesCol);
+          firestoreSnapshot.forEach(doc => {
+              const courseData = doc.data() as Omit<GolfCourse, 'id' | 'reviews'>;
+              coursesMap.set(doc.id, {
+                  id: doc.id,
+                  ...courseData,
+                  reviews: [] // Reviews will be fetched on detail page
+              });
           });
-      });
-  } catch (error: any) {
-      if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
-        console.warn("Firestore access denied or unavailable. The app will run with local data only. Error:", error.message);
-      } else {
-        console.error("Error fetching courses from Firestore:", error.message);
+      } catch (error: any) {
+          if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
+            console.warn("Firestore access denied or unavailable. The app will run with local data only. Error:", error.message);
+          } else {
+            console.error("Error fetching courses from Firestore:", error.message);
+          }
       }
   }
   
@@ -242,18 +254,20 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
 export const getCourseById = async (id: string): Promise<GolfCourse | undefined> => {
     if (!id) return undefined;
     
-    // First, check Firestore for a dynamically added course
-    try {
-        const courseDocRef = doc(db, 'courses', id);
-        const courseSnap = await getDoc(courseDocRef);
+    // First, check Firestore for a dynamically added course if db is available
+    if (db) {
+        try {
+            const courseDocRef = doc(db, 'courses', id);
+            const courseSnap = await getDoc(courseDocRef);
 
-        if (courseSnap.exists()) {
-            const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
-            courseData.reviews = await getReviewsForCourse(id);
-            return courseData;
+            if (courseSnap.exists()) {
+                const courseData = { id: courseSnap.id, ...courseSnap.data() } as GolfCourse;
+                courseData.reviews = await getReviewsForCourse(id);
+                return courseData;
+            }
+        } catch (error) {
+            console.error(`Firestore error fetching course ${id}. Falling back to static data.`, error);
         }
-    } catch (error) {
-        console.error(`Firestore error fetching course ${id}. Falling back to static data.`, error);
     }
     
     // If not in Firestore, find the course in our static data
@@ -275,6 +289,7 @@ export const getCourseLocations = async (): Promise<string[]> => {
 }
 
 export const addCourse = async (courseData: CourseDataInput): Promise<string> => {
+    if (!db) throw new Error("Firestore is not initialized.");
     // This will add a new course to Firestore, it won't be in the initial static list
     const { newImages, ...restOfData } = courseData;
     const newImageUrls = await uploadImages(courseData.name, newImages);
@@ -293,6 +308,7 @@ export const addCourse = async (courseData: CourseDataInput): Promise<string> =>
 }
 
 export const updateCourse = async (courseId: string, courseData: CourseDataInput): Promise<void> => {
+    if (!db) throw new Error("Firestore is not initialized.");
     const { newImages, existingImageUrls, ...restOfData } = courseData;
     const newImageUrls = await uploadImages(courseData.name, newImages);
     
@@ -310,6 +326,7 @@ export const updateCourse = async (courseId: string, courseData: CourseDataInput
 }
 
 export const deleteCourse = async (courseId: string): Promise<void> => {
+    if (!db) throw new Error("Firestore is not initialized.");
     // Note: This will not delete subcollections like reviews or tee times automatically.
     // For a production app, a Cloud Function would be needed to handle cascading deletes.
     const courseDocRef = doc(db, 'courses', courseId);
@@ -336,6 +353,12 @@ const generateDefaultTeeTimes = (basePrice: number): Omit<TeeTime, 'id' | 'date'
 };
 
 export const getTeeTimesForCourse = async (courseId: string, date: Date, basePrice: number): Promise<TeeTime[]> => {
+    if (!db) {
+        console.warn("Firestore not available. Generating local tee times.");
+        const defaultTimes = generateDefaultTeeTimes(basePrice);
+        return defaultTimes.map((t, i) => ({ ...t, id: `local-${i}`, date: format(startOfDay(date), 'yyyy-MM-dd') }));
+    }
+
     const dateString = format(startOfDay(date), 'yyyy-MM-dd');
     const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes');
     const q = query(teeTimesCol, where('date', '==', dateString));
@@ -378,6 +401,7 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
 };
 
 export const updateTeeTimesForCourse = async (courseId: string, date: Date, teeTimes: TeeTime[]): Promise<void> => {
+    if (!db) throw new Error("Firestore is not initialized.");
     const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes');
     
     const batch = writeBatch(db);
@@ -396,6 +420,7 @@ export const updateTeeTimesForCourse = async (courseId: string, date: Date, teeT
 // *** Booking Functions ***
 
 export async function createBooking(bookingData: BookingInput): Promise<string> {
+    if (!db) throw new Error("Firestore is not initialized.");
     const bookingsCol = collection(db, 'bookings');
     const bookingDocRef = doc(bookingsCol);
     const userDocRef = doc(db, 'users', bookingData.userId);
@@ -441,12 +466,14 @@ export async function createBooking(bookingData: BookingInput): Promise<string> 
 
 
 export async function getBookings(): Promise<Booking[]> {
+    if (!db) return [];
     const bookingsCol = collection(db, 'bookings');
     const snapshot = await getDocs(query(bookingsCol, orderBy('createdAt', 'desc')));
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
 }
 
 export async function getUserBookings(userId: string): Promise<Booking[]> {
+    if (!db) return [];
     const bookingsCol = collection(db, 'bookings');
     const q = query(bookingsCol, where('userId', '==', userId), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
@@ -456,6 +483,7 @@ export async function getUserBookings(userId: string): Promise<Booking[]> {
 // *** Review Functions ***
 
 export async function addReview(courseId: string, reviewData: ReviewInput): Promise<string> {
+    if (!db) throw new Error("Firestore is not initialized.");
     const reviewsCol = collection(db, 'courses', courseId, 'reviews');
     const docRef = await addDoc(reviewsCol, {
         ...reviewData,
@@ -467,6 +495,7 @@ export async function addReview(courseId: string, reviewData: ReviewInput): Prom
 }
 
 export async function getReviewsForCourse(courseId: string, onlyApproved = true): Promise<Review[]> {
+    if (!db) return [];
     try {
         const reviewsCol = collection(db, 'courses', courseId, 'reviews');
         let q = query(reviewsCol, orderBy('createdAt', 'desc'));
@@ -494,6 +523,7 @@ export async function getReviewsForCourse(courseId: string, onlyApproved = true)
 }
 
 export async function getAllReviews(): Promise<Review[]> {
+    if (!db) return [];
     const allReviews: Review[] = [];
 
     try {
@@ -526,12 +556,13 @@ export async function getAllReviews(): Promise<Review[]> {
 
 
 export async function updateReviewStatus(courseId: string, reviewId: string, approved: boolean): Promise<void> {
+    if (!db) throw new Error("Firestore is not initialized.");
     const reviewDocRef = doc(db, 'courses', courseId, 'reviews', reviewId);
     await updateDoc(reviewDocRef, { approved: approved });
 }
 
 export async function checkIfUserHasPlayed(userId: string, courseId: string): Promise<boolean> {
-    if (!userId) return false;
+    if (!userId || !db) return false;
 
     const bookingsCol = collection(db, 'bookings');
     const q = query(
@@ -547,6 +578,7 @@ export async function checkIfUserHasPlayed(userId: string, courseId: string): Pr
 
 // *** User Functions ***
 export async function getUsers(): Promise<UserProfile[]> {
+    if (!db) return [];
     const usersCol = collection(db, 'users');
     const q = query(usersCol, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
@@ -554,11 +586,13 @@ export async function getUsers(): Promise<UserProfile[]> {
 }
 
 export async function updateUserRole(uid: string, role: UserProfile['role']): Promise<void> {
+    if (!db) throw new Error("Firestore is not initialized.");
     const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, { role });
 }
 
 export async function updateUserProfile(uid: string, data: Partial<UserProfile>): Promise<void> {
+    if (!db) throw new Error("Firestore is not initialized.");
     const userDocRef = doc(db, 'users', uid);
     await updateDoc(userDocRef, data);
 }
@@ -566,6 +600,7 @@ export async function updateUserProfile(uid: string, data: Partial<UserProfile>)
 
 // *** Scorecard Functions ***
 export async function addUserScorecard(scorecardData: ScorecardInput): Promise<string> {
+    if (!db) throw new Error("Firestore is not initialized.");
     const scorecardsCol = collection(db, 'users', scorecardData.userId, 'scorecards');
     const docRef = await addDoc(scorecardsCol, {
         ...scorecardData,
@@ -575,6 +610,7 @@ export async function addUserScorecard(scorecardData: ScorecardInput): Promise<s
 }
 
 export async function getUserScorecards(userId: string): Promise<Scorecard[]> {
+    if (!db) return [];
     const scorecardsCol = collection(db, 'users', userId, 'scorecards');
     const q = query(scorecardsCol, orderBy('date', 'desc'));
     const snapshot = await getDocs(q);
@@ -582,12 +618,21 @@ export async function getUserScorecards(userId: string): Promise<Scorecard[]> {
 }
 
 export async function deleteUserScorecard(userId: string, scorecardId: string): Promise<void> {
+    if (!db) throw new Error("Firestore is not initialized.");
     const scorecardDocRef = doc(db, 'users', userId, 'scorecards', scorecardId);
     await deleteDoc(scorecardDocRef);
 }
 
 // *** Dashboard Functions ***
 export async function getDashboardStats() {
+    if (!db) {
+        return {
+            totalRevenue: 0,
+            totalUsers: 0,
+            totalBookings: 0,
+            recentBookings: []
+        };
+    }
     // Get total revenue from completed bookings
     const bookingsCol = collection(db, 'bookings');
     const revenueQuery = query(bookingsCol, where('status', '==', 'Completed'));
@@ -620,6 +665,14 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
     const today = startOfDay(new Date());
     const sevenDaysAgo = subDays(today, 7);
     
+    const dailyRevenue: { [key: string]: number } = {};
+    for (let i = 0; i < 7; i++) {
+        const date = format(subDays(today, i), 'MMM d');
+        dailyRevenue[date] = 0;
+    }
+
+    if (!db) return Object.entries(dailyRevenue).map(([date, revenue]) => ({ date, revenue }));
+    
     const bookingsCol = collection(db, 'bookings');
     const q = query(
         bookingsCol, 
@@ -628,14 +681,6 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
     );
     
     const snapshot = await getDocs(q);
-    
-    const dailyRevenue: { [key: string]: number } = {};
-
-    // Initialize the last 7 days with 0 revenue
-    for (let i = 0; i < 7; i++) {
-        const date = format(subDays(today, i), 'MMM d');
-        dailyRevenue[date] = 0;
-    }
 
     snapshot.docs.forEach(doc => {
         const booking = doc.data() as Booking;
@@ -652,7 +697,3 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
         .map(([date, revenue]) => ({ date, revenue }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
-
-    
-
-    

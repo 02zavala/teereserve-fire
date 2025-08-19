@@ -1,9 +1,9 @@
 
-import { initializeApp, getApps, getApp, FirebaseOptions } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
-import { getAnalytics, isSupported } from "firebase/analytics";
+import { initializeApp, getApps, getApp, FirebaseOptions, FirebaseApp } from "firebase/app";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getAuth, Auth } from "firebase/auth";
+import { getStorage, FirebaseStorage } from "firebase/storage";
+import { getAnalytics, isSupported, Analytics } from "firebase/analytics";
 
 // --- Configuration and Validation ---
 
@@ -17,11 +17,10 @@ const firebaseConfig: FirebaseOptions = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Robust check to ensure all Firebase config values are present and not placeholders.
 const validateFirebaseConfig = (config: FirebaseOptions): boolean => {
     return Object.entries(config).every(([key, value]) => {
         if (!value || typeof value !== 'string' || value.includes('your_') || value.includes('YOUR_')) {
-            console.error(`Firebase Initialization Error: Missing or invalid environment variable for '${key}'.`);
+            console.warn(`Firebase Initialization Warning: Missing or invalid environment variable for '${key}'. Firebase services will be disabled.`);
             return false;
         }
         return true;
@@ -32,19 +31,33 @@ const isConfigValid = validateFirebaseConfig(firebaseConfig);
 
 // --- Firebase Initialization ---
 
-let app, db, auth, storage, analytics;
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
+let auth: Auth | null = null;
+let storage: FirebaseStorage | null = null;
+let analytics: Promise<Analytics | null> | null = null;
 
 if (isConfigValid) {
-    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    db = getFirestore(app);
-    auth = getAuth(app);
-    storage = getStorage(app);
-    analytics = isSupported().then(yes => (yes ? getAnalytics(app) : null));
+    try {
+        app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        db = getFirestore(app);
+        auth = getAuth(app);
+        storage = getStorage(app);
+        if (typeof window !== 'undefined') {
+            analytics = isSupported().then(yes => (yes ? getAnalytics(app as FirebaseApp) : null));
+        }
+    } catch (e) {
+         console.error("Error initializing Firebase:", e);
+         // Set services to null on error to prevent usage
+         app = null;
+         db = null;
+         auth = null;
+         storage = null;
+         analytics = null;
+    }
 } else {
-    // If config is invalid, we'll log an error and the services will be undefined.
-    // This prevents the app from crashing due to failed Firebase calls with bad config.
     console.error(
-        "Firebase services could not be initialized due to invalid configuration. Please check your .env.local file."
+        "Firebase services are disabled due to invalid configuration. Please check your .env.local file."
     );
 }
 

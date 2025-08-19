@@ -33,7 +33,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return `${format(dateObj, 'PPP', { locale })} at ${booking.time}`;
+                    return `${format(dateObj, 'PPP', { locale: locale })} at ${booking.time}`;
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
@@ -97,7 +97,7 @@ export default function ProfilePage() {
         if (user) {
             setLoadingBookings(true);
             if (user.metadata.creationTime) {
-                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale }));
+                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: locale }));
             }
 
             getUserBookings(user.uid)
