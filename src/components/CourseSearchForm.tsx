@@ -66,6 +66,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     }, []);
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const locale = dateLocales[lang];
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -159,7 +160,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                         disabled={isGroupBooking || !isClient}
                                         >
                                         {field.value ? (
-                                            format(field.value, "PPP", { locale: dateLocales[lang] })
+                                            format(field.value, "PPP", { locale })
                                         ) : (
                                             <span>{dictionary.pickDate}</span>
                                         )}
@@ -175,7 +176,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                             date < new Date(new Date().setHours(0,0,0,0)) || isGroupBooking
                                             }
                                             initialFocus
-                                            locale={dateLocales[lang]}
+                                            locale={locale}
                                         />
                                     </PopoverContent>
                                 </Popover>
