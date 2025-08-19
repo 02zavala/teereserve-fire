@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { i18n } from './i18n-config'
@@ -33,7 +32,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   // Matcher ignoring `/_next/` and `/api/`
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|logo.svg|hero/.*).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|logo.svg|hero/.*).*)'],
 }
