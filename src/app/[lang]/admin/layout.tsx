@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { Sidebar, SidebarProvider, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset } from "@/components/ui/sidebar";
-import { Home, GanttChartSquare, BookMarked, Users, Settings, MessageSquareQuote } from "lucide-react";
+import { Home, GanttChartSquare, BookMarked, Users, Settings, MessageSquareQuote, FileText } from "lucide-react";
 import Link from "next/link";
 import { UserNav } from "@/components/auth/UserNav";
 import { Header } from "@/components/layout/Header";
@@ -40,6 +40,14 @@ export default async function AdminLayout({
                                   <Link href={`/${lang}/admin/courses`}>
                                       <GanttChartSquare />
                                       <span>Courses</span>
+                                  </Link>
+                              </SidebarMenuButton>
+                          </SidebarMenuItem>
+                           <SidebarMenuItem>
+                              <SidebarMenuButton asChild tooltip="Site Content">
+                                  <Link href={`/${lang}/admin/content`}>
+                                      <FileText />
+                                      <span>Site Content</span>
                                   </Link>
                               </SidebarMenuButton>
                           </SidebarMenuItem>

@@ -1,8 +1,8 @@
 
-import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId, TeamMember } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { format, startOfDay, subDays, isAfter } from 'date-fns';
 
 interface CourseDataInput {
@@ -696,4 +696,72 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
     return Object.entries(dailyRevenue)
         .map(([date, revenue]) => ({ date, revenue }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+}
+
+// *** Team Member Functions ***
+
+export async function getTeamMembers(): Promise<TeamMember[]> {
+    if (!db) return [];
+    try {
+        const teamMembersCol = collection(db, 'teamMembers');
+        const q = query(teamMembersCol, orderBy('order', 'asc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
+    } catch (error) {
+        console.error("Error fetching team members:", error);
+        return [];
+    }
+}
+
+export async function uploadTeamMemberAvatar(file: File, memberId?: string): Promise<string> {
+    if (!storage) throw new Error("Firebase Storage is not initialized.");
+    
+    const fileName = memberId ? `${memberId}-${file.name}` : `${Date.now()}-${file.name}`;
+    const storageRef = ref(storage, `team-avatars/${fileName}`);
+    
+    const snapshot = await uploadBytes(storageRef, file);
+    return getDownloadURL(snapshot.ref);
+}
+
+export async function addOrUpdateTeamMember(memberData: Partial<TeamMember>): Promise<TeamMember> {
+    if (!db) throw new Error("Firestore is not initialized.");
+    const teamMembersCol = collection(db, 'teamMembers');
+    
+    if (memberData.id) {
+        // Update existing member
+        const memberDocRef = doc(db, 'teamMembers', memberData.id);
+        await updateDoc(memberDocRef, memberData);
+        const updatedDoc = await getDoc(memberDocRef);
+        return { id: updatedDoc.id, ...updatedDoc.data() } as TeamMember;
+    } else {
+        // Add new member
+        const docRef = await addDoc(teamMembersCol, memberData);
+        const newDoc = await getDoc(docRef);
+        return { id: newDoc.id, ...newDoc.data() } as TeamMember;
+    }
+}
+
+export async function deleteTeamMember(memberId: string): Promise<void> {
+    if (!db || !storage) throw new Error("Firebase is not initialized.");
+    
+    const memberDocRef = doc(db, 'teamMembers', memberId);
+    const memberDoc = await getDoc(memberDocRef);
+    
+    if (memberDoc.exists()) {
+        const memberData = memberDoc.data() as TeamMember;
+        // Delete avatar from storage if it exists
+        if (memberData.avatarUrl) {
+            try {
+                const avatarRef = ref(storage, memberData.avatarUrl);
+                await deleteObject(avatarRef);
+            } catch (error: any) {
+                // If the file doesn't exist, we can ignore the error
+                if (error.code !== 'storage/object-not-found') {
+                    console.error("Error deleting team member avatar:", error);
+                }
+            }
+        }
+    }
+    
+    await deleteDoc(memberDocRef);
 }

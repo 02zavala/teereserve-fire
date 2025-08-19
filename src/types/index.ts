@@ -97,3 +97,12 @@ export interface Scorecard extends ScorecardInput {
     id: string;
     createdAt: string; // ISO String
 }
+
+export interface TeamMember {
+    id: string;
+    name: string;
+    role_en: string;
+    role_es: string;
+    avatarUrl: string;
+    order: number;
+}

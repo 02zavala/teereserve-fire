@@ -40,7 +40,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
              try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    setFormattedDate(format(dateObj, 'PPP', { locale }));
+                    setFormattedDate(format(dateObj, 'PPP', { locale: locale }));
                 } else {
                     throw new Error("Invalid date value");
                 }

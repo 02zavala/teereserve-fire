@@ -10,6 +10,7 @@ import { Award, Target, Users, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
+import { getTeamMembers } from '@/lib/data';
 
 
 interface AboutPageProps {
@@ -21,6 +22,7 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
     const lang = params.lang;
     const dictionary = await getDictionary(lang);
     const t = dictionary.aboutPage;
+    const teamMembers = await getTeamMembers();
 
     const values = [
         {
@@ -39,13 +41,6 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
             description: t.values.trust.description
         }
     ];
-    
-    const team = [
-        { name: "[Your Name]", role: t.team.roles.founder, avatar: "https://i.pravatar.cc/150?u=founder" },
-        { name: "[Teammate Name]", role: t.team.roles.ops, avatar: "https://i.pravatar.cc/150?u=ops" },
-        { name: "[Teammate Name]", role: t.team.roles.dev, avatar: "https://i.pravatar.cc/150?u=dev" },
-    ];
-
 
     return (
         <div className="bg-background">
@@ -122,14 +117,14 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
                     <p className="mt-2 text-lg text-muted-foreground">{t.team.subtitle}</p>
                 </div>
                  <div className="flex justify-center flex-wrap gap-8">
-                    {team.map((member, index) => (
-                        <div key={index} className="flex flex-col items-center">
+                    {teamMembers.map((member) => (
+                        <div key={member.id} className="flex flex-col items-center">
                             <Avatar className="w-24 h-24 mb-4 border-4 border-primary/50">
-                                <AvatarImage src={member.avatar} alt={member.name} />
+                                <AvatarImage src={member.avatarUrl} alt={member.name} />
                                 <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <h4 className="font-semibold text-lg">{member.name}</h4>
-                            <p className="text-muted-foreground">{member.role}</p>
+                            <p className="text-muted-foreground">{lang === 'es' ? member.role_es : member.role_en}</p>
                         </div>
                     ))}
                 </div>
