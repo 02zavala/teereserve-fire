@@ -237,7 +237,7 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
           if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
             console.warn("Firestore access denied or unavailable. The app will run with local data only. Error:", error.message);
           } else {
-            console.error("Error fetching courses from Firestore:", error.message);
+            console.error("Error fetching courses from Firestore:", error);
           }
       }
   }
