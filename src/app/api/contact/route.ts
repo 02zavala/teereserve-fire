@@ -1,16 +1,29 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { sendContactEmail } from '@/ai/flows/send-contact-email';
+import { z } from 'zod';
+
+// Schema for validating the request body
+const contactSchema = z.object({
+  name: z.string().min(1, { message: 'Name is required' }),
+  email: z.string().email({ message: 'Invalid email format' }),
+  message: z.string().min(1, { message: 'Message is required' }),
+  recaptchaToken: z.string().optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, message, recaptchaToken } = await req.json();
+    const body = await req.json();
 
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    // Validate request body
+    const validation = contactSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json({ error: 'Invalid input', details: validation.error.flatten() }, { status: 400 });
     }
     
-    // Optional: Add reCAPTCHA server-side verification here if needed
+    const { name, email, message } = validation.data;
+
+    // Optional: Add reCAPTCHA server-side verification here
     // For now, we'll proceed directly to sending the email.
 
     const result = await sendContactEmail({ name, email, message });
@@ -18,7 +31,8 @@ export async function POST(req: NextRequest) {
     if (result.success) {
       return NextResponse.json({ message: 'Message sent successfully!' }, { status: 200 });
     } else {
-      throw new Error(result.message);
+      // The flow should throw an error, but as a fallback:
+      throw new Error(result.message || 'The email flow reported a failure.');
     }
 
   } catch (error) {

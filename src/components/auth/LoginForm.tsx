@@ -22,10 +22,11 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/context/AuthContext"
 import { FirebaseError } from "firebase/app"
 import { Loader2 } from "lucide-react"
+import { handleError, translateFirebaseError } from "@/lib/error-handling"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(1, { message: "Password is required." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 })
 
 export function LoginForm() {
@@ -53,24 +54,7 @@ export function LoginForm() {
       router.push(`/${lang}/profile`)
       router.refresh(); // Forces a refresh to update user state across the app
     } catch (error) {
-       console.error("Login failed:", error)
-       let description = "An unexpected error occurred. Please try again."
-       if (error instanceof FirebaseError) {
-         switch (error.code) {
-            case "auth/user-not-found":
-            case "auth/wrong-password":
-            case "auth/invalid-credential":
-                description = "Invalid email or password. Please try again.";
-                break;
-            default:
-                description = "Failed to log in. Please check your credentials.";
-         }
-       }
-       toast({
-        title: "Login Failed",
-        description,
-        variant: "destructive",
-      })
+       handleError(error, { toast });
     }
   }
 
@@ -85,16 +69,10 @@ export function LoginForm() {
       router.refresh();
     } catch (error) {
       if (error instanceof FirebaseError && error.code === 'auth/popup-closed-by-user') {
-        // User closed the popup, do nothing.
         console.log("Google Sign-In cancelled by user.");
         return;
       }
-      console.error("Google Sign-In failed:", error);
-      toast({
-        title: "Sign-In Failed",
-        description: "Could not sign in with Google. Please try again.",
-        variant: "destructive",
-      });
+      handleError(error, { toast });
     }
   }
 

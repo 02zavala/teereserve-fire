@@ -22,6 +22,8 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/context/AuthContext"
 import { FirebaseError } from "firebase/app"
 import { Loader2 } from "lucide-react"
+import { handleError, translateFirebaseError } from "@/lib/error-handling"
+
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -57,25 +59,7 @@ export function SignUpForm() {
       router.push(`/${lang}/profile`)
       router.refresh();
     } catch (error) {
-        console.error("Signup failed:", error)
-        let description = "An unexpected error occurred. Please try again."
-        if (error instanceof FirebaseError) {
-          switch (error.code) {
-            case "auth/email-already-in-use":
-              description = "This email is already in use. Please log in or use a different email.";
-              break;
-            case "auth/weak-password":
-              description = "The password is too weak. Please choose a stronger password.";
-              break;
-            default:
-              description = "Failed to create an account. Please try again.";
-          }
-        }
-        toast({
-            title: "Sign Up Failed",
-            description,
-            variant: "destructive",
-        })
+        handleError(error, { toast });
     }
   }
 
@@ -90,16 +74,10 @@ export function SignUpForm() {
       router.refresh();
     } catch (error) {
        if (error instanceof FirebaseError && error.code === 'auth/popup-closed-by-user') {
-        // User closed the popup, do nothing.
         console.log("Google Sign-In cancelled by user.");
         return;
       }
-      console.error("Google Sign-In failed:", error);
-      toast({
-        title: "Sign-In Failed",
-        description: "Could not sign in with Google. Please try again.",
-        variant: "destructive",
-      });
+      handleError(error, { toast });
     }
   }
 
