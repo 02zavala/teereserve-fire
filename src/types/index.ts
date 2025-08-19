@@ -106,3 +106,8 @@ export interface TeamMember {
     avatarUrl: string;
     order: number;
 }
+
+export interface AboutPageContent {
+    heroImageUrl: string;
+    missionImageUrl: string;
+}

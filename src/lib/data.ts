@@ -1,5 +1,5 @@
 
-import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId, TeamMember } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId, TeamMember, AboutPageContent } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -696,6 +696,41 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
     return Object.entries(dailyRevenue)
         .map(([date, revenue]) => ({ date, revenue }))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+}
+
+// *** Site Content Functions ***
+export const uploadSiteImage = async (file: File, imageName: string): Promise<string> => {
+    if (!storage) throw new Error("Firebase Storage is not initialized.");
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+    const storageRef = ref(storage, `site-content/${imageName}-${Date.now()}-${cleanFileName}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return getDownloadURL(snapshot.ref);
+};
+
+export async function getAboutPageContent(): Promise<AboutPageContent> {
+    const defaults: AboutPageContent = {
+        heroImageUrl: 'https://placehold.co/1920x800.png',
+        missionImageUrl: 'https://placehold.co/600x600.png',
+    };
+    if (!db) return defaults;
+    
+    try {
+        const docRef = doc(db, 'siteContent', 'aboutPage');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as AboutPageContent;
+        }
+        return defaults;
+    } catch (error) {
+        console.error("Error fetching about page content:", error);
+        return defaults;
+    }
+}
+
+export async function updateAboutPageContent(content: AboutPageContent): Promise<void> {
+    if (!db) throw new Error("Firestore is not initialized.");
+    const docRef = doc(db, 'siteContent', 'aboutPage');
+    await setDoc(docRef, content, { merge: true });
 }
 
 // *** Team Member Functions ***
