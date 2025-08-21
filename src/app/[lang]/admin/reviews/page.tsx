@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,13 +13,13 @@ import type { Review } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
-import { dateLocales } from "@/lib/date-utils";
+
 
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [isLoadingModeration, setIsLoadingModeration] = useState(true);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
-    const locale = dateLocales[lang];
+
 
     useEffect(() => {
         assistReviewModeration({ reviewText: review.text })
@@ -30,14 +29,14 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
           try {
-            setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: locale }));
+            setFormattedDate(format(new Date(review.createdAt), "PPP"));
           } catch(e) {
             console.error("Invalid date format:", review.createdAt);
             setFormattedDate("Invalid Date");
           }
         }
 
-    }, [review.text, review.createdAt, lang, locale]);
+    }, [review.text, review.createdAt, lang]);
     
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';

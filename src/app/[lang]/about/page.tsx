@@ -10,7 +10,7 @@ import { Award, Target, Users, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
-import { getTeamMembers } from '@/lib/data';
+import { getTeamMembers, getAboutPageContent } from '@/lib/data';
 
 
 interface AboutPageProps {
@@ -22,7 +22,11 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
     const lang = params.lang;
     const dictionary = await getDictionary(lang);
     const t = dictionary.aboutPage;
-    const teamMembers = await getTeamMembers();
+    
+    const [teamMembers, pageContent] = await Promise.all([
+        getTeamMembers(),
+        getAboutPageContent()
+    ]);
 
     const values = [
         {
@@ -47,7 +51,7 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
             {/* Hero Section */}
             <section className="relative h-[40vh] min-h-[300px] w-full bg-foreground flex items-center justify-center text-center text-white">
                 <Image
-                    src="https://placehold.co/1920x800.png"
+                    src={pageContent.heroImageUrl || "https://placehold.co/1920x800.png"}
                     alt={t.hero.imageAlt}
                     data-ai-hint="golf course team"
                     fill
@@ -77,7 +81,7 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
                     </div>
                      <div className="relative aspect-square max-w-md mx-auto w-full">
                         <Image
-                            src="https://placehold.co/600x600.png"
+                            src={pageContent.missionImageUrl || "https://placehold.co/600x600.png"}
                             alt={t.mission.imageAlt}
                             data-ai-hint="golf course detail"
                             fill

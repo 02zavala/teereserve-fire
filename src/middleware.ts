@@ -24,8 +24,13 @@ export function middleware(request: NextRequest) {
   // Redirect if there is no locale
   if (pathnameIsMissingLocale) {
     const locale = getLocale(request)
+
+    // If the pathname is just "/", redirect to the locale root.
+    // Otherwise, prefix the pathname with the locale.
+    const newPath = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
+    
     return NextResponse.redirect(
-      new URL(`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`, request.url)
+      new URL(newPath, request.url)
     )
   }
 }

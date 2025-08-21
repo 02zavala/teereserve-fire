@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -14,7 +13,7 @@ import { format } from 'date-fns';
 import type { Locale } from '@/i18n-config';
 import { useAuth } from '@/context/AuthContext';
 import { Separator } from '@/components/ui/separator';
-import { dateLocales } from '@/lib/date-utils';
+
 
 const TAX_RATE = 0.16;
 
@@ -36,7 +35,7 @@ function SuccessPageContent() {
     const price = searchParams.get('price'); // This is now subtotal
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
-    const locale = dateLocales[lang];
+
 
     useEffect(() => {
         if (!courseId) {
@@ -53,7 +52,7 @@ function SuccessPageContent() {
         // Safe client-side date formatting to prevent hydration mismatch
         if (date) {
             try {
-                setFormattedDate(format(new Date(date), "PPP", { locale }));
+                setFormattedDate(format(new Date(date), "PPP"));
             } catch (e) {
                 console.error("Invalid date format:", date);
                 setFormattedDate("Invalid Date");
@@ -65,7 +64,7 @@ function SuccessPageContent() {
         }).finally(() => {
             setLoading(false);
         });
-    }, [courseId, router, lang, date, price, locale]);
+    }, [courseId, router, lang, date, price]);
     
     const handlePrint = () => window.print();
 

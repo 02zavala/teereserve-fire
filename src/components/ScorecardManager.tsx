@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -30,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { usePathname } from 'next/navigation';
 import type { Locale } from '@/i18n-config';
-import { dateLocales } from '@/lib/date-utils';
+
 
 interface ScorecardManagerProps {
     user: User;
@@ -47,7 +46,7 @@ type ScorecardFormValues = z.infer<typeof formSchema>;
 
 function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, onDelete: (id: string) => Promise<void>, lang: Locale }) {
     const [isDeleting, setIsDeleting] = useState(false);
-    const locale = dateLocales[lang];
+
 
     const handleDelete = async () => {
         setIsDeleting(true);
@@ -61,7 +60,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP', { locale })}
+                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP')}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>

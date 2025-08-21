@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,7 +16,7 @@ import { ProfileEditor } from "@/components/ProfileEditor";
 import { ScorecardManager } from "@/components/ScorecardManager";
 import { useRouter, usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
-import { dateLocales } from "@/lib/date-utils";
+
 import { GamificationSection } from "@/components/GamificationSection";
 
 interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
@@ -27,13 +26,13 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 }
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
-    const locale = dateLocales[lang];
+
     const formattedDate = useMemo(() => {
         if (booking.date && booking.time) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return `${format(dateObj, 'PPP', { locale: locale })} at ${booking.time}`;
+                    return `${format(dateObj, 'PPP')} at ${booking.time}`;
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
@@ -41,7 +40,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
             }
         }
         return "Invalid Date";
-    }, [booking.date, booking.time, booking.id, lang, locale]);
+    }, [booking.date, booking.time, booking.id, lang]);
 
 
     const getStatusVariant = (status: Booking['status']) => {
@@ -79,7 +78,7 @@ export default function ProfilePage() {
     const router = useRouter();
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
-    const locale = dateLocales[lang];
+
 
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
@@ -97,7 +96,7 @@ export default function ProfilePage() {
         if (user) {
             setLoadingBookings(true);
             if (user.metadata.creationTime) {
-                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: locale }));
+                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
             }
 
             getUserBookings(user.uid)
@@ -111,7 +110,7 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         }
-    }, [user, lang, locale]);
+    }, [user, lang]);
     
     const onProfileUpdate = useCallback(() => {
         refreshUserProfile();

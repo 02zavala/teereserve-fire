@@ -1,9 +1,8 @@
-
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
 import { format } from "date-fns"
-import { dateLocales } from "@/lib/date-utils"
+
 import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send, MessageSquare, CheckCircle, Info, Star, ShieldCheck, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -36,7 +35,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     const [isClient, setIsClient] = useState(false);
     const [selectedTeeTime, setSelectedTeeTime] = useState<TeeTime | null>(null);
     const [comments, setComments] = useState("");
-    const locale = dateLocales[lang];
+
 
     useEffect(() => {
         setIsClient(true);
@@ -105,7 +104,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         !date && "text-muted-foreground"
                                     )}
                                     >
-                                    {date ? format(date, "PPP", { locale }) : <span>Pick a date</span>}
+                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
@@ -115,7 +114,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         onSelect={(d) => d && setDate(d)}
                                         initialFocus
                                         disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                        locale={locale}
+                                        
                                     />
                                 </PopoverContent>
                             </Popover>
@@ -169,8 +168,8 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                    {selectedTeeTime ? (
                     <>
                         <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
-                            <p className="font-bold text-primary">{format(date, 'eeee', { locale })}</p>
-                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy', { locale })}</p>
+                            <p className="font-bold text-primary">{format(date, 'eeee')}</p>
+                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy')}</p>
                             <Separator className="my-2 bg-primary/20" />
                             <p className="font-bold text-primary">{selectedTeeTime.time}</p>
                             <p className="text-sm text-primary/90">{players} Players (18 Holes)</p>
@@ -248,5 +247,3 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         </Card>
     )
 }
-
-    

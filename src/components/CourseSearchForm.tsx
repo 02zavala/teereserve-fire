@@ -1,5 +1,3 @@
-
-
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -37,7 +35,7 @@ import { getCourseLocations } from "@/lib/data"
 import { useEffect, useState } from "react"
 import { getDictionary } from "@/lib/get-dictionary"
 import type { Locale } from "@/i18n-config"
-import { dateLocales } from "@/lib/date-utils"
+
 
 const formSchema = z.object({
   location: z.string().min(1, "Location is required"),
@@ -66,7 +64,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     }, []);
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
-    const locale = dateLocales[lang];
+
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -160,7 +158,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                         disabled={isGroupBooking || !isClient}
                                         >
                                         {field.value ? (
-                                            format(field.value, "PPP", { locale })
+                                            format(field.value, "PPP")
                                         ) : (
                                             <span>{dictionary.pickDate}</span>
                                         )}
@@ -176,7 +174,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                             date < new Date(new Date().setHours(0,0,0,0)) || isGroupBooking
                                             }
                                             initialFocus
-                                            locale={locale}
+                                            
                                         />
                                     </PopoverContent>
                                 </Popover>

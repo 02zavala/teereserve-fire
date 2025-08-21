@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -19,7 +18,7 @@ import { Locale } from '@/i18n-config';
 import { Skeleton } from './ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Separator } from './ui/separator';
-import { dateLocales } from '@/lib/date-utils';
+
 
 const TAX_RATE = 0.16; // 16%
 
@@ -54,7 +53,7 @@ export default function CheckoutForm() {
     const comments = searchParams.get('comments');
     
     const lang = (pathname.split('/')[1] || 'en') as Locale;
-    const locale = dateLocales[lang];
+
 
     useEffect(() => {
         if (!courseId) {
@@ -86,7 +85,7 @@ export default function CheckoutForm() {
         // Safe client-side date formatting
         if (date) {
             try {
-                setFormattedDate(format(new Date(date), "PPP", { locale }));
+                setFormattedDate(format(new Date(date), "PPP"));
             } catch (e) {
                 console.error("Invalid date format:", date);
                 setFormattedDate("Invalid Date");
@@ -100,7 +99,7 @@ export default function CheckoutForm() {
             setIsLoading(false);
         });
 
-    }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price, locale]);
+    }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price]);
 
     const handleProceedToPayment = () => {
         if (!stripe || !elements) {

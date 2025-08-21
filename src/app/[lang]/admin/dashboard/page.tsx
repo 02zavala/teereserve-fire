@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
-import { dateLocales } from "@/lib/date-utils";
+
 
 interface DashboardStats {
     totalRevenue: number;
@@ -36,7 +35,7 @@ function getStatusVariant(status: Booking['status']) {
 
 function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
-    const locale = dateLocales[lang];
+
 
     useEffect(() => {
         // Safe client-side date formatting
@@ -44,7 +43,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
             try {
                 const dateObj = new Date(booking.date);
                 if (!isNaN(dateObj.getTime())) {
-                     setFormattedDate(format(dateObj, "PPP", { locale }));
+                     setFormattedDate(format(dateObj, "PPP"));
                 } else {
                     throw new Error("Invalid date value");
                 }
@@ -53,7 +52,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
                 setFormattedDate("Invalid Date");
             }
         }
-    }, [booking.date, booking.id, lang, locale]);
+    }, [booking.date, booking.id, lang]);
 
     return (
         <TableRow>
