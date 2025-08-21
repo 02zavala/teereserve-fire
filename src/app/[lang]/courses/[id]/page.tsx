@@ -1,4 +1,3 @@
-
 "use client";
 
 import { getCourseById } from '@/lib/data';
