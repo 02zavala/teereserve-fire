@@ -13,6 +13,7 @@ import type { Review } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
+import { dateLocales } from "@/lib/date-utils";
 
 
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
@@ -29,7 +30,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
           try {
-            setFormattedDate(format(new Date(review.createdAt), "PPP"));
+            setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
           } catch(e) {
             console.error("Invalid date format:", review.createdAt);
             setFormattedDate("Invalid Date");

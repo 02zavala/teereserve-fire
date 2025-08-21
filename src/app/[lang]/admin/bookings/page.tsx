@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
+import { dateLocales } from "@/lib/date-utils";
 
 
 function getStatusVariant(status: Booking['status']) {
@@ -38,7 +39,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
              try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    setFormattedDate(format(dateObj, 'PPP'));
+                    setFormattedDate(format(dateObj, 'PPP', { locale: dateLocales[lang] }));
                 } else {
                     throw new Error("Invalid date value");
                 }

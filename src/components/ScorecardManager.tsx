@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { usePathname } from 'next/navigation';
 import type { Locale } from '@/i18n-config';
+import { dateLocales } from '@/lib/date-utils';
 
 
 interface ScorecardManagerProps {
@@ -60,7 +61,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP')}
+                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] })}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>

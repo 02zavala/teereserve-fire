@@ -16,7 +16,7 @@ import { ProfileEditor } from "@/components/ProfileEditor";
 import { ScorecardManager } from "@/components/ScorecardManager";
 import { useRouter, usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
-
+import { dateLocales } from "@/lib/date-utils";
 import { GamificationSection } from "@/components/GamificationSection";
 
 interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
@@ -32,7 +32,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return `${format(dateObj, 'PPP')} at ${booking.time}`;
+                    return `${format(dateObj, 'PPP', { locale: dateLocales[lang] })} at ${booking.time}`;
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
@@ -96,7 +96,7 @@ export default function ProfilePage() {
         if (user) {
             setLoadingBookings(true);
             if (user.metadata.creationTime) {
-                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP'));
+                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: dateLocales[lang] }));
             }
 
             getUserBookings(user.uid)

@@ -1,7 +1,6 @@
-
 "use client";
 
-import { getCourseById } from '@/lib/data';
+import { getCourseById, getDictionary } from '@/lib/data';
 import { notFound, useParams, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { MapPin, ShieldCheck, Star, Sun, Wind, Droplets, Eye, Gauge, CheckCircle } from 'lucide-react';
@@ -12,7 +11,6 @@ import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CourseMap } from '@/components/CourseMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getDictionary } from '@/lib/get-dictionary';
 import type { Locale } from '@/i18n-config';
 import type { GolfCourse } from '@/types';
 import { Badge } from '@/components/ui/badge';
@@ -275,7 +273,3 @@ function RecommendationSkeleton() {
     </div>
   )
 }
-
-    
-
-    

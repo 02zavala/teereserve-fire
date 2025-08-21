@@ -17,6 +17,7 @@ import { addReview, checkIfUserHasPlayed, uploadReviewImage } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, usePathname } from 'next/navigation';
 import { Locale } from '@/i18n-config';
+import { dateLocales } from '@/lib/date-utils';
 
 
 interface ReviewSectionProps {
@@ -30,7 +31,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     useEffect(() => {
         // This effect runs only on the client, after hydration, to prevent mismatch
         if (review.createdAt) {
-          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true }));
+          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));
         }
     }, [review.createdAt, lang]);
 

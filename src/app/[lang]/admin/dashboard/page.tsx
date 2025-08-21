@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
+import { dateLocales } from "@/lib/date-utils";
 
 
 interface DashboardStats {
@@ -43,7 +44,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
             try {
                 const dateObj = new Date(booking.date);
                 if (!isNaN(dateObj.getTime())) {
-                     setFormattedDate(format(dateObj, "PPP"));
+                     setFormattedDate(format(dateObj, "PPP", { locale: dateLocales[lang] }));
                 } else {
                     throw new Error("Invalid date value");
                 }
