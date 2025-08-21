@@ -1,4 +1,4 @@
-# TeeReserve - Plataforma de Golf Mejorada con i18n y Modo Oscuro 🌍⛳
+# TeeReserve - Plataforma de Golf  🌍⛳
 
 ![TeeReserve](./public/logo.svg)
 
@@ -69,7 +69,7 @@ TeeReserve ha sido completamente mejorado con un enfoque en la experiencia del u
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/your-org/teereserve.git
+git clone https://github.com/02zavala/teereserve-fin.git
 cd teereserve
 
 # 2. Instalar dependencias
