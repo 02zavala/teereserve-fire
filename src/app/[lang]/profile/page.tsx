@@ -96,7 +96,12 @@ export default function ProfilePage() {
         if (user) {
             setLoadingBookings(true);
             if (user.metadata.creationTime) {
-                setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: dateLocales[lang] }));
+                try {
+                     setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: dateLocales[lang] }));
+                } catch (e) {
+                    console.error("Failed to format member since date");
+                    setMemberSince(null);
+                }
             }
 
             getUserBookings(user.uid)
