@@ -1,6 +1,8 @@
+
 "use client";
 
-import { getCourseById, getDictionary } from '@/lib/data';
+import { getCourseById } from '@/lib/data';
+import { getDictionary } from '@/lib/get-dictionary';
 import { notFound, useParams, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { MapPin, ShieldCheck, Star, Sun, Wind, Droplets, Eye, Gauge, CheckCircle } from 'lucide-react';

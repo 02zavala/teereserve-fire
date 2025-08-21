@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -26,11 +26,7 @@ function getStatusVariant(status: Booking['status']) {
     }
 }
 
-interface FormattedBooking extends Omit<Booking, 'date'> {
-    date: string | Date;
-}
-
-function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
+function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
     
     useEffect(() => {
@@ -74,7 +70,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
 }
 
 export default function BookingsAdminPage() {
-    const [bookings, setBookings] = useState<FormattedBooking[]>([]);
+    const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
