@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { GolfCourse, Review } from '@/types';
 import { StarRating } from './StarRating';
 import { Button } from './ui/button';
@@ -25,14 +25,16 @@ interface ReviewSectionProps {
 }
 
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
-    const [timeAgo, setTimeAgo] = useState<string | null>(null);
-
-
-    useEffect(() => {
-        // This effect runs only on the client, after hydration, to prevent mismatch
+    const timeAgo = useMemo(() => {
         if (review.createdAt) {
-          setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));
+          try {
+            return formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] });
+          } catch(e) {
+            console.error("Invalid date format:", review.createdAt);
+            return "Invalid Date";
+          }
         }
+        return null;
     }, [review.createdAt, lang]);
 
     return (

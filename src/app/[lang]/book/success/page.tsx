@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Mail, Printer, Share2, Info, User, Calendar, Clock, Users, DollarSign } from 'lucide-react';
@@ -26,7 +26,6 @@ function SuccessPageContent() {
     
     const [course, setCourse] = useState<GolfCourse | null>(null);
     const [loading, setLoading] = useState(true);
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
     const [totalPrice, setTotalPrice] = useState<string | null>(null);
 
     const courseId = searchParams.get('courseId');
@@ -37,6 +36,17 @@ function SuccessPageContent() {
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
+    const formattedDate = useMemo(() => {
+        if (date) {
+            try {
+                return format(new Date(date), "PPP", { locale: dateLocales[lang] });
+            } catch (e) {
+                console.error("Invalid date format:", date);
+                return "Invalid Date";
+            }
+        }
+        return null;
+    }, [date, lang]);
 
     useEffect(() => {
         if (!courseId) {
@@ -48,16 +58,6 @@ function SuccessPageContent() {
             const subtotalNum = parseFloat(price);
             const total = subtotalNum * (1 + TAX_RATE);
             setTotalPrice(total.toFixed(2));
-        }
-
-        // Safe client-side date formatting to prevent hydration mismatch
-        if (date) {
-            try {
-                setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
-            } catch (e) {
-                console.error("Invalid date format:", date);
-                setFormattedDate("Invalid Date");
-            }
         }
 
         getCourseById(courseId).then(data => {

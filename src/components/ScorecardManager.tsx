@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,6 +48,14 @@ type ScorecardFormValues = z.infer<typeof formSchema>;
 function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, onDelete: (id: string) => Promise<void>, lang: Locale }) {
     const [isDeleting, setIsDeleting] = useState(false);
 
+    const formattedDate = useMemo(() => {
+        try {
+            return format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] });
+        } catch (e) {
+            console.error("Invalid date for scorecard:", scorecard.id, scorecard.date);
+            return "Invalid Date";
+        }
+    }, [scorecard.date, scorecard.id, lang]);
 
     const handleDelete = async () => {
         setIsDeleting(true);
@@ -61,7 +69,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] })}
+                       <Calendar className="h-4 w-4" /> {formattedDate}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>

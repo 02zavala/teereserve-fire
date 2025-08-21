@@ -8,7 +8,7 @@ import { AlertCircle, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
 import { ReviewActions } from "./ReviewActions";
 import { StarRating } from "@/components/StarRating";
 import { format } from "date-fns";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { Review } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
@@ -19,25 +19,24 @@ import { dateLocales } from "@/lib/date-utils";
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [isLoadingModeration, setIsLoadingModeration] = useState(true);
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
-
 
     useEffect(() => {
         assistReviewModeration({ reviewText: review.text })
             .then(setModerationResult)
             .finally(() => setIsLoadingModeration(false));
-        
-        // This effect runs only on the client, after hydration, to prevent mismatch
+    }, [review.text]);
+
+    const formattedDate = useMemo(() => {
         if (review.createdAt) {
           try {
-            setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
+            return format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] });
           } catch(e) {
             console.error("Invalid date format:", review.createdAt);
-            setFormattedDate("Invalid Date");
+            return "Invalid Date";
           }
         }
-
-    }, [review.text, review.createdAt, lang]);
+        return null;
+    }, [review.createdAt, lang]);
     
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';

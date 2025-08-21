@@ -9,7 +9,7 @@ import type { Booking } from "@/types";
 import { format } from "date-fns";
 import Link from "next/link";
 import { RevenueChart } from "@/components/admin/RevenueChart";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
@@ -35,24 +35,19 @@ function getStatusVariant(status: Booking['status']) {
 }
 
 function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
-
-
-    useEffect(() => {
-        // Safe client-side date formatting
+    const formattedDate = useMemo(() => {
         if (booking.date) {
             try {
                 const dateObj = new Date(booking.date);
                 if (!isNaN(dateObj.getTime())) {
-                     setFormattedDate(format(dateObj, "PPP", { locale: dateLocales[lang] }));
-                } else {
-                    throw new Error("Invalid date value");
+                     return format(dateObj, "PPP", { locale: dateLocales[lang] });
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
-                setFormattedDate("Invalid Date");
+                return "Invalid Date";
             }
         }
+        return "Invalid Date";
     }, [booking.date, booking.id, lang]);
 
     return (
@@ -62,7 +57,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
             </TableCell>
             <TableCell>{booking.courseName}</TableCell>
             <TableCell className="hidden md:table-cell">
-                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
+                {formattedDate}
             </TableCell>
             <TableCell className="text-right">${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell className="text-right">

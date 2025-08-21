@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -27,23 +27,19 @@ function getStatusVariant(status: Booking['status']) {
 }
 
 function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
-    
-    useEffect(() => {
-        // Safe client-side date formatting
+    const formattedDate = useMemo(() => {
         if (booking.date) {
              try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    setFormattedDate(format(dateObj, 'PPP', { locale: dateLocales[lang] }));
-                } else {
-                    throw new Error("Invalid date value");
+                    return format(dateObj, 'PPP', { locale: dateLocales[lang] });
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
-                setFormattedDate("Invalid Date");
+                return "Invalid Date";
             }
         }
+        return "Invalid Date";
     }, [booking.date, booking.id, lang]);
 
 
@@ -53,7 +49,7 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
             <TableCell>{booking.courseName}</TableCell>
             <TableCell>{booking.userName}</TableCell>
             <TableCell>
-                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
+                {formattedDate}
             </TableCell>
             <TableCell>${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell>
