@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -39,7 +40,7 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
                 return "Invalid Date";
             }
         }
-        return "Invalid Date";
+        return "No Date";
     }, [booking.date, booking.id, lang]);
 
 

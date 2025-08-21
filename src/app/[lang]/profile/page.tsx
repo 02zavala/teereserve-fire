@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,7 +27,6 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 }
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
-
     const formattedDate = useMemo(() => {
         if (booking.date && booking.time) {
             try {

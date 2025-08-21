@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,7 +48,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
                 return "Invalid Date";
             }
         }
-        return "Invalid Date";
+        return "No Date";
     }, [booking.date, booking.id, lang]);
 
     return (

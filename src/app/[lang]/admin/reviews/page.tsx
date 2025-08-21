@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +36,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
             return "Invalid Date";
           }
         }
-        return null;
+        return "No Date";
     }, [review.createdAt, lang]);
     
     const getStatusVariant = (status: boolean | null) => {
@@ -59,11 +60,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
                             Review by {review.userName}{' '}
-                            {formattedDate ? (
-                                `on ${formattedDate}`
-                            ) : (
-                                <Skeleton className="h-4 w-24 inline-block" />
-                            )}
+                            on {formattedDate}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>
