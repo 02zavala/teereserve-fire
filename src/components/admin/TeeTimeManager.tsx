@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useTransition } from 'react';
@@ -13,12 +14,15 @@ import type { GolfCourse, TeeTime } from '@/types';
 import { getTeeTimesForCourse, updateTeeTimesForCourse } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
+import type { Locale } from '@/i18n-config';
+import { dateLocales } from '@/lib/date-utils';
 
 interface TeeTimeManagerProps {
     course: GolfCourse;
+    lang: Locale;
 }
 
-export function TeeTimeManager({ course }: TeeTimeManagerProps) {
+export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
     const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isFetching, startFetching] = useTransition();
@@ -79,6 +83,7 @@ export function TeeTimeManager({ course }: TeeTimeManagerProps) {
                             onSelect={(date) => date && setSelectedDate(startOfDay(date))}
                             disabled={(date) => date < startOfDay(new Date())}
                             className="w-full"
+                            locale={dateLocales[lang]}
                         />
                     </CardContent>
                 </Card>
@@ -87,7 +92,7 @@ export function TeeTimeManager({ course }: TeeTimeManagerProps) {
                 <Card>
                     <CardContent className="pt-6">
                         <h3 className="text-lg font-medium mb-4">
-                            Tee Times for <span className="text-primary">{format(selectedDate, "PPP")}</span>
+                            Tee Times for <span className="text-primary">{format(selectedDate, "PPP", { locale: dateLocales[lang] })}</span>
                         </h3>
                         {isFetching ? (
                             <div className="flex justify-center items-center h-64">

@@ -31,7 +31,7 @@ export default async function EditCoursePage({ params: paramsProp }: EditCourseP
             <div className="border-t pt-8">
                  <h2 className="text-2xl font-bold font-headline text-primary mb-2">Manage Availability</h2>
                  <p className="text-muted-foreground mb-6">Select a date to view and edit tee times, prices, and status.</p>
-                 <TeeTimeManager course={course} />
+                 <TeeTimeManager course={course} lang={params.lang} />
             </div>
 
         </div>

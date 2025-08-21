@@ -234,7 +234,17 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
               });
           });
       } catch (error: any) {
-          if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
+          if (error.code === 'not-found') {
+            console.warn(`
+              *****************************************************************
+              * Firestore database not found.                                 *
+              * Please create one in your Firebase console:                   *
+              * https://console.firebase.google.com/project/_/firestore       *
+              *                                                               *
+              * The app will continue with local data.                        *
+              *****************************************************************
+            `);
+          } else if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
             console.warn("Firestore access denied or unavailable. The app will run with local data only. Error:", error.message);
           } else {
             console.error("Error fetching courses from Firestore:", error);

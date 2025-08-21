@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
@@ -18,6 +19,7 @@ import { Skeleton } from "./ui/skeleton"
 import { Textarea } from "./ui/textarea"
 import { Label } from "./ui/label"
 import { Separator } from "./ui/separator"
+import { dateLocales } from "@/lib/date-utils"
 
 interface TeeTimePickerProps {
     courseId: string
@@ -104,7 +106,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         !date && "text-muted-foreground"
                                     )}
                                     >
-                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                    {date ? format(date, "PPP", { locale: dateLocales[lang] }) : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
@@ -114,7 +116,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         onSelect={(d) => d && setDate(d)}
                                         initialFocus
                                         disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                        
+                                        locale={dateLocales[lang]}
                                     />
                                 </PopoverContent>
                             </Popover>
@@ -168,8 +170,8 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                    {selectedTeeTime ? (
                     <>
                         <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
-                            <p className="font-bold text-primary">{format(date, 'eeee')}</p>
-                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy')}</p>
+                            <p className="font-bold text-primary">{format(date, 'eeee', { locale: dateLocales[lang] })}</p>
+                            <p className="text-sm text-primary/90">{format(date, 'dd MMMM yyyy', { locale: dateLocales[lang] })}</p>
                             <Separator className="my-2 bg-primary/20" />
                             <p className="font-bold text-primary">{selectedTeeTime.time}</p>
                             <p className="text-sm text-primary/90">{players} Players (18 Holes)</p>
