@@ -18,13 +18,14 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 const validateFirebaseConfig = (config: FirebaseOptions): boolean => {
-    return Object.entries(config).every(([key, value]) => {
-        if (!value || typeof value !== 'string' || value.includes('your_') || value.includes('YOUR_')) {
-            console.warn(`Firebase Initialization Warning: Missing or invalid environment variable for '${key}'. Firebase services will be disabled.`);
-            return false;
+    const hasInvalidValue = Object.entries(config).some(([key, value]) => {
+         if (!value || typeof value !== 'string' || value.includes('your_') || value.includes('YOUR_')) {
+            console.warn(`Firebase Initialization Warning: Missing or invalid environment variable for '${key}'.`);
+            return true;
         }
-        return true;
+        return false;
     });
+    return !hasInvalidValue;
 };
 
 const isConfigValid = validateFirebaseConfig(firebaseConfig);
