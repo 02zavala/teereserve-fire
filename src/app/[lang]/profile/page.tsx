@@ -28,7 +28,6 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
     const formattedDate = useMemo(() => {
-        // Using useMemo to prevent re-calculating on every render, and it runs on the client.
         if (booking.date && booking.time) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
@@ -62,7 +61,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
                 <div>
                     <p className="font-bold text-lg">{booking.courseName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-48" />}
+                      {formattedDate !== "Invalid Date" ? formattedDate : <Skeleton className="h-4 w-48" />}
                     </p>
                 </div>
                  <div className="text-right">
@@ -86,14 +85,12 @@ export default function ProfilePage() {
     const [loadingBookings, setLoadingBookings] = useState(true);
     const [memberSince, setMemberSince] = useState<string | null>(null);
 
-    // Effect for redirecting if not logged in
     useEffect(() => {
         if (!loading && !user) {
             router.push(`/${lang}/login`);
         }
     }, [user, loading, router, lang]);
 
-    // Effect for fetching user-specific data
     useEffect(() => {
         if (user) {
             setLoadingBookings(true);
@@ -154,7 +151,7 @@ export default function ProfilePage() {
                      {userProfile.handicap !== undefined && (
                         <p className="font-semibold text-accent mt-2">Handicap: {userProfile.handicap}</p>
                     )}
-                    {memberSince ? (
+                    {memberSince !== null ? (
                        <p className="text-muted-foreground text-sm mt-2">Member since {memberSince}</p>
                     ) : (
                        <Skeleton className="h-4 w-48 mt-2" />

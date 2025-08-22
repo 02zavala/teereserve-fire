@@ -10,7 +10,7 @@ import { useEffect, useState, useMemo } from 'react';
 import CheckoutForm from '@/components/CheckoutForm';
 import { Loader2 } from 'lucide-react';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHER_KEY!);
 
 const TAX_RATE = 0.16; // 16%
 

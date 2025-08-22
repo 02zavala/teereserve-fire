@@ -3,13 +3,13 @@
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useTransition } from 'react';
 import Link from 'next/link';
-import { getCourseById } from '@/lib/data';
-import type { GolfCourse } from '@/types';
+import { getCourseById, validateCoupon } from '@/lib/data';
+import type { GolfCourse, Coupon } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, User, Calendar, Clock, Users, DollarSign, ArrowLeft, MessageSquare, Lock } from 'lucide-react';
+import { Loader2, User, Calendar, Clock, Users, ArrowLeft, MessageSquare, Lock, TicketPercent, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { createBooking } from '@/lib/data';
@@ -20,7 +20,8 @@ import { Skeleton } from './ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Separator } from './ui/separator';
 import { dateLocales } from '@/lib/date-utils';
-
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 const TAX_RATE = 0.16; // 16%
 
@@ -40,10 +41,16 @@ export default function CheckoutForm() {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+    const [couponMessage, setCouponMessage] = useState<string | null>(null);
+    const [isCouponPending, startCouponTransition] = useTransition();
+
     const [priceDetails, setPriceDetails] = useState({
         subtotal: 0,
         tax: 0,
         total: 0,
+        discount: 0,
     });
 
     const courseId = searchParams.get('courseId');
@@ -55,6 +62,30 @@ export default function CheckoutForm() {
     const comments = searchParams.get('comments');
     
     const lang = (pathname.split('/')[1] || 'en') as Locale;
+
+    const baseSubtotal = useMemo(() => parseFloat(price || '0'), [price]);
+
+    useEffect(() => {
+        let discount = 0;
+        if (appliedCoupon) {
+            if (appliedCoupon.discountType === 'percentage') {
+                discount = baseSubtotal * (appliedCoupon.discountValue / 100);
+            } else {
+                discount = appliedCoupon.discountValue;
+            }
+        }
+
+        const newSubtotal = Math.max(0, baseSubtotal - discount);
+        const taxNum = newSubtotal * TAX_RATE;
+        const totalNum = newSubtotal + taxNum;
+
+        setPriceDetails({
+            subtotal: baseSubtotal,
+            tax: taxNum,
+            total: totalNum,
+            discount
+        });
+    }, [baseSubtotal, appliedCoupon]);
 
 
     useEffect(() => {
@@ -72,19 +103,6 @@ export default function CheckoutForm() {
             return;
         }
 
-        // Calculate prices
-        if (price) {
-            const subtotalNum = parseFloat(price);
-            const taxNum = subtotalNum * TAX_RATE;
-            const totalNum = subtotalNum + taxNum;
-            setPriceDetails({
-                subtotal: subtotalNum,
-                tax: taxNum,
-                total: totalNum
-            });
-        }
-
-        // Safe client-side date formatting
         if (date) {
             try {
                 setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
@@ -102,6 +120,27 @@ export default function CheckoutForm() {
         });
 
     }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price]);
+
+    const handleApplyCoupon = () => {
+        if (!couponCode) return;
+        setCouponMessage(null);
+        startCouponTransition(async () => {
+            try {
+                const result = await validateCoupon(couponCode);
+                setAppliedCoupon(result);
+                setCouponMessage('Coupon applied successfully!');
+            } catch (error) {
+                setAppliedCoupon(null);
+                setCouponMessage(error instanceof Error ? error.message : 'Invalid coupon code.');
+            }
+        });
+    };
+    
+    const handleRemoveCoupon = () => {
+        setCouponCode('');
+        setAppliedCoupon(null);
+        setCouponMessage(null);
+    };
 
     const handleProceedToPayment = () => {
         if (!stripe || !elements) {
@@ -164,6 +203,7 @@ export default function CheckoutForm() {
                     status: 'Confirmed',
                     teeTimeId,
                     comments: comments || undefined,
+                    couponCode: appliedCoupon?.code,
                 });
                 
                 const successUrl = new URL(`${window.location.origin}/${lang}/book/success`);
@@ -205,7 +245,6 @@ export default function CheckoutForm() {
             </Button>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                {/* Left Column: Summary */}
                 <Card className="sticky top-24">
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl text-primary">Booking Summary</CardTitle>
@@ -225,7 +264,7 @@ export default function CheckoutForm() {
                         <Separator />
                         <div className="space-y-2 text-sm">
                             <div className="flex items-center"><User className="h-4 w-4 mr-3 text-muted-foreground" /><span><span className="font-semibold">{players}</span> Player(s)</span></div>
-                            <div className="flex items-center"><Calendar className="h-4 w-4 mr-3 text-muted-foreground" /><span>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}</span></div>
+                            <div className="flex items-center"><Calendar className="h-4 w-4 mr-3 text-muted-foreground" /><span>{formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}</span></div>
                             <div className="flex items-center"><Clock className="h-4 w-4 mr-3 text-muted-foreground" /><span><span className="font-semibold">{time}</span> Tee Time</span></div>
                              {comments && (
                                 <div className="flex items-start pt-2">
@@ -243,6 +282,14 @@ export default function CheckoutForm() {
                                 <span className="text-muted-foreground">Subtotal</span>
                                 <span>${priceDetails.subtotal.toFixed(2)}</span>
                             </div>
+                             {appliedCoupon && (
+                                <div className="flex justify-between text-green-600">
+                                    <span className="flex items-center gap-1">
+                                        <TicketPercent className="h-4 w-4"/> Coupon "{appliedCoupon.code}"
+                                    </span>
+                                    <span>-${priceDetails.discount.toFixed(2)}</span>
+                                </div>
+                             )}
                              <div className="flex justify-between">
                                 <span className="text-muted-foreground">Taxes (16%)</span>
                                 <span>${priceDetails.tax.toFixed(2)}</span>
@@ -255,7 +302,6 @@ export default function CheckoutForm() {
                     </CardFooter>
                 </Card>
 
-                {/* Right Column: Action */}
                 <Card>
                     <CardHeader>
                          <CardTitle className="font-headline text-2xl">Complete Your Booking</CardTitle>
@@ -267,6 +313,34 @@ export default function CheckoutForm() {
                             <p className="text-sm">{user?.displayName || 'N/A'}</p>
                             <p className="text-sm text-muted-foreground">{user?.email}</p>
                         </div>
+
+                         <div>
+                            <Label htmlFor="coupon-code">Coupon Code</Label>
+                            <div className="flex items-center gap-2 mt-1">
+                                <Input 
+                                    id="coupon-code" 
+                                    placeholder="Enter code" 
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                    disabled={!!appliedCoupon}
+                                />
+                                {appliedCoupon ? (
+                                    <Button variant="ghost" size="icon" onClick={handleRemoveCoupon}>
+                                        <XCircle className="h-5 w-5 text-destructive" />
+                                    </Button>
+                                ) : (
+                                    <Button onClick={handleApplyCoupon} disabled={isCouponPending}>
+                                        {isCouponPending ? <Loader2 className="h-4 w-4 animate-spin"/> : 'Apply'}
+                                    </Button>
+                                )}
+                            </div>
+                            {couponMessage && (
+                                <p className={`mt-2 text-sm ${appliedCoupon ? 'text-green-600' : 'text-destructive'}`}>
+                                    {couponMessage}
+                                </p>
+                            )}
+                        </div>
+
                         <div className="text-xs text-muted-foreground">
                             By clicking the button below, you agree to our <Link href={`/${lang}/terms`} className="underline hover:text-primary">Terms of Service</Link> and the course's cancellation policy.
                         </div>
@@ -280,7 +354,6 @@ export default function CheckoutForm() {
                 </Card>
             </div>
 
-            {/* Payment Modal */}
             <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>

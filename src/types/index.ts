@@ -63,6 +63,7 @@ export interface BookingInput {
     status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
     teeTimeId: string;
     comments?: string;
+    couponCode?: string;
 }
 
 export interface Booking extends BookingInput {
@@ -111,3 +112,13 @@ export interface AboutPageContent {
     heroImageUrl: string;
     missionImageUrl: string;
 }
+
+export interface Coupon {
+    code: string;
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+    expiresAt?: string; // ISO string
+    createdAt: string; // ISO string
+}
+
+export interface CouponInput extends Omit<Coupon, 'createdAt'> {}

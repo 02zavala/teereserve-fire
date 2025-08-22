@@ -23,7 +23,6 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
      useEffect(() => {
-        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (review.createdAt) {
           try {
             setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
@@ -64,7 +63,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
                             Review by {review.userName}{' '}
-                            on {formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
+                            on {formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>

@@ -1,0 +1,230 @@
+
+"use client";
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import type { Coupon } from '@/types';
+import { addCoupon, deleteCoupon } from '@/lib/data';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, PlusCircle, Trash2, TicketPercent } from 'lucide-react';
+import { format } from 'date-fns';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Badge } from '../ui/badge';
+
+interface CouponManagerProps {
+  initialCoupons: Coupon[];
+}
+
+const formSchema = z.object({
+  code: z.string().min(3, 'Code must be at least 3 characters.').max(50),
+  discountType: z.enum(['percentage', 'fixed']),
+  discountValue: z.coerce.number().min(0, 'Discount value must be positive.'),
+  expiresAt: z.string().optional(),
+});
+
+type CouponFormValues = z.infer<typeof formSchema>;
+
+export function CouponManager({ initialCoupons }: CouponManagerProps) {
+  const { userProfile } = useAuth();
+  const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const form = useForm<CouponFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      code: '',
+      discountType: 'percentage',
+    },
+  });
+
+  if (userProfile?.role !== 'SuperAdmin') {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Access Denied</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>You do not have permission to manage coupons.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const onSubmit = async (values: CouponFormValues) => {
+    setIsLoading(true);
+    try {
+      const newCoupon = await addCoupon({
+        ...values,
+        expiresAt: values.expiresAt ? new Date(values.expiresAt).toISOString() : undefined,
+      });
+      setCoupons(prev => [newCoupon, ...prev]);
+      toast({ title: 'Success', description: 'Coupon created successfully.' });
+      form.reset({
+        code: '',
+        discountType: 'percentage',
+        discountValue: undefined,
+        expiresAt: '',
+      });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to create coupon.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (code: string) => {
+    try {
+      await deleteCoupon(code);
+      setCoupons(prev => prev.filter(c => c.code !== code));
+      toast({ title: 'Success', description: 'Coupon deleted.' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to delete coupon.', variant: 'destructive' });
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+      <div className="md:col-span-1">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PlusCircle /> Add New Coupon
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Coupon Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., SUMMER25" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="discountType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Discount Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="percentage">Percentage (%)</SelectItem>
+                          <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="discountValue"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Discount Value</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" placeholder="e.g., 25" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="expiresAt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Expiration Date (Optional)</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Create Coupon
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="md:col-span-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Existing Coupons</CardTitle>
+            <CardDescription>List of all available discount codes.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {coupons.map((coupon) => (
+                  <TableRow key={coupon.code}>
+                    <TableCell>
+                      <Badge><TicketPercent className="mr-1 h-3 w-3"/>{coupon.code}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `$${coupon.discountValue}`}
+                    </TableCell>
+                    <TableCell>
+                      {coupon.expiresAt ? format(new Date(coupon.expiresAt), 'PPP') : 'Never'}
+                    </TableCell>
+                    <TableCell>
+                       <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>This will permanently delete the coupon "{coupon.code}".</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(coupon.code)}>Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

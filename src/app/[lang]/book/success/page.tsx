@@ -73,7 +73,6 @@ function SuccessPageContent() {
     const getShareMessage = () => {
         const message = `Booking Confirmation:\n\nCourse: ${course?.name}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal: $${totalPrice}\n\nBooked via TeeReserve!`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        // Basic share API for other apps
         if (navigator.share) {
             navigator.share({
                 title: 'Golf Booking Confirmation',
@@ -81,7 +80,6 @@ function SuccessPageContent() {
                 url: window.location.href,
             }).catch(console.error);
         } else {
-            // Fallback for desktop/unsupported browsers
             window.open(whatsappUrl, '_blank');
         }
     };
@@ -113,7 +111,6 @@ function SuccessPageContent() {
                 </div>
 
                 <div className="space-y-6">
-                    {/* Client Info */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Client Information</CardTitle>
@@ -134,14 +131,12 @@ function SuccessPageContent() {
                         </CardContent>
                     </Card>
 
-                    {/* Actions */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <Button variant="default" onClick={handlePrint} className="bg-green-700 hover:bg-green-800"><Printer className="mr-2 h-4 w-4"/> Print Receipt</Button>
                         <Button variant="outline" asChild><a href={getEmailMessage()}><Mail className="mr-2 h-4 w-4"/> Send by Email</a></Button>
                         <Button variant="outline" onClick={getShareMessage}><Share2 className="mr-2 h-4 w-4"/> Share</Button>
                     </div>
 
-                    {/* Booking Details */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Booking Details</CardTitle>
@@ -152,7 +147,7 @@ function SuccessPageContent() {
                                 <div className="flex items-center text-muted-foreground">
                                     <Calendar className="h-4 w-4 mr-2" /> Date: 
                                     <span className="font-medium text-foreground ml-1">
-                                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
+                                      {formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
                                     </span>
                                 </div>
                                 <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{time}</span></div>
@@ -162,7 +157,6 @@ function SuccessPageContent() {
                         </CardContent>
                     </Card>
 
-                    {/* Sent Confirmations */}
                      <Card>
                         <CardHeader>
                             <CardTitle>Confirmations Sent</CardTitle>
@@ -183,7 +177,6 @@ function SuccessPageContent() {
                         </CardContent>
                     </Card>
 
-                    {/* Important Info */}
                     <Card>
                          <CardHeader>
                             <CardTitle className="flex items-center"><Info className="h-5 w-5 mr-2 text-primary"/> Important Information</CardTitle>

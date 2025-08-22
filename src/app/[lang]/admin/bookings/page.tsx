@@ -31,7 +31,6 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
-        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (booking.date) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
@@ -56,7 +55,7 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
             <TableCell>{booking.courseName}</TableCell>
             <TableCell>{booking.userName}</TableCell>
             <TableCell>
-                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
+                {formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24" />}
             </TableCell>
             <TableCell>${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell>

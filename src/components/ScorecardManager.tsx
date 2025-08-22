@@ -51,7 +51,6 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
-        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         try {
             setFormattedDate(format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] }));
         } catch (e) {
@@ -63,7 +62,6 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
     const handleDelete = async () => {
         setIsDeleting(true);
         await onDelete(scorecard.id);
-        // No need to setIsDeleting(false) as the component will unmount
     };
     
     return (
@@ -72,7 +70,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
+                       <Calendar className="h-4 w-4" /> {formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>
@@ -111,6 +109,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
 export function ScorecardManager({ user }: ScorecardManagerProps) {
     const [scorecards, setScorecards] = useState<Scorecard[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
@@ -119,11 +118,16 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             courseName: "",
-            date: format(new Date(), 'yyyy-MM-dd'),
+            date: undefined,
             score: undefined,
             notes: "",
         },
     });
+
+    useEffect(() => {
+      setIsClient(true);
+      form.setValue('date', format(new Date(), 'yyyy-MM-dd'));
+    }, [form]);
     
     const fetchScorecards = async () => {
         try {
@@ -158,7 +162,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
                  score: undefined,
                  notes: "",
             });
-            await fetchScorecards(); // Refresh list
+            await fetchScorecards();
         } catch (error) {
              console.error("Failed to add scorecard:", error);
              toast({ title: "Error", description: "Could not save scorecard.", variant: "destructive" });
@@ -208,7 +212,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
                                         <FormItem>
                                             <FormLabel>Date Played</FormLabel>
                                             <FormControl>
-                                                <Input type="date" {...field} />
+                                                <Input type="date" {...field} disabled={!isClient} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
