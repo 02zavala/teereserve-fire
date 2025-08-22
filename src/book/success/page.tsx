@@ -39,6 +39,7 @@ function SuccessPageContent() {
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
+        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (date) {
             try {
                 setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));

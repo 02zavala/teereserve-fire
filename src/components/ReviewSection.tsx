@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import type { GolfCourse, Review } from '@/types';
 import { StarRating } from './StarRating';
 import { Button } from './ui/button';
@@ -30,6 +30,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [timeAgo, setTimeAgo] = useState<string | null>(null);
 
      useEffect(() => {
+        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (review.createdAt) {
           try {
             setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));

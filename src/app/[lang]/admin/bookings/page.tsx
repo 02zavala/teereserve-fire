@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -31,6 +31,7 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
+        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (booking.date) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;

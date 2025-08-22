@@ -279,5 +279,3 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         </Card>
     )
 }
-
-    

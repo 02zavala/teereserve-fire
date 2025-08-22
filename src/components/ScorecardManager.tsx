@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,6 +51,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
+        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         try {
             setFormattedDate(format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] }));
         } catch (e) {

@@ -484,6 +484,7 @@ export const updateTeeTimesForCourse = async (courseId: string, date: Date, teeT
 
 
 // *** Booking Functions ***
+const TAX_RATE = 0.16;
 
 export async function createBooking(bookingData: BookingInput): Promise<string> {
     if (!db) throw new Error("Firestore is not initialized.");
@@ -494,14 +495,33 @@ export async function createBooking(bookingData: BookingInput): Promise<string> 
 
     await runTransaction(db, async (transaction) => {
         const userDoc = await transaction.get(userDocRef);
+        const teeTimeDoc = await transaction.get(teeTimeDocRef);
+
         if (!userDoc.exists()) {
             throw new Error("User does not exist!");
+        }
+        if (!teeTimeDoc.exists()) {
+            throw new Error("Tee time not found. It may have been booked by someone else.");
+        }
+        
+        const teeTimeData = teeTimeDoc.data() as TeeTime;
+        if (teeTimeData.status !== 'available') {
+            throw new Error("This tee time is no longer available.");
         }
 
         const userProfile = userDoc.data() as UserProfile;
         
+        // Server-side price validation
+        const subtotal = teeTimeData.price * bookingData.players;
+        const total = subtotal * (1 + TAX_RATE);
+        
+        // Use a tolerance for floating point comparisons
+        if (Math.abs(total - bookingData.totalPrice) > 0.01) {
+             throw new Error(`Price mismatch. Client total: ${bookingData.totalPrice}, Server total: ${total}.`);
+        }
+        
         // 1. Create a new booking document
-        transaction.set(bookingDocRef, { ...bookingData, createdAt: new Date().toISOString() });
+        transaction.set(bookingDocRef, { ...bookingData, totalPrice: total, createdAt: new Date().toISOString() });
         
         // 2. Update the tee time status to 'booked'
         transaction.update(teeTimeDocRef, { status: 'booked' });
@@ -866,3 +886,5 @@ export async function deleteTeamMember(memberId: string): Promise<void> {
     
     await deleteDoc(memberDocRef);
 }
+
+    

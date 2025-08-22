@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { sendContactEmail } from '@/ai/flows/send-contact-email';
 import { z } from 'zod';
@@ -8,35 +7,22 @@ const contactSchema = z.object({
   name: z.string().min(1, { message: 'Name is required' }),
   email: z.string().email({ message: 'Invalid email format' }),
   message: z.string().min(1, { message: 'Message is required' }),
-  recaptchaToken: z.string().optional(),
+  recaptchaToken: z.string().min(1, { message: 'reCAPTCHA token is required' }),
 });
 
-async function verifyRecaptcha(token: string | undefined): Promise<boolean> {
+async function verifyRecaptcha(token: string): Promise<boolean> {
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-    
-    // In a production environment, the secret key MUST be present.
-    if (!secretKey || secretKey.startsWith('your_')) {
-        console.error("reCAPTCHA secret key is not set or is a placeholder.");
-        // Fail securely in production if the key is missing.
-        if (process.env.NODE_ENV === 'production') {
-            return false;
-        }
-        // Allow to pass in development if the key is missing for easier local testing.
-        return true;
-    }
-    
-    // If there's no token but a key is present, fail.
-    if (!token) {
-        return false;
+    if (!secretKey) {
+        console.error("reCAPTCHA secret key is not set.");
+        // In a non-dev environment, you might want to fail hard here.
+        // For development, we can allow it to pass if the key is missing.
+        return process.env.NODE_ENV === 'development';
     }
 
     const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`;
 
     try {
         const response = await fetch(verificationUrl, { method: 'POST' });
-        if (!response.ok) {
-            throw new Error(`reCAPTCHA verification request failed with status: ${response.status}`);
-        }
         const data = await response.json();
         return data.success;
     } catch (error) {
@@ -61,7 +47,7 @@ export async function POST(req: NextRequest) {
     // Verify reCAPTCHA token
     const isHuman = await verifyRecaptcha(recaptchaToken);
     if (!isHuman) {
-        return NextResponse.json({ error: 'reCAPTCHA verification failed. Are you a robot?' }, { status: 403 });
+        return NextResponse.json({ error: 'reCAPTCHA verification failed.' }, { status: 403 });
     }
 
     const result = await sendContactEmail({ name, email, message });

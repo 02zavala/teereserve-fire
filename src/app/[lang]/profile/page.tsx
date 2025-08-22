@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { getUserBookings } from "@/lib/data";
 import type { Booking, UserProfile } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -27,24 +27,21 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 }
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
-
-    useEffect(() => {
+    const formattedDate = useMemo(() => {
+        // Using useMemo to prevent re-calculating on every render, and it runs on the client.
         if (booking.date && booking.time) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    setFormattedDate(`${format(dateObj, 'PPP', { locale: dateLocales[lang] })} at ${booking.time}`);
-                } else {
-                    setFormattedDate("Invalid Date");
+                    return `${format(dateObj, 'PPP', { locale: dateLocales[lang] })} at ${booking.time}`;
                 }
+                return "Invalid Date";
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
-                setFormattedDate("Invalid Date");
+                return "Invalid Date";
             }
-        } else {
-            setFormattedDate("Invalid Date");
         }
+        return "Invalid Date";
     }, [booking.date, booking.time, booking.id, lang]);
 
 

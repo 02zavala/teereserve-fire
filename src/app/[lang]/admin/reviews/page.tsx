@@ -9,7 +9,7 @@ import { AlertCircle, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
 import { ReviewActions } from "./ReviewActions";
 import { StarRating } from "@/components/StarRating";
 import { format } from "date-fns";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import type { Review } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
@@ -23,6 +23,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
      useEffect(() => {
+        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (review.createdAt) {
           try {
             setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));

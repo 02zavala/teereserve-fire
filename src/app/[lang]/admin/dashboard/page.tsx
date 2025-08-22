@@ -10,7 +10,7 @@ import type { Booking } from "@/types";
 import { format } from "date-fns";
 import Link from "next/link";
 import { RevenueChart } from "@/components/admin/RevenueChart";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
@@ -39,6 +39,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
+        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (booking.date) {
             try {
                 const dateObj = new Date(booking.date);

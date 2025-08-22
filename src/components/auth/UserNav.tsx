@@ -80,7 +80,7 @@ export function UserNav() {
             <DropdownMenuItem asChild>
                 <Link href={`/${lang}/admin/dashboard`}>
                     <GanttChartSquare className="mr-2 h-4 w-4" />
-                    <span>Admin Panel</span>
+                    <span>Dashboard</span>
                 </Link>
             </DropdownMenuItem>
           )}
