@@ -10,7 +10,6 @@ import { MoreHorizontal, PlusCircle, Loader2 } from "lucide-react";
 import { getBookings } from "@/lib/data";
 import type { Booking } from "@/types";
 import { format } from "date-fns";
-import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
 import { dateLocales } from "@/lib/date-utils";

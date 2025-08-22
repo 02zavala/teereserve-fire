@@ -3,7 +3,7 @@ import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, U
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { format, startOfDay, subDays, isAfter } from 'date-fns';
+import { format, startOfDay, subDays, isAfter, parse, set, isToday, isBefore, addMinutes } from 'date-fns';
 
 interface CourseDataInput {
     name: string;
@@ -351,34 +351,74 @@ export const deleteCourse = async (courseId: string): Promise<void> => {
 
 const generateDefaultTeeTimes = (basePrice: number): Omit<TeeTime, 'id' | 'date'>[] => {
     const times: Omit<TeeTime, 'id' | 'date'>[] = [];
-    for (let i = 7; i <= 17; i++) {
-        for (let j = 0; j < 60; j += 15) { // e.g., every 15 minutes
-            const hour = i.toString().padStart(2, '0');
-            const minute = j.toString().padStart(2, '0');
-            const priceMultiplier = (i < 9 || i > 15) ? 0.9 : 1.2; // Cheaper in early morning/late afternoon
-            times.push({
-                time: `${hour}:${minute}`,
-                status: 'available',
-                price: Math.round(basePrice * priceMultiplier),
-            });
-        }
+    const openingTime = 7.5; // 07:30
+    const lastTeeTime = 18.5; // 18:30
+    const intervalMinutes = 12;
+
+    let currentTime = openingTime;
+    while (currentTime <= lastTeeTime) {
+        const hour = Math.floor(currentTime);
+        const minute = (currentTime - hour) * 60;
+        
+        const formattedTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        
+        const priceMultiplier = (hour < 9 || hour >= 15) ? 0.9 : 1.2;
+        
+        times.push({
+            time: formattedTime,
+            status: 'available',
+            price: Math.round(basePrice * priceMultiplier),
+        });
+
+        // Increment time by the interval
+        const totalMinutes = currentTime * 60 + intervalMinutes;
+        currentTime = totalMinutes / 60;
     }
     return times;
 };
 
+
 export const getTeeTimesForCourse = async (courseId: string, date: Date, basePrice: number): Promise<TeeTime[]> => {
-    if (!db) {
-        console.warn("Firestore not available. Generating local tee times.");
-        const defaultTimes = generateDefaultTeeTimes(basePrice);
-        return defaultTimes.map((t, i) => ({ ...t, id: `local-${i}`, date: format(startOfDay(date), 'yyyy-MM-dd') }));
+    const now = new Date();
+    const isRequestForToday = isToday(date);
+    const dateString = format(startOfDay(date), 'yyyy-MM-dd');
+
+    // Daily cutoff logic
+    if (isRequestForToday) {
+        const cutoffTime = set(now, { hours: 19, minutes: 0, seconds: 0, milliseconds: 0 });
+        if (isAfter(now, cutoffTime)) {
+            const allTimes = generateDefaultTeeTimes(basePrice);
+            return allTimes.map(t => ({
+                ...t,
+                id: `${dateString}-${t.time}`,
+                date: dateString,
+                status: 'blocked'
+            }));
+        }
     }
 
-    const dateString = format(startOfDay(date), 'yyyy-MM-dd');
+    if (!db) {
+        console.warn("Firestore not available. Generating local tee times.");
+        let defaultTimes = generateDefaultTeeTimes(basePrice);
+
+        // Filter for today's available times
+        if (isRequestForToday) {
+            const minLeadTime = addMinutes(now, 30);
+            defaultTimes = defaultTimes.filter(t => {
+                const teeDateTime = parse(t.time, 'HH:mm', date);
+                return isAfter(teeDateTime, minLeadTime);
+            });
+        }
+
+        return defaultTimes.map((t, i) => ({ ...t, id: `local-${i}`, date: dateString }));
+    }
+
     const teeTimesCol = collection(db, 'courses', courseId, 'teeTimes');
     const q = query(teeTimesCol, where('date', '==', dateString));
     
     try {
         const snapshot = await getDocs(q);
+        let teeTimesResult: TeeTime[];
 
         if (snapshot.empty) {
             console.log(`No tee times found for ${dateString}, generating new ones.`);
@@ -404,10 +444,22 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
             
             await batch.commit();
             console.log(`Successfully created ${newTimesWithIds.length} tee times for ${dateString}.`);
-            return newTimesWithIds.sort((a,b) => a.time.localeCompare(b.time));
+            teeTimesResult = newTimesWithIds;
         } else {
-            return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as TeeTime)).sort((a,b) => a.time.localeCompare(b.time));
+            teeTimesResult = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as TeeTime));
         }
+
+        // Filter for today's available times after fetching/creating
+        if (isRequestForToday) {
+            const minLeadTime = addMinutes(now, 30);
+            teeTimesResult = teeTimesResult.filter(t => {
+                const teeDateTime = parse(t.time, 'HH:mm', date);
+                return isAfter(teeDateTime, minLeadTime);
+            });
+        }
+        
+        return teeTimesResult.sort((a,b) => a.time.localeCompare(b.time));
+
     } catch (error) {
         console.error("Error getting or creating tee times: ", error);
         return [];
@@ -814,5 +866,3 @@ export async function deleteTeamMember(memberId: string): Promise<void> {
     
     await deleteDoc(memberDocRef);
 }
-
-    
