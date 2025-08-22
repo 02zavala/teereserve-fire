@@ -48,13 +48,14 @@ type ScorecardFormValues = z.infer<typeof formSchema>;
 
 function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, onDelete: (id: string) => Promise<void>, lang: Locale }) {
     const [isDeleting, setIsDeleting] = useState(false);
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
-    const formattedDate = useMemo(() => {
+    useEffect(() => {
         try {
-            return format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] });
+            setFormattedDate(format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] }));
         } catch (e) {
             console.error("Invalid date for scorecard:", scorecard.id, scorecard.date);
-            return "Invalid Date";
+            setFormattedDate("Invalid Date");
         }
     }, [scorecard.date, scorecard.id, lang]);
 
@@ -70,7 +71,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {formattedDate}
+                       <Calendar className="h-4 w-4" /> {formattedDate || <Skeleton className="h-4 w-24 inline-block" />}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>

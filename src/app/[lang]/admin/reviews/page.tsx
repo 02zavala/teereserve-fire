@@ -20,24 +20,27 @@ import { dateLocales } from "@/lib/date-utils";
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [isLoadingModeration, setIsLoadingModeration] = useState(true);
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+
+     useEffect(() => {
+        if (review.createdAt) {
+          try {
+            setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
+          } catch(e) {
+            console.error("Invalid date format:", review.createdAt);
+            setFormattedDate("Invalid Date");
+          }
+        } else {
+            setFormattedDate("No Date");
+        }
+    }, [review.createdAt, lang]);
+
 
     useEffect(() => {
         assistReviewModeration({ reviewText: review.text })
             .then(setModerationResult)
             .finally(() => setIsLoadingModeration(false));
     }, [review.text]);
-
-    const formattedDate = useMemo(() => {
-        if (review.createdAt) {
-          try {
-            return format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] });
-          } catch(e) {
-            console.error("Invalid date format:", review.createdAt);
-            return "Invalid Date";
-          }
-        }
-        return "No Date";
-    }, [review.createdAt, lang]);
     
     const getStatusVariant = (status: boolean | null) => {
         if (status === true) return 'default';
@@ -60,7 +63,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
                             Review by {review.userName}{' '}
-                            on {formattedDate}
+                            on {formattedDate || <Skeleton className="h-4 w-24 inline-block" />}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -25,16 +26,17 @@ interface ReviewSectionProps {
 }
 
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
-    const timeAgo = useMemo(() => {
+    const [timeAgo, setTimeAgo] = useState<string | null>(null);
+
+     useEffect(() => {
         if (review.createdAt) {
           try {
-            return formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] });
+            setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));
           } catch(e) {
             console.error("Invalid date format:", review.createdAt);
-            return "Invalid Date";
+            setTimeAgo("Invalid Date");
           }
         }
-        return null;
     }, [review.createdAt, lang]);
 
     return (

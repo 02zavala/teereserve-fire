@@ -275,8 +275,12 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
                 courseData.reviews = await getReviewsForCourse(id);
                 return courseData;
             }
-        } catch (error) {
-            console.error(`Firestore error fetching course ${id}. Falling back to static data.`, error);
+        } catch (error: any) {
+            if (error.code === 'not-found') {
+                console.warn(`Firestore database not found when fetching course ${id}. Falling back to static data.`);
+            } else {
+                console.error(`Firestore error fetching course ${id}. Falling back to static data.`, error);
+            }
         }
     }
     
@@ -810,3 +814,5 @@ export async function deleteTeamMember(memberId: string): Promise<void> {
     
     await deleteDoc(memberDocRef);
 }
+
+    
