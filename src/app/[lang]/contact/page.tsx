@@ -18,6 +18,9 @@ export default async function ContactPage({ params: paramsProp }: ContactPagePro
     const t = dictionary.contactPage;
     const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
+    // Check if the key is present and not the default placeholder
+    const isRecaptchaConfigured = recaptchaKey && !recaptchaKey.startsWith('your_');
+
     return (
         <div className="bg-background">
             <div className="container mx-auto max-w-6xl px-4 py-16">
@@ -29,7 +32,7 @@ export default async function ContactPage({ params: paramsProp }: ContactPagePro
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
                     {/* Form Section */}
                     <div className="md:col-span-3">
-                         {recaptchaKey && recaptchaKey !== "your_recaptcha_site_key_here" ? (
+                         {isRecaptchaConfigured ? (
                             <ContactPageClient dictionary={t.form} recaptchaKey={recaptchaKey} />
                         ) : (
                             <Card className="border-dashed border-2">
