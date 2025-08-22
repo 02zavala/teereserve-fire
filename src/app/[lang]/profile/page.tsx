@@ -65,7 +65,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
                 <div>
                     <p className="font-bold text-lg">{booking.courseName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {formattedDate || "..."}
+                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-48" />}
                     </p>
                 </div>
                  <div className="text-right">

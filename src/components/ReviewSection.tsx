@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter, usePathname } from 'next/navigation';
 import { Locale } from '@/i18n-config';
 import { dateLocales } from '@/lib/date-utils';
+import { Skeleton } from './ui/skeleton';
 
 
 interface ReviewSectionProps {
@@ -50,7 +51,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                     <div className="flex-1">
                         <div className="flex items-center justify-between">
                             <p className="font-semibold">{review.user.name}</p>
-                            <p className="text-xs text-muted-foreground">{timeAgo || '...'}</p>
+                            <p className="text-xs text-muted-foreground">{timeAgo ? timeAgo : <Skeleton className="h-4 w-20" />}</p>
                         </div>
                         <StarRating rating={review.rating} className="my-1" starClassName='h-4 w-4' />
                         <p className="text-sm text-foreground/80">{review.text}</p>

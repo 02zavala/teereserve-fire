@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
@@ -19,6 +20,7 @@ import { Textarea } from "./ui/textarea"
 import { Label } from "./ui/label"
 import { Separator } from "./ui/separator"
 import { dateLocales } from "@/lib/date-utils"
+import { useRouter } from "next/navigation"
 
 interface TeeTimePickerProps {
     courseId: string
@@ -36,6 +38,8 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     const [isClient, setIsClient] = useState(false);
     const [selectedTeeTime, setSelectedTeeTime] = useState<TeeTime | null>(null);
     const [comments, setComments] = useState("");
+    const [isGroupBooking, setIsGroupBooking] = useState(false);
+    const router = useRouter();
 
 
     useEffect(() => {
@@ -47,13 +51,23 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     }, []);
 
     useEffect(() => {
-        if (!date) return;
+        if (!date || isGroupBooking) return;
         setSelectedTeeTime(null); 
         startTransition(async () => {
             const fetchedTeeTimes = await getTeeTimesForCourse(courseId, date, basePrice);
             setTeeTimes(fetchedTeeTimes);
         });
-    }, [courseId, date, basePrice]);
+    }, [courseId, date, basePrice, isGroupBooking]);
+    
+    const handlePlayersChange = (value: string) => {
+        if (value === 'group') {
+            setIsGroupBooking(true);
+            setSelectedTeeTime(null);
+        } else {
+            setIsGroupBooking(false);
+            setPlayers(parseInt(value));
+        }
+    }
     
     const availableTimes = teeTimes.filter(t => t.status === 'available');
     
@@ -104,6 +118,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                         "w-full justify-start text-left font-normal",
                                         !date && "text-muted-foreground"
                                     )}
+                                    disabled={isGroupBooking}
                                     >
                                     {date ? format(date, "PPP", { locale: dateLocales[lang] }) : <span>Pick a date</span>}
                                     </Button>
@@ -122,51 +137,62 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-muted-foreground flex items-center"><Users className="mr-2 h-4 w-4" /> Players</label>
-                            <Select onValueChange={(val) => setPlayers(parseInt(val))} defaultValue={players.toString()}>
+                            <Select onValueChange={handlePlayersChange} defaultValue={players.toString()}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select players" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
+                                    <SelectItem value="group">8+ Players (Groups)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                     </div>
 
-                    <div>
-                        <h4 className="font-medium mb-2 text-center text-muted-foreground">Select a Tee Time</h4>
-                        {isPending ? (
-                            <div className="flex justify-center items-center py-8">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    {isGroupBooking ? (
+                        <div className="bg-primary/10 border-l-4 border-primary text-primary-foreground p-3 rounded-md text-sm flex items-start gap-3">
+                            <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-semibold text-foreground">For groups or mini-tournaments</p>
+                                <p className="text-muted-foreground">Please contact us directly at <a href="mailto:info@teereserve.golf" className="font-semibold text-primary underline">info@teereserve.golf</a></p>
                             </div>
-                        ) : availableTimes.length > 0 ? (
-                            <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2">
-                                {availableTimes.map(teeTime => {
-                                    const isSelected = selectedTeeTime?.id === teeTime.id;
-                                    return (
-                                        <Button 
-                                            key={teeTime.id} 
-                                            variant={isSelected ? 'default' : (teeTime.status === 'available' ? 'outline' : 'secondary')} 
-                                            className="flex flex-col h-auto"
-                                            disabled={teeTime.status !== 'available'}
-                                            onClick={() => setSelectedTeeTime(teeTime)}
-                                        >
-                                            <span className="font-semibold text-base">{teeTime.time}</span>
-                                        </Button>
-                                    )
-                                })}
-                            </div>
-                        ) : (
-                            <div className="text-center py-8 text-muted-foreground text-sm">
-                                No available tee times for this selection.
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <h4 className="font-medium mb-2 text-center text-muted-foreground">Select a Tee Time</h4>
+                            {isPending ? (
+                                <div className="flex justify-center items-center py-8">
+                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                </div>
+                            ) : availableTimes.length > 0 ? (
+                                <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2">
+                                    {availableTimes.map(teeTime => {
+                                        const isSelected = selectedTeeTime?.id === teeTime.id;
+                                        return (
+                                            <Button 
+                                                key={teeTime.id} 
+                                                variant={isSelected ? 'default' : (teeTime.status === 'available' ? 'outline' : 'secondary')} 
+                                                className="flex flex-col h-auto"
+                                                disabled={teeTime.status !== 'available'}
+                                                onClick={() => setSelectedTeeTime(teeTime)}
+                                            >
+                                                <span className="font-semibold text-base">{teeTime.time}</span>
+                                            </Button>
+                                        )
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-muted-foreground text-sm">
+                                    No available tee times for this selection.
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Column: Booking Summary */}
                 <div className={cn("space-y-4 border rounded-lg p-4 bg-card", !selectedTeeTime && "flex items-center justify-center text-center")}>
-                   {selectedTeeTime ? (
+                   {selectedTeeTime && !isGroupBooking ? (
                     <>
                         <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
                             <p className="font-bold text-primary">{format(date, 'eeee, dd MMMM yyyy', { locale: dateLocales[lang] })}</p>
@@ -212,7 +238,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                 className="text-xs min-h-[60px]"
                             />
                         </div>
-
+                        
                         <Button asChild size="lg" className="w-full font-bold text-base h-12">
                              <Link href={bookingUrl} className="flex justify-between items-center">
                                 <span>Book Now</span>
@@ -238,8 +264,14 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                     </>
                    ) : (
                        <div className="text-muted-foreground p-8">
-                         <p className="font-semibold">Your booking summary will appear here.</p>
-                         <p className="text-sm">Please select an available tee time to continue.</p>
+                         <p className="font-semibold">{isGroupBooking ? "Group Booking Inquiry" : "Your booking summary will appear here."}</p>
+                         <p className="text-sm">{isGroupBooking ? "Please use the contact information provided." : "Please select an available tee time to continue."}</p>
+                          {isGroupBooking && (
+                            <Button className="w-full mt-4" onClick={() => router.push(`/${lang}/contact`)}>
+                                <Send className="mr-2 h-4 w-4" />
+                                Contact Us
+                            </Button>
+                          )}
                        </div>
                    )}
                 </div>
@@ -247,3 +279,5 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         </Card>
     )
 }
+
+    

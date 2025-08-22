@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
 import { dateLocales } from "@/lib/date-utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 function getStatusVariant(status: Booking['status']) {
@@ -54,7 +55,7 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
             <TableCell>{booking.courseName}</TableCell>
             <TableCell>{booking.userName}</TableCell>
             <TableCell>
-                {formattedDate || "..."}
+                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
             </TableCell>
             <TableCell>${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell>
