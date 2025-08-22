@@ -27,19 +27,24 @@ function getStatusVariant(status: Booking['status']) {
 }
 
 function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
-    const formattedDate = useMemo(() => {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+
+    useEffect(() => {
         if (booking.date) {
-             try {
+            try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return format(dateObj, 'PPP', { locale: dateLocales[lang] });
+                    setFormattedDate(format(dateObj, 'PPP', { locale: dateLocales[lang] }));
+                } else {
+                    setFormattedDate("Invalid Date");
                 }
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
-                return "Invalid Date";
+                setFormattedDate("Invalid Date");
             }
+        } else {
+            setFormattedDate("No Date");
         }
-        return "No Date";
     }, [booking.date, booking.id, lang]);
 
 
@@ -49,7 +54,7 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
             <TableCell>{booking.courseName}</TableCell>
             <TableCell>{booking.userName}</TableCell>
             <TableCell>
-                {formattedDate}
+                {formattedDate || "..."}
             </TableCell>
             <TableCell>${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell>

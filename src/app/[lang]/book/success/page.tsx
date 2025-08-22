@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -27,6 +28,7 @@ function SuccessPageContent() {
     const [course, setCourse] = useState<GolfCourse | null>(null);
     const [loading, setLoading] = useState(true);
     const [totalPrice, setTotalPrice] = useState<string | null>(null);
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     const courseId = searchParams.get('courseId');
     const date = searchParams.get('date');
@@ -36,16 +38,15 @@ function SuccessPageContent() {
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
-    const formattedDate = useMemo(() => {
+    useEffect(() => {
         if (date) {
             try {
-                return format(new Date(date), "PPP", { locale: dateLocales[lang] });
+                setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
             } catch (e) {
                 console.error("Invalid date format:", date);
-                return "Invalid Date";
+                setFormattedDate("Invalid Date");
             }
         }
-        return null;
     }, [date, lang]);
 
     useEffect(() => {
