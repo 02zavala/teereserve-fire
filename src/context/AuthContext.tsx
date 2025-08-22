@@ -59,7 +59,7 @@ const createUserInFirestore = async (userCredential: User, handicap?: number) =>
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // Only for initial auth state check
     const router = useRouter();
     
     useEffect(() => {
@@ -70,7 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const enablePersistence = async () => {
             try {
-                // Check if auth is not null before using it
                 if (auth) {
                   await setPersistence(auth, browserLocalPersistence);
                 }
@@ -83,7 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         enablePersistence();
 
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setLoading(true);
             setUser(user);
             if (user) {
                 await fetchUserProfile(user);
@@ -131,38 +129,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
      const refreshUserProfile = useCallback(async () => {
         if (user) {
-            setLoading(true);
             await fetchUserProfile(user);
-            setLoading(false);
         }
     }, [user, fetchUserProfile]);
     
     const login = async (email: string, pass: string) => {
       if (!auth) throw new Error("Authentication is not available.");
-      setLoading(true);
-      try {
-        return await signInWithEmailAndPassword(auth, email, pass);
-      } finally {
-        setLoading(false);
-      }
+      return await signInWithEmailAndPassword(auth, email, pass);
     };
 
     const signup = async (email: string, pass: string, displayName: string, handicap?: number) => {
         if (!auth) throw new Error("Authentication is not available.");
-        setLoading(true);
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-            await updateFirebaseAuthProfile(userCredential.user, { displayName });
-            await createUserInFirestore(userCredential.user, handicap);
-            await fetchUserProfile(userCredential.user);
-            return userCredential;
-        } finally {
-            setLoading(false);
-        }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateFirebaseAuthProfile(userCredential.user, { displayName });
+        await createUserInFirestore(userCredential.user, handicap);
+        await fetchUserProfile(userCredential.user);
+        return userCredential;
     };
     
     const logout = async () => {
         if (!auth) return;
+        setUser(null);
+        setUserProfile(null);
         await signOut(auth);
         router.push('/');
         router.refresh(); 
