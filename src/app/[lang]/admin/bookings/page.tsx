@@ -29,9 +29,14 @@ function getStatusVariant(status: Booking['status']) {
 
 function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        if (booking.date) {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (booking.date && isClient) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
@@ -43,10 +48,10 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
                 setFormattedDate("Invalid Date");
             }
-        } else {
+        } else if(isClient) {
             setFormattedDate("No Date");
         }
-    }, [booking.date, booking.id, lang]);
+    }, [booking.date, booking.id, lang, isClient]);
 
 
     return (

@@ -21,19 +21,24 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [moderationResult, setModerationResult] = useState<{ isSpam: boolean; isToxic: boolean; reason: string; } | null>(null);
     const [isLoadingModeration, setIsLoadingModeration] = useState(true);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
      useEffect(() => {
-        if (review.createdAt) {
+        if (review.createdAt && isClient) {
           try {
             setFormattedDate(format(new Date(review.createdAt), "PPP", { locale: dateLocales[lang] }));
           } catch(e) {
             console.error("Invalid date format:", review.createdAt);
             setFormattedDate("Invalid Date");
           }
-        } else {
+        } else if (isClient) {
             setFormattedDate("No Date");
         }
-    }, [review.createdAt, lang]);
+    }, [review.createdAt, lang, isClient]);
 
 
     useEffect(() => {

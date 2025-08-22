@@ -28,9 +28,14 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        if (booking.date && booking.time) {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (booking.date && booking.time && isClient) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
@@ -43,7 +48,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
                 setFormattedDate("Invalid Date");
             }
         }
-    }, [booking.date, booking.time, booking.id, lang]);
+    }, [booking.date, booking.time, booking.id, lang, isClient]);
 
 
     const getStatusVariant = (status: Booking['status']) => {
@@ -86,6 +91,11 @@ export default function ProfilePage() {
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
     const [memberSince, setMemberSince] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -94,7 +104,7 @@ export default function ProfilePage() {
     }, [user, loading, router, lang]);
 
     useEffect(() => {
-        if (user) {
+        if (user && isClient) {
             setLoadingBookings(true);
             if (user.metadata.creationTime) {
                 try {
@@ -116,7 +126,7 @@ export default function ProfilePage() {
                     setLoadingBookings(false);
                 });
         }
-    }, [user, lang]);
+    }, [user, lang, isClient]);
     
     const onProfileUpdate = useCallback(() => {
         refreshUserProfile();

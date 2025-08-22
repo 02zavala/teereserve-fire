@@ -40,6 +40,7 @@ export default function CheckoutForm() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isClient, setIsClient] = useState(false);
     
     const [couponCode, setCouponCode] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
@@ -64,6 +65,10 @@ export default function CheckoutForm() {
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     const baseSubtotal = useMemo(() => parseFloat(price || '0'), [price]);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     useEffect(() => {
         let discount = 0;
@@ -103,7 +108,7 @@ export default function CheckoutForm() {
             return;
         }
 
-        if (date) {
+        if (date && isClient) {
             try {
                 setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
             } catch (e) {
@@ -119,7 +124,7 @@ export default function CheckoutForm() {
             setIsLoading(false);
         });
 
-    }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price]);
+    }, [courseId, router, user, authLoading, searchParams, toast, date, lang, price, isClient]);
 
     const handleApplyCoupon = () => {
         if (!couponCode) return;

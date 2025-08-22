@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -161,7 +160,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
                                                 )}
                                                 disabled={isGroupBooking || !isClient}
                                                 >
-                                                {field.value ? (
+                                                {field.value && isClient ? (
                                                     format(field.value, "PPP", { locale: dateLocales[lang] })
                                                 ) : (
                                                     <span>{dictionary.pickDate}</span>

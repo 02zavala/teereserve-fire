@@ -28,9 +28,14 @@ interface ReviewSectionProps {
 
 function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [timeAgo, setTimeAgo] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
      useEffect(() => {
-        if (review.createdAt) {
+        if (review.createdAt && isClient) {
           try {
             setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));
           } catch(e) {
@@ -38,7 +43,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
             setTimeAgo("Invalid Date");
           }
         }
-    }, [review.createdAt, lang]);
+    }, [review.createdAt, lang, isClient]);
 
     return (
         <Card>

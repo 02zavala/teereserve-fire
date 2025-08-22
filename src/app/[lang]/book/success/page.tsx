@@ -29,6 +29,7 @@ function SuccessPageContent() {
     const [loading, setLoading] = useState(true);
     const [totalPrice, setTotalPrice] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     const courseId = searchParams.get('courseId');
     const date = searchParams.get('date');
@@ -39,7 +40,11 @@ function SuccessPageContent() {
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
-        if (date) {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (date && isClient) {
             try {
                 setFormattedDate(format(new Date(date), "PPP", { locale: dateLocales[lang] }));
             } catch (e) {
@@ -47,7 +52,7 @@ function SuccessPageContent() {
                 setFormattedDate("Invalid Date");
             }
         }
-    }, [date, lang]);
+    }, [date, lang, isClient]);
 
     useEffect(() => {
         if (!courseId) {

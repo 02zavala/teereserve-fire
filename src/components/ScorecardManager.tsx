@@ -49,9 +49,15 @@ type ScorecardFormValues = z.infer<typeof formSchema>;
 function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, onDelete: (id: string) => Promise<void>, lang: Locale }) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        if (scorecard.date) {
+        setIsClient(true);
+    }, []);
+
+
+    useEffect(() => {
+        if (scorecard.date && isClient) {
             try {
                 setFormattedDate(format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] }));
             } catch (e) {
@@ -59,7 +65,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 setFormattedDate("Invalid Date");
             }
         }
-    }, [scorecard.date, scorecard.id, lang]);
+    }, [scorecard.date, scorecard.id, lang, isClient]);
 
     const handleDelete = async () => {
         setIsDeleting(true);
