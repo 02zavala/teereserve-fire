@@ -23,8 +23,6 @@ export function UserNav() {
   const pathname = usePathname();
   const lang = pathname.split('/')[1] || 'en';
 
-  const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
-
   if (loading) {
     return <Skeleton className="h-9 w-24 rounded-md" />;
   }
@@ -41,6 +39,8 @@ export function UserNav() {
       </div>
     );
   }
+
+  const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
 
   // If user exists, render the dropdown menu
   return (

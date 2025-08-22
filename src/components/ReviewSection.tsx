@@ -30,7 +30,6 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
     const [timeAgo, setTimeAgo] = useState<string | null>(null);
 
      useEffect(() => {
-        // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
         if (review.createdAt) {
           try {
             setTimeAgo(formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: dateLocales[lang] }));

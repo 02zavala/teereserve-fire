@@ -27,20 +27,22 @@ interface FormattedBooking extends Omit<Booking, 'createdAt' | 'date'> {
 }
 
 function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale }) {
-    const formattedDate = useMemo(() => {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+
+    useEffect(() => {
         if (booking.date && booking.time) {
             try {
                 const dateObj = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 if (!isNaN(dateObj.getTime())) {
-                    return `${format(dateObj, 'PPP', { locale: dateLocales[lang] })} at ${booking.time}`;
+                    setFormattedDate(`${format(dateObj, 'PPP', { locale: dateLocales[lang] })} at ${booking.time}`);
+                } else {
+                    setFormattedDate("Invalid Date");
                 }
-                return "Invalid Date";
             } catch (e) {
                 console.error("Invalid date format for booking:", booking.id, booking.date);
-                return "Invalid Date";
+                setFormattedDate("Invalid Date");
             }
         }
-        return "Invalid Date";
     }, [booking.date, booking.time, booking.id, lang]);
 
 
@@ -61,7 +63,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
                 <div>
                     <p className="font-bold text-lg">{booking.courseName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {formattedDate !== "Invalid Date" ? formattedDate : <Skeleton className="h-4 w-48" />}
+                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-48" />}
                     </p>
                 </div>
                  <div className="text-right">
@@ -151,7 +153,7 @@ export default function ProfilePage() {
                      {userProfile.handicap !== undefined && (
                         <p className="font-semibold text-accent mt-2">Handicap: {userProfile.handicap}</p>
                     )}
-                    {memberSince !== null ? (
+                    {memberSince ? (
                        <p className="text-muted-foreground text-sm mt-2">Member since {memberSince}</p>
                     ) : (
                        <Skeleton className="h-4 w-48 mt-2" />

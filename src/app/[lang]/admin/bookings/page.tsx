@@ -55,7 +55,7 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
             <TableCell>{booking.courseName}</TableCell>
             <TableCell>{booking.userName}</TableCell>
             <TableCell>
-                {formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24" />}
+                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
             </TableCell>
             <TableCell>${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell>

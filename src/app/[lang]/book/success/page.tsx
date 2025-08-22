@@ -147,7 +147,7 @@ function SuccessPageContent() {
                                 <div className="flex items-center text-muted-foreground">
                                     <Calendar className="h-4 w-4 mr-2" /> Date: 
                                     <span className="font-medium text-foreground ml-1">
-                                      {formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
+                                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
                                     </span>
                                 </div>
                                 <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{time}</span></div>

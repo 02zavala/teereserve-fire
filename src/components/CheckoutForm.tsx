@@ -264,7 +264,7 @@ export default function CheckoutForm() {
                         <Separator />
                         <div className="space-y-2 text-sm">
                             <div className="flex items-center"><User className="h-4 w-4 mr-3 text-muted-foreground" /><span><span className="font-semibold">{players}</span> Player(s)</span></div>
-                            <div className="flex items-center"><Calendar className="h-4 w-4 mr-3 text-muted-foreground" /><span>{formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}</span></div>
+                            <div className="flex items-center"><Calendar className="h-4 w-4 mr-3 text-muted-foreground" /><span>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}</span></div>
                             <div className="flex items-center"><Clock className="h-4 w-4 mr-3 text-muted-foreground" /><span><span className="font-semibold">{time}</span> Tee Time</span></div>
                              {comments && (
                                 <div className="flex items-start pt-2">

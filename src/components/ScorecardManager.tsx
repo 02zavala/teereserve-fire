@@ -51,11 +51,13 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     useEffect(() => {
-        try {
-            setFormattedDate(format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] }));
-        } catch (e) {
-            console.error("Invalid date for scorecard:", scorecard.id, scorecard.date);
-            setFormattedDate("Invalid Date");
+        if (scorecard.date) {
+            try {
+                setFormattedDate(format(parseISO(scorecard.date), 'PPP', { locale: dateLocales[lang] }));
+            } catch (e) {
+                console.error("Invalid date for scorecard:", scorecard.id, scorecard.date);
+                setFormattedDate("Invalid Date");
+            }
         }
     }, [scorecard.date, scorecard.id, lang]);
 
@@ -70,7 +72,7 @@ function ScorecardItem({ scorecard, onDelete, lang }: { scorecard: Scorecard, on
                 <div>
                     <p className="font-bold text-lg">{scorecard.courseName}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                       <Calendar className="h-4 w-4" /> {formattedDate !== null ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
+                       <Calendar className="h-4 w-4" /> {formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
                     </p>
                     {scorecard.notes && <p className="text-xs italic text-muted-foreground mt-1">"{scorecard.notes}"</p>}
                 </div>
