@@ -1,5 +1,5 @@
 
-import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId, TeamMember, AboutPageContent } from '@/types';
+import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId, TeamMember, AboutPageContent, Coupon, CouponInput } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -234,14 +234,19 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
               });
           });
       } catch (error: any) {
-          if (error.code === 'not-found') {
+           if (error.code === 'not-found') {
             console.warn(`
               *****************************************************************
-              * Firestore database not found.                                 *
-              * Please create one in your Firebase console:                   *
+              * Firestore Database Not Found.                                 *
+              *                                                               *
+              * This error usually means you haven't created a Firestore      *
+              * database in your Firebase project yet.                        *
+              *                                                               *
+              * PLEASE GO TO YOUR FIREBASE CONSOLE TO CREATE ONE:             *
               * https://console.firebase.google.com/project/_/firestore       *
               *                                                               *
-              * The app will continue with local data.                        *
+              * The app will continue to run with local example data,         *
+              * but it will not be able to save or load any new data.         *
               *****************************************************************
             `);
           } else if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
@@ -276,9 +281,7 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
                 return courseData;
             }
         } catch (error: any) {
-            if (error.code === 'not-found') {
-                console.warn(`Firestore database not found when fetching course ${id}. Falling back to static data.`);
-            } else {
+            if (error.code !== 'not-found') {
                 console.error(`Firestore error fetching course ${id}. Falling back to static data.`, error);
             }
         }
@@ -887,4 +890,55 @@ export async function deleteTeamMember(memberId: string): Promise<void> {
     await deleteDoc(memberDocRef);
 }
 
-    
+// *** Coupon Functions ***
+
+export async function addCoupon(couponData: CouponInput): Promise<Coupon> {
+    if (!db) throw new Error("Firestore is not initialized.");
+    const couponRef = doc(db, 'coupons', couponData.code);
+    const docSnap = await getDoc(couponRef);
+
+    if (docSnap.exists()) {
+        throw new Error(`Coupon code "${couponData.code}" already exists.`);
+    }
+
+    const newCoupon: Coupon = {
+        ...couponData,
+        createdAt: new Date().toISOString(),
+    };
+
+    await setDoc(couponRef, newCoupon);
+    return newCoupon;
+}
+
+export async function getCoupons(): Promise<Coupon[]> {
+    if (!db) return [];
+    const couponsCol = collection(db, 'coupons');
+    const q = query(couponsCol, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data() as Coupon);
+}
+
+
+export async function deleteCoupon(code: string): Promise<void> {
+    if (!db) throw new Error("Firestore is not initialized.");
+    const couponRef = doc(db, 'coupons', code);
+    await deleteDoc(couponRef);
+}
+
+export async function validateCoupon(code: string): Promise<Coupon> {
+    if (!db) throw new Error("Firestore is not initialized.");
+    const couponRef = doc(db, 'coupons', code);
+    const docSnap = await getDoc(couponRef);
+
+    if (!docSnap.exists()) {
+        throw new Error("Coupon code not found.");
+    }
+
+    const coupon = docSnap.data() as Coupon;
+
+    if (coupon.expiresAt && isBefore(new Date(coupon.expiresAt), new Date())) {
+        throw new Error("This coupon has expired.");
+    }
+
+    return coupon;
+}

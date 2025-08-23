@@ -20,7 +20,16 @@ const firebaseConfig: FirebaseOptions = {
 const validateFirebaseConfig = (config: FirebaseOptions): boolean => {
     return Object.entries(config).every(([key, value]) => {
         if (!value || typeof value !== 'string' || value.includes('your_') || value.includes('YOUR_')) {
-            console.warn(`Firebase Initialization Warning: Missing or invalid environment variable for '${key}'. Firebase services will be disabled.`);
+            console.warn(`
+              *****************************************************************
+              * Firebase Initialization Warning:                              *
+              * Missing or placeholder value for environment variable:        *
+              * NEXT_PUBLIC_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}
+              *                                                               *
+              * Firebase services will be disabled.                           *
+              * Please ensure your .env.local file is correctly configured.   *
+              *****************************************************************
+            `);
             return false;
         }
         return true;
@@ -57,7 +66,7 @@ if (isConfigValid) {
     }
 } else {
     console.error(
-        "Firebase services are disabled due to invalid configuration. Please check your .env.local file."
+        "Firebase services are disabled due to invalid or missing configuration. Please check your .env.local file and the console warnings above."
     );
 }
 
