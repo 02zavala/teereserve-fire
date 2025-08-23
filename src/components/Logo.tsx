@@ -8,9 +8,8 @@ export function Logo({ className }: { className?: string }) {
             <Image
                 src="/logo.svg"
                 alt="TeeReserve Logo"
-                width={150}
-                height={40}
-                className="h-full w-auto dark:invert"
+                fill
+                className="object-contain dark:invert"
                 priority
             />
         </div>
