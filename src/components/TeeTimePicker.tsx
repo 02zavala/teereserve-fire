@@ -79,7 +79,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${subtotal.toFixed(2)}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
     : '#';
 
-    if (!isClient || !date) {
+    if (!isClient) {
         return (
             <Card>
                 <CardHeader>
@@ -195,7 +195,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                    {selectedTeeTime && !isGroupBooking ? (
                     <>
                         <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-center">
-                            <p className="font-bold text-primary">{format(date, 'eeee, dd MMMM yyyy', { locale: dateLocales[lang] })}</p>
+                            <p className="font-bold text-primary">{date ? format(date, 'eeee, dd MMMM yyyy', { locale: dateLocales[lang] }) : ''}</p>
                             <Separator className="my-2 bg-primary/20" />
                             <p className="font-bold text-primary">{selectedTeeTime.time}</p>
                             <p className="text-sm text-primary/90">{players} Players (18 Holes)</p>

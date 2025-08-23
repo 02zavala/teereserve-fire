@@ -78,6 +78,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     })
     
     useEffect(() => {
+        // Set default date only on the client to avoid hydration mismatch
         if (isClient) {
             form.setValue('date', new Date());
         }

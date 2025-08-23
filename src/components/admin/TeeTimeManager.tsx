@@ -23,7 +23,7 @@ interface TeeTimeManagerProps {
 }
 
 export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
-    const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isFetching, startFetching] = useTransition();
     const [isSaving, startSaving] = useTransition();
@@ -32,9 +32,11 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
 
     useEffect(() => {
       setIsClient(true);
+      setSelectedDate(startOfDay(new Date()));
     }, []);
 
     useEffect(() => {
+        if (!selectedDate) return;
         startFetching(async () => {
             const times = await getTeeTimesForCourse(course.id, selectedDate, course.basePrice);
             setTeeTimes(times);
@@ -50,6 +52,7 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
     };
 
     const handleSave = () => {
+        if (!selectedDate) return;
         startSaving(async () => {
             try {
                 await updateTeeTimesForCourse(course.id, selectedDate, teeTimes);
@@ -97,7 +100,7 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
                 <Card>
                     <CardContent className="pt-6">
                         <h3 className="text-lg font-medium mb-4">
-                            Tee Times for <span className="text-primary">{isClient ? format(selectedDate, "PPP", { locale: dateLocales[lang] }) : '...'}</span>
+                            Tee Times for <span className="text-primary">{isClient && selectedDate ? format(selectedDate, "PPP", { locale: dateLocales[lang] }) : '...'}</span>
                         </h3>
                         {isFetching ? (
                             <div className="flex justify-center items-center h-64">
