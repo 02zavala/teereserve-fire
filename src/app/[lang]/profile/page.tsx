@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getUserBookings } from "@/lib/data";
 import type { Booking, UserProfile } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -68,7 +68,7 @@ function BookingRow({ booking, lang }: { booking: FormattedBooking, lang: Locale
                 <div>
                     <p className="font-bold text-lg">{booking.courseName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {formattedDate ? formattedDate : <Skeleton className="h-4 w-48" />}
+                      {isClient && formattedDate ? formattedDate : <Skeleton className="h-4 w-48" />}
                     </p>
                 </div>
                  <div className="text-right">
@@ -111,7 +111,6 @@ export default function ProfilePage() {
                      setMemberSince(format(new Date(user.metadata.creationTime), 'PPP', { locale: dateLocales[lang] }));
                 } catch (e) {
                     console.error("Failed to format member since date");
-                    setMemberSince(null);
                 }
             }
 
@@ -163,7 +162,7 @@ export default function ProfilePage() {
                      {userProfile.handicap !== undefined && (
                         <p className="font-semibold text-accent mt-2">Handicap: {userProfile.handicap}</p>
                     )}
-                    {memberSince ? (
+                    {isClient && memberSince ? (
                        <p className="text-muted-foreground text-sm mt-2">Member since {memberSince}</p>
                     ) : (
                        <Skeleton className="h-4 w-48 mt-2" />

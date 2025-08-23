@@ -35,8 +35,6 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
             console.error("Invalid date format:", review.createdAt);
             setFormattedDate("Invalid Date");
           }
-        } else if (isClient) {
-            setFormattedDate("No Date");
         }
     }, [review.createdAt, lang, isClient]);
 
@@ -68,7 +66,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                         <CardTitle className="text-lg">{review.courseName}</CardTitle>
                         <CardDescription>
                             Review by {review.userName}{' '}
-                            on {formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
+                            on {isClient && formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
                         </CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(review.approved)}>{getStatusText(review.approved)}</Badge>

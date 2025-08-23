@@ -56,8 +56,6 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
                 console.error("Invalid date format for booking:", booking.id, booking.date);
                 setFormattedDate("Invalid Date");
             }
-        } else if (isClient) {
-            setFormattedDate("No Date");
         }
     }, [booking.date, booking.id, lang, isClient]);
 
@@ -68,7 +66,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
             </TableCell>
             <TableCell>{booking.courseName}</TableCell>
             <TableCell className="hidden md:table-cell">
-                {formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
+                {isClient && formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
             </TableCell>
             <TableCell className="text-right">${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell className="text-right">
