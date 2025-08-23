@@ -27,7 +27,12 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isFetching, startFetching] = useTransition();
     const [isSaving, startSaving] = useTransition();
+    const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
+
+    useEffect(() => {
+      setIsClient(true);
+    }, []);
 
     useEffect(() => {
         startFetching(async () => {
@@ -92,7 +97,7 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
                 <Card>
                     <CardContent className="pt-6">
                         <h3 className="text-lg font-medium mb-4">
-                            Tee Times for <span className="text-primary">{format(selectedDate, "PPP", { locale: dateLocales[lang] })}</span>
+                            Tee Times for <span className="text-primary">{isClient ? format(selectedDate, "PPP", { locale: dateLocales[lang] }) : '...'}</span>
                         </h3>
                         {isFetching ? (
                             <div className="flex justify-center items-center h-64">

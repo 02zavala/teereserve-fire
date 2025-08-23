@@ -61,8 +61,8 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
     const [isClient, setIsClient] = useState(false);
     
     useEffect(() => {
-        getCourseLocations().then(setLocations);
         setIsClient(true);
+        getCourseLocations().then(setLocations);
     }, []);
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
@@ -72,13 +72,11 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             location: "all",
-            // Avoid using new Date() directly here for SSR safety
             players: "2",
             time: "any",
         },
     })
     
-    // Set the date only on the client-side to prevent hydration mismatch
     useEffect(() => {
         if (isClient) {
             form.setValue('date', new Date());

@@ -234,19 +234,18 @@ export const getCourses = async ({ location }: { location?: string }): Promise<G
               });
           });
       } catch (error: any) {
-           if (error.code === 'not-found') {
+           if (error.code === 'not-found' || (error.message && error.message.includes("NOT_FOUND"))) {
             console.warn(`
               *****************************************************************
               * Firestore Database Not Found.                                 *
               *                                                               *
               * This error usually means you haven't created a Firestore      *
-              * database in your Firebase project yet.                        *
+              * database in your Firebase project yet. The app will continue  *
+              * to run with local example data, but it will not be able to    *
+              * save or load any new data.                                    *
               *                                                               *
               * PLEASE GO TO YOUR FIREBASE CONSOLE TO CREATE ONE:             *
               * https://console.firebase.google.com/project/_/firestore       *
-              *                                                               *
-              * The app will continue to run with local example data,         *
-              * but it will not be able to save or load any new data.         *
               *****************************************************************
             `);
           } else if (error.code === 'permission-denied' || error.code === 'unauthenticated' || error.code === 'unavailable') {
@@ -281,7 +280,7 @@ export const getCourseById = async (id: string): Promise<GolfCourse | undefined>
                 return courseData;
             }
         } catch (error: any) {
-            if (error.code !== 'not-found') {
+            if (error.code !== 'not-found' && !(error.message && error.message.includes("NOT_FOUND"))) {
                 console.error(`Firestore error fetching course ${id}. Falling back to static data.`, error);
             }
         }
