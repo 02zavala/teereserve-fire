@@ -11,34 +11,30 @@ import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Logo } from "../Logo";
 import { useAuth } from "@/context/AuthContext";
-import { cn } from "@/lib/utils";
+import type { getDictionary } from "@/lib/get-dictionary";
+
+type Dictionary = Awaited<ReturnType<typeof getDictionary>>;
 
 interface HeaderProps {
-    dictionary: {
-        home: string;
-        findCourse: string;
-        about: string;
-        contact: string;
-        recommendations: string;
-        admin: string;
-    },
+    dictionary: Dictionary;
     lang: Locale;
 }
 
 export function Header({ dictionary, lang }: HeaderProps) {
     const { userProfile } = useAuth();
     const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
+    const t = dictionary.header;
 
     const navLinks = [
-        { href: `/${lang}/courses`, label: dictionary.findCourse },
-        { href: `/${lang}/recommendations`, label: dictionary.recommendations, icon: Sparkles },
-        { href: `/${lang}/about`, label: dictionary.about },
-        { href: `/${lang}/contact`, label: dictionary.contact },
+        { href: `/${lang}/courses`, label: t.findCourse },
+        { href: `/${lang}/recommendations`, label: t.recommendations, icon: Sparkles },
+        { href: `/${lang}/about`, label: t.about },
+        { href: `/${lang}/contact`, label: t.contact },
     ];
     
     const mobileNavLinks = [...navLinks];
     if (isAdmin) {
-        mobileNavLinks.push({ href: `/${lang}/admin/dashboard`, label: dictionary.admin, icon: GanttChartSquare });
+        mobileNavLinks.push({ href: `/${lang}/admin/dashboard`, label: t.admin, icon: GanttChartSquare });
     }
 
     return (
@@ -74,13 +70,13 @@ export function Header({ dictionary, lang }: HeaderProps) {
                                 className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-1 font-semibold text-primary"
                             >
                                 <GanttChartSquare className="h-4 w-4" />
-                                {dictionary.admin}
+                                {t.admin}
                             </Link>
                          )}
                     </nav>
                     <div className="flex items-center gap-2">
-                        <LanguageSwitcher lang={lang} />
-                        <ThemeToggle />
+                        <LanguageSwitcher dictionary={dictionary.languageSwitcher} lang={lang} />
+                        <ThemeToggle dictionary={dictionary.themeToggle} />
                         <UserNav />
                     </div>
                 </div>
@@ -116,8 +112,8 @@ export function Header({ dictionary, lang }: HeaderProps) {
                                     ))}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <LanguageSwitcher lang={lang} />
-                                    <ThemeToggle />
+                                    <LanguageSwitcher dictionary={dictionary.languageSwitcher} lang={lang} />
+                                    <ThemeToggle dictionary={dictionary.themeToggle} />
                                     <UserNav />
                                 </div>
                             </div>

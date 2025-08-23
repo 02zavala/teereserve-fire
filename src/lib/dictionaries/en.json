@@ -49,6 +49,17 @@
         "madeIn": "Made with ❤️ in Mexico",
         "contact": "Contact"
     },
+    "themeToggle": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System",
+        "toggle": "Toggle theme"
+    },
+    "languageSwitcher": {
+        "label": "Change language",
+        "en": "EN",
+        "es": "ES"
+    },
     "heroSection": {
         "title": "Find Your Perfect",
         "titleHighlight": "Tee Time",
@@ -429,5 +440,3 @@
         }
     }
 }
-
-    

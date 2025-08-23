@@ -49,6 +49,17 @@
         "madeIn": "Hecho con ❤️ en México",
         "contact": "Contacto"
     },
+    "themeToggle": {
+        "light": "Claro",
+        "dark": "Oscuro",
+        "system": "Sistema",
+        "toggle": "Cambiar tema"
+    },
+    "languageSwitcher": {
+        "label": "Cambiar idioma",
+        "en": "EN",
+        "es": "ES"
+    },
     "heroSection": {
         "title": "Encuentra Tu Tee Time",
         "titleHighlight": "Perfecto",
@@ -429,5 +440,3 @@
         }
     }
 }
-
-    

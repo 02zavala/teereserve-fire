@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,6 +19,10 @@ import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
+import { Skeleton } from '../ui/skeleton';
+import { dateLocales } from '@/lib/date-utils';
+import type { Locale } from '@/i18n-config';
+import { usePathname } from 'next/navigation';
 
 interface CouponManagerProps {
   initialCoupons: Coupon[];
@@ -33,11 +37,66 @@ const formSchema = z.object({
 
 type CouponFormValues = z.infer<typeof formSchema>;
 
+function CouponRow({ coupon, onDelete, lang }: { coupon: Coupon; onDelete: (code: string) => void; lang: Locale }) {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (coupon.expiresAt && isClient) {
+            try {
+                setFormattedDate(format(new Date(coupon.expiresAt), 'PPP', { locale: dateLocales[lang] }));
+            } catch (e) {
+                console.error("Invalid date format for coupon:", coupon.code, coupon.expiresAt);
+                setFormattedDate("Invalid Date");
+            }
+        }
+    }, [coupon.expiresAt, coupon.code, lang, isClient]);
+
+    return (
+        <TableRow>
+            <TableCell>
+                <Badge><TicketPercent className="mr-1 h-3 w-3"/>{coupon.code}</Badge>
+            </TableCell>
+            <TableCell>
+                {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `$${coupon.discountValue}`}
+            </TableCell>
+            <TableCell>
+                {coupon.expiresAt ? (isClient && formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />) : 'Never'}
+            </TableCell>
+            <TableCell>
+                <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>This will permanently delete the coupon "{coupon.code}".</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(coupon.code)}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+                </AlertDialog>
+            </TableCell>
+        </TableRow>
+    );
+}
+
 export function CouponManager({ initialCoupons }: CouponManagerProps) {
   const { userProfile } = useAuth();
   const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const pathname = usePathname();
+  const lang = (pathname.split('/')[1] || 'en') as Locale;
 
   const form = useForm<CouponFormValues>({
     resolver: zodResolver(formSchema),
@@ -189,36 +248,7 @@ export function CouponManager({ initialCoupons }: CouponManagerProps) {
               </TableHeader>
               <TableBody>
                 {coupons.map((coupon) => (
-                  <TableRow key={coupon.code}>
-                    <TableCell>
-                      <Badge><TicketPercent className="mr-1 h-3 w-3"/>{coupon.code}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `$${coupon.discountValue}`}
-                    </TableCell>
-                    <TableCell>
-                      {coupon.expiresAt ? format(new Date(coupon.expiresAt), 'PPP') : 'Never'}
-                    </TableCell>
-                    <TableCell>
-                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>This will permanently delete the coupon "{coupon.code}".</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(coupon.code)}>Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                  </TableRow>
+                  <CouponRow key={coupon.code} coupon={coupon} onDelete={handleDelete} lang={lang} />
                 ))}
               </TableBody>
             </Table>
