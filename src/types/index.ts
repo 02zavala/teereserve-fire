@@ -119,6 +119,8 @@ export interface Coupon {
     discountValue: number;
     expiresAt?: string; // ISO string
     createdAt: string; // ISO string
+    timesUsed?: number;
+    usageLimit?: number;
 }
 
 export interface CouponInput extends Omit<Coupon, 'createdAt'> {}

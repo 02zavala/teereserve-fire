@@ -3,6 +3,9 @@ import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { format, startOfDay, subDays, isAfter, parse, set, isToday, isBefore, addMinutes } from 'date-fns';
+import { sendBookingConfirmationEmail } from '@/ai/flows/send-booking-confirmation-email';
+import { Locale } from '@/i18n-config';
+
 
 interface CourseDataInput {
     name: string;
@@ -485,70 +488,77 @@ export const updateTeeTimesForCourse = async (courseId: string, date: Date, teeT
 
 
 // *** Booking Functions ***
-const TAX_RATE = 0.16;
 
-export async function createBooking(bookingData: BookingInput): Promise<string> {
+export async function createBooking(bookingData: BookingInput, lang: Locale): Promise<string> {
     if (!db) throw new Error("Firestore is not initialized.");
     const bookingsCol = collection(db, 'bookings');
     const bookingDocRef = doc(bookingsCol);
     const userDocRef = doc(db, 'users', bookingData.userId);
     const teeTimeDocRef = doc(db, 'courses', bookingData.courseId, 'teeTimes', bookingData.teeTimeId);
 
-    await runTransaction(db, async (transaction) => {
+    const bookingId = await runTransaction(db, async (transaction) => {
         const userDoc = await transaction.get(userDocRef);
         const teeTimeDoc = await transaction.get(teeTimeDocRef);
 
-        if (!userDoc.exists()) {
-            throw new Error("User does not exist!");
-        }
-        if (!teeTimeDoc.exists()) {
-            throw new Error("Tee time not found. It may have been booked by someone else.");
-        }
+        if (!userDoc.exists()) throw new Error("User does not exist!");
+        if (!teeTimeDoc.exists()) throw new Error("Tee time not found. It may have been booked by someone else.");
         
         const teeTimeData = teeTimeDoc.data() as TeeTime;
-        if (teeTimeData.status !== 'available') {
-            throw new Error("This tee time is no longer available.");
-        }
+        if (teeTimeData.status !== 'available') throw new Error("This tee time is no longer available.");
 
         const userProfile = userDoc.data() as UserProfile;
         
-        // Server-side price validation
-        const subtotal = teeTimeData.price * bookingData.players;
-        const total = subtotal * (1 + TAX_RATE);
+        let finalPrice = bookingData.totalPrice;
         
-        // Use a tolerance for floating point comparisons
-        if (Math.abs(total - bookingData.totalPrice) > 0.01) {
-             throw new Error(`Price mismatch. Client total: ${bookingData.totalPrice}, Server total: ${total}.`);
+        if (bookingData.couponCode) {
+            const couponRef = doc(db, 'coupons', bookingData.couponCode);
+            const couponSnap = await transaction.get(couponRef);
+            if (!couponSnap.exists()) throw new Error("Coupon is not valid.");
+            
+            const coupon = couponSnap.data() as Coupon;
+            if (coupon.expiresAt && isBefore(new Date(coupon.expiresAt), new Date())) {
+                throw new Error("This coupon has expired.");
+            }
+            // Add other validation logic here (usage limits, etc.)
+
+            transaction.update(couponRef, { timesUsed: increment(1) });
         }
         
-        // 1. Create a new booking document
-        transaction.set(bookingDocRef, { ...bookingData, totalPrice: total, createdAt: new Date().toISOString() });
-        
-        // 2. Update the tee time status to 'booked'
+        transaction.set(bookingDocRef, { ...bookingData, totalPrice: finalPrice, createdAt: new Date().toISOString() });
         transaction.update(teeTimeDocRef, { status: 'booked' });
 
-        // 3. Update user's gamification profile
         const newAchievements: AchievementId[] = [...userProfile.achievements];
-        let achievementUnlocked = false;
-
-        // Check for 'firstBooking' achievement
-        if (!userProfile.achievements.includes('firstBooking')) {
-            newAchievements.push('firstBooking');
-            achievementUnlocked = true;
-        }
-
-        const gamificationUpdates: Partial<UserProfile> = {
-            xp: increment(150), // 50 for booking + 100 for completing
-        };
-
-        if (achievementUnlocked) {
-            gamificationUpdates.achievements = newAchievements;
-        }
+        if (!userProfile.achievements.includes('firstBooking')) newAchievements.push('firstBooking');
         
-        transaction.update(userDocRef, gamificationUpdates);
+        transaction.update(userDocRef, {
+            xp: increment(150),
+            achievements: newAchievements,
+        });
+        
+        return bookingDocRef.id;
     });
+
+    // Send confirmation email after transaction is successful
+    if (bookingId && userProfile.email) {
+        try {
+            await sendBookingConfirmationEmail({
+                bookingId,
+                userEmail: userProfile.email,
+                userName: bookingData.userName,
+                courseName: bookingData.courseName,
+                date: bookingData.date,
+                time: bookingData.time,
+                players: bookingData.players,
+                totalPrice: bookingData.totalPrice,
+                locale: lang,
+            });
+        } catch (emailError) {
+            console.error(`Booking ${bookingId} created, but confirmation email failed:`, emailError);
+            // Don't throw error to user, as booking was successful. Log for monitoring.
+        }
+    }
     
-    return bookingDocRef.id;
+    return bookingId;
 }
 
 
@@ -929,6 +939,7 @@ export async function addCoupon(couponData: CouponInput): Promise<Coupon> {
     const newCoupon: Coupon = {
         ...couponData,
         createdAt: new Date().toISOString(),
+        timesUsed: 0,
     };
 
     await setDoc(couponRef, newCoupon);
