@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, Globe } from 'lucide-react';
 import type { getDictionary } from "@/lib/get-dictionary";
-import { ProtectedDashboardLink } from "./ProtectedDashboardLink";
 import { Logo } from "../Logo";
 import { useAuth } from "@/context/AuthContext";
 import { Locale } from "@/i18n-config";
@@ -63,7 +62,6 @@ export function Footer({ dictionary, lang }: FooterProps) {
                   {dictionary.footer.reservations}
                 </Link>
               </li>
-               <ProtectedDashboardLink dictionary={dictionary.footer} lang={lang} />
             </ul>
           </div>
 
