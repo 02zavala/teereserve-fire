@@ -438,5 +438,31 @@
             "title": "No Special Recommendations Right Now",
             "subtitle": "We're working on finding the perfect match. Try refreshing!"
         }
+    },
+    "bookingLookupPage": {
+        "title": "Find Your Reservation",
+        "subtitle": "Enter your booking details below to view your tee time information.",
+        "form": {
+            "title": "Look Up Booking",
+            "description": "You can find the Booking ID in your confirmation email.",
+            "bookingIdLabel": "Booking ID",
+            "bookingIdPlaceholder": "e.g., a1b2c3d4",
+            "lastNameLabel": "Last Name on Reservation",
+            "lastNamePlaceholder": "e.g., Smith",
+            "submit": "Find Reservation",
+            "submitting": "Searching..."
+        },
+        "result": {
+            "title": "Reservation Details",
+            "subtitle": "Booking ID:",
+            "total": "Total Paid",
+            "comments": "Your Comments",
+            "backButton": "Search for another reservation"
+        },
+        "error": {
+            "title": "Search Failed",
+            "notFound": "No reservation found with those details. Please check your information and try again.",
+            "generic": "An unexpected error occurred. Please try again later."
+        }
     }
 }

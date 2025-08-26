@@ -438,5 +438,31 @@
             "phoneLabel": "Teléfono",
             "addressLabel": "Dirección"
         }
+    },
+    "bookingLookupPage": {
+        "title": "Encuentra tu Reserva",
+        "subtitle": "Ingresa los detalles de tu reserva a continuación para ver la información de tu tee time.",
+        "form": {
+            "title": "Buscar Reserva",
+            "description": "Puedes encontrar el ID de la Reserva en tu correo de confirmación.",
+            "bookingIdLabel": "ID de Reserva",
+            "bookingIdPlaceholder": "ej. a1b2c3d4",
+            "lastNameLabel": "Apellido en la Reserva",
+            "lastNamePlaceholder": "ej. Pérez",
+            "submit": "Buscar Reserva",
+            "submitting": "Buscando..."
+        },
+        "result": {
+            "title": "Detalles de la Reserva",
+            "subtitle": "ID de Reserva:",
+            "total": "Total Pagado",
+            "comments": "Tus Comentarios",
+            "backButton": "Buscar otra reserva"
+        },
+        "error": {
+            "title": "Búsqueda Fallida",
+            "notFound": "No se encontró ninguna reserva con esos detalles. Por favor, verifica tu información e inténtalo de nuevo.",
+            "generic": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde."
+        }
     }
 }

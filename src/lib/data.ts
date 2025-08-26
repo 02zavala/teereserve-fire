@@ -1,4 +1,3 @@
-
 import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId, TeamMember, AboutPageContent, Coupon, CouponInput } from '@/types';
 import { db, storage } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
@@ -566,6 +565,33 @@ export async function getUserBookings(userId: string): Promise<Booking[]> {
     const q = query(bookingsCol, where('userId', '==', userId), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
+}
+
+export async function getBookingByIdAndLastName(bookingId: string, lastName: string): Promise<Booking> {
+    if (!db) throw new Error("Database service is not available.");
+
+    // Firestore document IDs are typically around 20 characters.
+    // This is a basic sanity check, not a foolproof validation.
+    if (bookingId.length < 10) {
+        throw new Error("Invalid Booking ID format.");
+    }
+
+    const bookingDocRef = doc(db, 'bookings', bookingId.trim());
+    const docSnap = await getDoc(bookingDocRef);
+
+    if (!docSnap.exists()) {
+        throw new Error("Booking not found. Please check your Booking ID.");
+    }
+
+    const booking = { id: docSnap.id, ...docSnap.data() } as Booking;
+
+    // Check if the last name exists in the userName field, case-insensitively.
+    const nameParts = booking.userName.toLowerCase().split(' ');
+    if (!nameParts.some(part => part === lastName.trim().toLowerCase())) {
+        throw new Error("Last name does not match the booking record.");
+    }
+
+    return booking;
 }
 
 // *** Review Functions ***

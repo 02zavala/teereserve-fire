@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -13,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, LayoutGrid, GanttChartSquare } from 'lucide-react';
+import { LogOut, User, LayoutGrid, GanttChartSquare, Search } from 'lucide-react';
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "../ui/skeleton";
 import { usePathname } from "next/navigation";
@@ -24,25 +23,49 @@ export function UserNav() {
   const lang = pathname.split('/')[1] || 'en';
 
   if (loading) {
-    return <Skeleton className="h-9 w-24 rounded-md" />;
+    return (
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-9 w-20 rounded-md" />
+        <Skeleton className="h-9 w-24 rounded-md" />
+      </div>
+    );
   }
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" asChild>
-          <Link href={`/${lang}/login`}>Log In</Link>
-        </Button>
-        <Button asChild>
-            <Link href={`/${lang}/signup`}>Sign Up</Link>
-        </Button>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback><User /></AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuItem asChild>
+            <Link href={`/${lang}/login`}>
+              Log In
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/${lang}/signup`}>
+              Sign Up
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+           <DropdownMenuItem asChild>
+            <Link href={`/${lang}/booking-lookup`}>
+              <Search className="mr-2 h-4 w-4" />
+              <span>Find Reservation</span>
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
   const isAdmin = userProfile?.role === 'Admin' || userProfile?.role === 'SuperAdmin';
 
-  // If user exists, render the dropdown menu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
