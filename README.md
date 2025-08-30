@@ -22,15 +22,16 @@ TeeReserve is a premium golf booking platform built with a modern tech stack, fo
 - **Internationalization (i18n)**: Full support for English and Spanish with locale-based formatting.
 - **Dark Mode**: Professional, flash-free dark mode implementation with CSS variables.
 - **Authentication**: Secure user authentication with email/password and Google sign-in.
-- **Booking System**: Real-time tee time availability and a complete booking flow.
-- **Payments**: Secure payment processing integrated with Stripe.
+- **Booking System**: Real-time tee time availability and a complete booking flow with secure payments.
+- **Discount Coupons**: Admin-managed coupon system with validation and dynamic price updates.
 - **Admin Dashboard**: A comprehensive panel for managing courses, bookings, users, reviews, and site content.
 - **AI-Powered Features**:
   - Personalized course recommendations.
   - AI-assisted review moderation.
-  - Automated transactional emails.
-- **User Profiles**: Personalized user dashboards with booking history and scorecard management.
+  - Automated transactional emails for booking confirmations and contact forms.
+- **User Profiles**: Personalized user dashboards with booking history, scorecard management, and gamification elements.
 - **Gamification**: XP and achievement system to enhance user engagement.
+- **Guest Booking Lookup**: Allows users without an account to check their reservation status.
 
 ---
 
@@ -54,6 +55,7 @@ TeeReserve is a premium golf booking platform built with a modern tech stack, fo
 - Node.js 18+
 - npm, yarn, or pnpm
 - Git
+- A configured Firebase project with Firestore, Auth, and Storage enabled.
 
 ### Installation
 
@@ -69,7 +71,7 @@ TeeReserve is a premium golf booking platform built with a modern tech stack, fo
     ```
 
 3.  **Set up environment variables:**
-    Copy the example environment file and fill in the required values.
+    Copy the example environment file and fill in the required values from your Firebase, Stripe, and Google Cloud projects.
     ```bash
     cp .env.example .env.local
     ```
@@ -116,7 +118,10 @@ You'll need to create a `.env.local` file and add the following variables to run
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-# ... (add all other Firebase variables)
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
 # Stripe Configuration
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
@@ -130,7 +135,7 @@ RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
 # Genkit/Gemini AI Configuration
 GEMINI_API_KEY=your_gemini_api_key
 
-# Email Configuration (Zoho)
+# Email Configuration (Zoho OAuth2)
 ZOHO_MAIL_FROM=your_email@yourdomain.com
 ZOHO_MAIL_CLIENT_ID=your_client_id
 ZOHO_MAIL_CLIENT_SECRET=your_client_secret
