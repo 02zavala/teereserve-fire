@@ -1,4 +1,5 @@
-import type { Metadata } from 'next'
+
+import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, PT_Sans } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
@@ -20,16 +21,17 @@ export const metadata: Metadata = {
   title: 'TeeTime Concierge',
   description: 'Book your next golf adventure in Los Cabos.',
   manifest: '/manifest.webmanifest',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
   icons: {
     icon: ['/favicon.ico', '/favicon.svg'],
     apple: '/apple-touch-icon.svg',
     shortcut: '/favicon.ico',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 interface RootLayoutProps {
