@@ -3,12 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { getCourses } from "@/lib/data";
-import { MoreHorizontal, PlusCircle, Eye, EyeOff } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Eye, EyeOff, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { DeleteCourseButton } from "./DeleteCourseButton";
 import { ToggleCourseVisibilityButton } from "./ToggleCourseVisibilityButton";
+import { ToggleFeaturedButton } from "./ToggleFeaturedButton";
 
 
 export default async function CoursesAdminPage() {
@@ -58,6 +59,9 @@ export default async function CoursesAdminPage() {
                                     </TableCell>
                                     <TableCell className="font-medium">
                                         <div className="flex items-center gap-2">
+                                            {course.isFeatured && (
+                                                <Star className="h-4 w-4 text-primary fill-primary" />
+                                            )}
                                             {course.name}
                                             {course.hidden && (
                                                 <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -88,6 +92,11 @@ export default async function CoursesAdminPage() {
                                                    <Link href={`/admin/courses/edit/${course.id}`}>Edit</Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
+                                                <ToggleFeaturedButton
+                                                    courseId={course.id}
+                                                    courseName={course.name}
+                                                    isFeatured={course.isFeatured || false}
+                                                />
                                                 <ToggleCourseVisibilityButton 
                                                     courseId={course.id} 
                                                     courseName={course.name}

@@ -55,10 +55,10 @@ export default async function Home({ params: paramsProp }: { params: Promise<{ l
   const params = await paramsProp;
   const lang = params.lang;
   const dictionary = await getDictionary(lang)
-  const courses = await getCourses({})
+  const featuredCourses = await getCourses({ isFeatured: true })
   
   // Precargar imágenes críticas de los cursos destacados
-  const criticalImages = courses.slice(0, 3).map(course => course.imageUrl).filter(Boolean)
+  const criticalImages = featuredCourses.map(course => course.imageUrls[0]).filter(Boolean)
 
   // Generar datos estructurados para la organización
   const organizationStructuredData = generateStructuredData({
@@ -121,7 +121,7 @@ export default async function Home({ params: paramsProp }: { params: Promise<{ l
           <ImagePreloader images={criticalImages} />
           
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {courses.slice(0, 3).map((course, index) => (
+            {featuredCourses.map((course, index) => (
               <div key={course.id} className="group">
                 <LinkComponent 
                   href={`/${lang}/courses/${course.id}`}
