@@ -16,6 +16,40 @@ import { HeroSection } from '@/components/home/HeroSection'
 import { ImagePreloader } from '@/components/ui/smart-preloader'
 import LinkComponent from '@/components/LinkComponent'
 import { OptimizedImage } from '@/components/ui/optimized-image'
+import { generateSEOMetadata, generateStructuredData } from '@/components/seo/SEOHead'
+import type { Metadata } from 'next'
+
+// Generar metadata SEO para la página principal
+export async function generateMetadata({ params: paramsProp }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
+  const params = await paramsProp;
+  const lang = params.lang;
+  const dictionary = await getDictionary(lang);
+  
+  const title = lang === 'es' 
+    ? 'TeeReserve Golf - Reservas Premium de Golf en Los Cabos'
+    : 'TeeReserve Golf - Premium Golf Booking in Los Cabos';
+    
+  const description = lang === 'es'
+    ? 'Reserva campos de golf premium en Los Cabos, México. Descubre los mejores tee times, campos exclusivos y experiencias de golf inolvidables con TeeReserve.'
+    : 'Book premium golf courses in Los Cabos, Mexico. Discover the best tee times, exclusive courses, and unforgable golf experiences with TeeReserve.';
+    
+  const keywords = lang === 'es'
+    ? 'golf, Los Cabos, reservas golf, tee times, campos golf, México, golf premium, vacaciones golf'
+    : 'golf, Los Cabos, golf booking, tee times, golf courses, Mexico, premium golf, golf vacation';
+
+  return generateSEOMetadata({
+    title,
+    description,
+    keywords,
+    url: `/${lang}`,
+    locale: lang,
+    alternateLocales: [
+      { locale: 'es', url: `/es` },
+      { locale: 'en', url: `/en` }
+    ],
+    type: 'website'
+  });
+}
 
 export default async function Home({ params: paramsProp }: { params: Promise<{ lang: Locale }> }) {
   const params = await paramsProp;
@@ -26,8 +60,44 @@ export default async function Home({ params: paramsProp }: { params: Promise<{ l
   // Precargar imágenes críticas de los cursos destacados
   const criticalImages = courses.slice(0, 3).map(course => course.imageUrl).filter(Boolean)
 
+  // Generar datos estructurados para la organización
+  const organizationStructuredData = generateStructuredData({
+    type: 'Organization',
+    name: 'TeeReserve Golf',
+    description: lang === 'es' 
+      ? 'Plataforma premium de reservas de golf en Los Cabos, México'
+      : 'Premium golf booking platform in Los Cabos, Mexico',
+    url: 'https://teereserve.golf',
+    logo: 'https://teereserve.golf/logo-final.png',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+52-624-123-4567',
+      contactType: 'customer service',
+      availableLanguage: ['English', 'Spanish']
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Los Cabos',
+      addressRegion: 'Baja California Sur',
+      addressCountry: 'Mexico'
+    },
+    sameAs: [
+      'https://facebook.com/teereservegolf',
+      'https://twitter.com/teereservegolf',
+      'https://instagram.com/teereservegolf'
+    ]
+  });
+
   return (
     <>
+      {/* Datos estructurados JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationStructuredData)
+        }}
+      />
+      
       <HeroSection dictionary={dictionary.heroSection} lang={lang} />
 
       <div className="relative bg-background z-10">

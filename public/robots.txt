@@ -1,0 +1,36 @@
+# Robots.txt for TeeReserve Golf
+# https://teereserve.golf
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow important pages
+Allow: /api/sitemap
+Allow: /api/robots
+
+# Sitemap location
+Sitemap: https://teereserve.golf/sitemap.xml
+Sitemap: https://teereserve.golf/es/sitemap.xml
+Sitemap: https://teereserve.golf/en/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Block common bot patterns that might cause issues
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

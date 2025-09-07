@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: 'TeeTime Concierge',
   description: 'Book your next golf adventure in Los Cabos.',
   manifest: '/manifest.webmanifest',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
   icons: {
     icon: ['/favicon.ico', '/favicon.svg'],
     apple: '/apple-touch-icon.svg',
