@@ -1,5 +1,7 @@
 
 
+export type Locale = 'en' | 'es';
+
 export interface ReviewUserInput {
   name: string;
   avatarUrl?: string;
@@ -439,8 +441,7 @@ export interface PriceCache {
   id: string;
   courseId: string;
   date: string; // YYYY-MM-DD
-  timeBandId?: string;
-  dow: number; // Día de la semana
+  timeBand?: string;
   pricePerPlayer: number;
   totalPrice: number;
   appliedRules?: any[];

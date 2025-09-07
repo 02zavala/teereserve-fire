@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,17 +11,19 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { DeleteCourseButton } from "./DeleteCourseButton";
 import { ToggleCourseVisibilityButton } from "./ToggleCourseVisibilityButton";
 import { ToggleFeaturedButton } from "./ToggleFeaturedButton";
+import { Locale } from "@/i18n-config";
 
 
-export default async function CoursesAdminPage() {
+export default async function CoursesAdminPage({ params }: { params: { lang: Locale }}) {
     const courses = await getCourses({ includeHidden: true });
+    const lang = params.lang;
     
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
                  <h1 className="text-3xl font-bold font-headline text-primary">Manage Courses</h1>
                  <Button asChild>
-                    <Link href="/admin/courses/new">
+                    <Link href={`/${lang}/admin/courses/new`}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add New Course
                     </Link>
@@ -89,7 +92,7 @@ export default async function CoursesAdminPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem asChild>
-                                                   <Link href={`/admin/courses/edit/${course.id}`}>Edit</Link>
+                                                   <Link href={`/${lang}/admin/courses/edit/${course.id}`}>Edit</Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <ToggleFeaturedButton

@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import type { GolfCourse } from "@/types";
+import type { GolfCourse, Locale } from "@/types";
 import { addCourse, updateCourse } from "@/lib/data";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -71,9 +71,10 @@ type CourseFormValues = z.infer<typeof formSchema>;
 
 interface CourseFormProps {
   course?: GolfCourse;
+  lang: Locale;
 }
 
-export function CourseForm({ course }: CourseFormProps) {
+export function CourseForm({ course, lang }: CourseFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -181,7 +182,7 @@ export function CourseForm({ course }: CourseFormProps) {
           description: `The course "${values.name}" has been created successfully.`,
         });
       }
-      router.push('/admin/courses');
+      router.push(`/${lang}/admin/courses`);
       router.refresh();
     } catch (error) {
       console.error("Failed to save course:", error);
@@ -467,9 +468,10 @@ export function CourseForm({ course }: CourseFormProps) {
                     </div>
 
                     <TimeIntervalSettings
-                        control={form.control}
-                        teeTimeInterval={form.watch("teeTimeInterval")}
-                        operatingHours={form.watch("operatingHours")}
+                        initialInterval={form.getValues("teeTimeInterval")}
+                        initialOperatingHours={form.getValues("operatingHours")}
+                        onIntervalChange={(value) => form.setValue("teeTimeInterval", value)}
+                        onOperatingHoursChange={(hours) => form.setValue("operatingHours", hours)}
                     />
 
                     <FormItem>
@@ -497,5 +499,3 @@ export function CourseForm({ course }: CourseFormProps) {
     </Card>
   );
 }
-
-    
