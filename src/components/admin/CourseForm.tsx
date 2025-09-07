@@ -65,6 +65,16 @@ const formSchema = z.object({
       par: z.coerce.number().min(81, "27-hole par must be at least 81").max(135, "27-hole par cannot exceed 135")
     }).optional()
   }).optional()
+}).superRefine((data, ctx) => {
+    if (data.availableHoles.includes(9) && (!data.holeDetails?.holes9 || !data.holeDetails.holes9.yards || !data.holeDetails.holes9.par)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "9-hole details (yards and par) are required.", path: ["holeDetails.holes9.yards"] });
+    }
+    if (data.availableHoles.includes(18) && (!data.holeDetails?.holes18 || !data.holeDetails.holes18.yards || !data.holeDetails.holes18.par)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "18-hole details (yards and par) are required.", path: ["holeDetails.holes18.yards"] });
+    }
+    if (data.availableHoles.includes(27) && (!data.holeDetails?.holes27 || !data.holeDetails.holes27.yards || !data.holeDetails.holes27.par)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "27-hole details (yards and par) are required.", path: ["holeDetails.holes27.yards"] });
+    }
 });
 
 type CourseFormValues = z.infer<typeof formSchema>;
@@ -96,7 +106,7 @@ export function CourseForm({ course, lang }: CourseFormProps) {
         closingTime: course?.operatingHours?.closingTime || "19:00"
       },
       availableHoles: course?.availableHoles || [18],
-      totalYards: course?.totalYards || 6500,
+      totalYards: course?.totalYards || undefined,
       par: course?.par || 72,
       holeDetails: {
         holes9: course?.holeDetails?.holes9 || {
@@ -118,49 +128,17 @@ export function CourseForm({ course, lang }: CourseFormProps) {
   async function onSubmit(values: CourseFormValues) {
     setIsSubmitting(true);
     try {
-      // Additional validation before submission
-      const validationErrors: string[] = [];
-      
-      // Validate hole details consistency
-      if (values.availableHoles.includes(9) && !values.holeDetails?.holes9) {
-        validationErrors.push("9-hole details are required when 9 holes is selected");
+      // Automatically set totalYards based on hole details
+      let totalYards = values.totalYards;
+      if (values.availableHoles.includes(18) && values.holeDetails?.holes18?.yards) {
+          totalYards = values.holeDetails.holes18.yards;
+      } else if (values.availableHoles.includes(9) && values.holeDetails?.holes9?.yards) {
+          totalYards = values.holeDetails.holes9.yards;
       }
-      if (values.availableHoles.includes(18) && !values.holeDetails?.holes18) {
-        validationErrors.push("18-hole details are required when 18 holes is selected");
-      }
-      if (values.availableHoles.includes(27) && !values.holeDetails?.holes27) {
-        validationErrors.push("27-hole details are required when 27 holes is selected");
-      }
-      
-      // Validate total yards consistency
-      if (values.totalYards) {
-        // For 18-hole courses, total yards should be close to 18-hole yards
-        if (values.availableHoles.includes(18) && values.holeDetails?.holes18) {
-          const variance = Math.abs(values.totalYards - values.holeDetails.holes18.yards);
-          if (variance > 500) {
-            validationErrors.push("Total yards should be close to 18-hole yards (within 500 yards)");
-          }
-        }
-        // For 9-hole only courses, total yards should be close to 9-hole yards
-        else if (values.availableHoles.includes(9) && !values.availableHoles.includes(18) && values.holeDetails?.holes9) {
-          const variance = Math.abs(values.totalYards - values.holeDetails.holes9.yards);
-          if (variance > 300) {
-            validationErrors.push("Total yards should be close to 9-hole yards (within 300 yards)");
-          }
-        }
-      }
-      
-      if (validationErrors.length > 0) {
-        toast({
-          title: "Validation Error",
-          description: validationErrors.join(". "),
-          variant: "destructive",
-        });
-        return;
-      }
-      
+
       const courseData = {
         ...values,
+        totalYards, // Use the calculated value
         newImages,
         existingImageUrls,
         teeTimeInterval: values.teeTimeInterval,
@@ -307,7 +285,7 @@ export function CourseForm({ course, lang }: CourseFormProps) {
                     <div className="space-y-6">
                         <h3 className="text-lg font-semibold">Course Specifications</h3>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormField
                                 control={form.control}
                                 name="availableHoles"
@@ -334,20 +312,6 @@ export function CourseForm({ course, lang }: CourseFormProps) {
                                                     </label>
                                                 ))}
                                             </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="totalYards"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Total Yards (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" placeholder="6500" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
