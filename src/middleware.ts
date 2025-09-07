@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server'
 import { i18n } from './i18n-config'
 import Negotiator from 'negotiator'
 import { match as matchLocale } from '@formatjs/intl-localematcher'
+import { SecurityUtils } from './lib/security';
+
 // Función para generar CSRF token compatible con edge runtime
 function generateCSRFToken(): string {
   // Usar Math.random como fallback para edge runtime
@@ -257,16 +259,6 @@ function addCSRFToken(request: NextRequest, response: NextResponse) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - files with extensions (images, etc.)
-     * - booking/confirm (booking confirmation pages)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.[\\w]+$|booking/confirm).*)',
-  ],
+  // Matcher ignoring `/_next/` and `/api/`
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }

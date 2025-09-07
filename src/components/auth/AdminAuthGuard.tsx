@@ -13,28 +13,27 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     const lang = pathname.split('/')[1] || 'en';
 
     useEffect(() => {
-        // Add timeout to prevent infinite loading in admin guard
-        const adminLoadingTimeout = setTimeout(() => {
+        const checkAuth = () => {
+            // Wait until the initial loading is finished before doing any checks.
             if (loading) {
-                console.warn("AdminAuthGuard loading timeout reached, redirecting to login");
-                router.push(`/${lang}/login?redirect=${pathname}`);
+                return; // Still loading, wait for the next run
             }
-        }, 8000); // 8 second timeout for admin auth
 
-        // Wait until the initial loading is finished before doing any checks.
-        if (!loading) {
-            clearTimeout(adminLoadingTimeout);
-            // If there's no user, redirect to login.
+            // If loading is finished and there's no user, redirect to login.
             if (!user) {
                 router.push(`/${lang}/login?redirect=${pathname}`);
+                return;
             }
-            // If there is a user but the profile is loaded and they are not an admin, redirect to home.
-            else if (userProfile && userProfile.role !== 'Admin' && userProfile.role !== 'SuperAdmin') {
-                router.push(`/${lang}`);
-            }
-        }
 
-        return () => clearTimeout(adminLoadingTimeout);
+            // If there is a user but the profile is loaded and they are not an admin, redirect to home.
+            if (userProfile && userProfile.role !== 'Admin' && userProfile.role !== 'SuperAdmin') {
+                router.push(`/${lang}`);
+                return;
+            }
+        };
+
+        checkAuth();
+
     }, [user, userProfile, loading, router, lang, pathname]);
 
     // While loading, or if the user is logged in but the profile is still loading, show a spinner.
