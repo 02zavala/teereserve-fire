@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -33,6 +34,17 @@ export default function TimeIntervalSettings({
   onIntervalChange,
   onOperatingHoursChange
 }: TimeIntervalSettingsProps) {
+  const [interval, setInterval] = useState(initialInterval);
+  const [operatingHours, setOperatingHours] = useState(initialOperatingHours);
+
+  useEffect(() => {
+    onIntervalChange(interval);
+  }, [interval, onIntervalChange]);
+
+  useEffect(() => {
+    onOperatingHoursChange(operatingHours);
+  }, [operatingHours, onOperatingHoursChange]);
+
 
   return (
     <Card>
@@ -51,8 +63,8 @@ export default function TimeIntervalSettings({
           <div className="space-y-2">
             <Label htmlFor="interval">Intervalo de Tiempo</Label>
             <Select 
-              value={initialInterval.toString()} 
-              onValueChange={(value) => onIntervalChange(Number(value))}
+              value={interval.toString()} 
+              onValueChange={(value) => setInterval(Number(value))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar intervalo" />
@@ -72,8 +84,8 @@ export default function TimeIntervalSettings({
             <Input
               id="opening-time"
               type="time"
-              value={initialOperatingHours.openingTime}
-              onChange={(e) => onOperatingHoursChange({ ...initialOperatingHours, openingTime: e.target.value })}
+              value={operatingHours.openingTime}
+              onChange={(e) => setOperatingHours({ ...operatingHours, openingTime: e.target.value })}
               className="w-full"
             />
           </div>
@@ -83,8 +95,8 @@ export default function TimeIntervalSettings({
             <Input
               id="closing-time"
               type="time"
-              value={initialOperatingHours.closingTime}
-              onChange={(e) => onOperatingHoursChange({ ...initialOperatingHours, closingTime: e.target.value })}
+              value={operatingHours.closingTime}
+              onChange={(e) => setOperatingHours({ ...operatingHours, closingTime: e.target.value })}
               className="w-full"
             />
           </div>
