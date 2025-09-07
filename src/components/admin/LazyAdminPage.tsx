@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
 // Lazy load admin components
-// LazyDashboard is defined below with createLazyAdminPage
-export const LazyBackupManager = lazy(() => import('./BackupManager'));
+const LazyDashboard = lazy(() => import('@/components/admin/Dashboard').then(module => ({ default: module.Dashboard })));
+const LazyBackupManager = lazy(() => import('./BackupManager'));
 
 // Loading skeleton for admin pages
 function AdminPageSkeleton() {
@@ -71,7 +71,7 @@ function AdminPageLoading() {
 }
 
 // Generic lazy wrapper for admin pages
-export function createLazyAdminPage<T extends object>(
+function createLazyAdminPage<T extends object>(
   importFn: () => Promise<{ default: ComponentType<T> }>,
   fallback: 'skeleton' | 'spinner' = 'skeleton'
 ) {
@@ -88,42 +88,4 @@ export function createLazyAdminPage<T extends object>(
   };
 }
 
-// Specific lazy loaders for admin pages
-export const LazyDashboard = createLazyAdminPage(
-  () => import('@/app/[lang]/admin/dashboard/page'),
-  'skeleton'
-);
-
-export const LazyBookings = createLazyAdminPage(
-  () => import('@/app/[lang]/admin/bookings/page'),
-  'skeleton'
-);
-
-export const LazyCourses = createLazyAdminPage(
-  () => import('@/app/[lang]/admin/courses/page'),
-  'skeleton'
-);
-
-export const LazyReviews = createLazyAdminPage(
-  () => import('@/app/[lang]/admin/reviews/page'),
-  'skeleton'
-);
-
-export const LazyUsers = createLazyAdminPage(
-  () => import('@/app/[lang]/admin/users/page'),
-  'skeleton'
-);
-
-export const LazyContent = createLazyAdminPage(
-  () => import('@/app/[lang]/admin/content/page'),
-  'skeleton'
-);
-
-export const LazyCoupons = createLazyAdminPage(
-  () => import('@/app/[lang]/admin/coupons/page'),
-  'skeleton'
-);
-
-// Export the Dashboard component directly for use in pages
-export { Dashboard } from './Dashboard';
-export { default as BackupManager } from './BackupManager';
+export { LazyDashboard, LazyBackupManager };
