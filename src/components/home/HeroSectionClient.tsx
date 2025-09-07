@@ -26,7 +26,7 @@ export function HeroSectionClient({ dictionary, lang, heroImages }: HeroSectionC
     <section className="relative h-[80vh] min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Background Image Carousel */}
       <Carousel
-        className="absolute inset-0 z-10"
+        className="absolute inset-0 z-0"
         opts={{
           loop: true,
         }}
@@ -48,17 +48,17 @@ export function HeroSectionClient({ dictionary, lang, heroImages }: HeroSectionC
         </CarouselContent>
         {heroImages.length > 1 && (
             <>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
+                <CarouselPrevious className="left-4 z-20" />
+                <CarouselNext className="right-4 z-20" />
             </>
         )}
       </Carousel>
 
         {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 z-20" />
+      <div className="absolute inset-0 bg-black/50 z-10" />
 
       {/* Content */}
-      <div className="relative z-30 text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight mb-6">
           {dictionary.title} <span className="text-primary">{dictionary.titleHighlight}</span>
         </h1>
