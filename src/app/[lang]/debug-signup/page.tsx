@@ -1,3 +1,4 @@
+
 import { SignUpDebug } from '@/components/debug/SignUpDebug'
 
 export default function DebugSignUpPage() {
