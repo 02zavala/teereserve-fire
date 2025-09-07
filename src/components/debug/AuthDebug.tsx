@@ -306,7 +306,7 @@ function AuthDebugComponent() {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>Solución recomendada:</strong> Si el error persiste, crear un nuevo usuario con el botón "Crear Usuario" 
-              o verificar que el usuario existe en Firebase Console &gt; Authentication &gt; Users.
+              o verificar que el usuario existe en Firebase Console > Authentication > Users.
             </AlertDescription>
           </Alert>
         </CardContent>
