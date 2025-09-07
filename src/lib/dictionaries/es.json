@@ -13,6 +13,7 @@
         "platform": "Plataforma",
         "courses": "Campos",
         "reservations": "Reservas",
+        "reviews": "Reseñas",
         "admin": "Admin",
         "support": "Soporte",
         "helpCenter": "Centro de Ayuda",
@@ -48,6 +49,42 @@
         "termsOfService": "Términos",
         "madeIn": "Hecho con ❤️ en México",
         "contact": "Contacto"
+    },
+    "onboarding": {
+        "title": "¡Bienvenido a TeeReserve!",
+        "subtitle": "Te guiaremos a través de las funcionalidades principales para que aproveches al máximo tu experiencia.",
+        "steps": {
+            "welcome": {
+                "title": "¡Bienvenido a TeeReserve!",
+                "description": "Estamos emocionados de tenerte como parte de nuestra comunidad de golf. Prepárate para descubrir los mejores campos y vivir experiencias únicas."
+            },
+            "explore": {
+                "title": "Explora Campos de Golf",
+                "description": "Descubre una amplia selección de campos de golf premium en México. Cada campo ofrece experiencias únicas y desafiantes.",
+                "action": "Ver Campos"
+            },
+            "book": {
+                "title": "Reserva tu Tee Time",
+                "description": "Reserva fácilmente tu horario preferido en cualquier campo. Nuestro sistema te permite elegir fecha, hora y número de jugadores.",
+                "action": "Hacer Reserva"
+            },
+            "profile": {
+                "title": "Completa tu Perfil",
+                "description": "Personaliza tu perfil con tu handicap, preferencias y foto. Esto nos ayuda a ofrecerte recomendaciones más precisas.",
+                "action": "Ir a Perfil"
+            },
+            "gamification": {
+                "title": "Sistema de Logros",
+                "description": "Gana XP y desbloquea logros mientras juegas. Compite con otros golfistas y sube en el ranking de la comunidad."
+            }
+        },
+        "navigation": {
+            "next": "Siguiente",
+            "previous": "Anterior",
+            "skip": "Omitir",
+            "finish": "Finalizar",
+            "getStarted": "Comenzar"
+        }
     },
     "themeToggle": {
         "light": "Claro",
@@ -180,7 +217,9 @@
         "featuredCoursesTitle": "Campos Destacados",
         "featuredCoursesSubtitle": "Descubre los campos mejor valorados de la zona",
         "recommendationsTitle": "Recomendado para Ti",
-        "recommendationsSubtitle": "Recomendaciones de IA basadas en tus preferencias"
+        "recommendationsSubtitle": "Recomendaciones de IA basadas en tus preferencias",
+        "featuredReviewsTitle": "Lo Que Dicen Nuestros Golfistas",
+        "featuredReviewsSubtitle": "No te fíes solo de nuestra palabra. Escucha a miles de golfistas satisfechos que han experimentado lo mejor del golf a través de TeeReserve."
     },
     "coursesPage": {
         "title": "Encuentra tu Próxima Ronda",
@@ -440,16 +479,16 @@
         }
     },
     "bookingLookupPage": {
-        "title": "Encuentra tu Reserva",
-        "subtitle": "Ingresa los detalles de tu reserva a continuación para ver la información de tu tee time.",
+        "title": "Mis Reservas",
+        "subtitle": "Busca tu reserva como invitado o inicia sesión para ver todas tus reservas.",
         "form": {
-            "title": "Buscar Reserva",
-            "description": "Puedes encontrar el ID de la Reserva en tu correo de confirmación.",
-            "bookingIdLabel": "ID de Reserva",
-            "bookingIdPlaceholder": "ej. a1b2c3d4",
-            "lastNameLabel": "Apellido en la Reserva",
-            "lastNamePlaceholder": "ej. Pérez",
-            "submit": "Buscar Reserva",
+            "title": "Buscar mi reserva (invitado)",
+            "description": "También conocido como folio. Respeta guiones si tu código los incluye.",
+            "bookingIdLabel": "Número de reserva",
+            "bookingIdPlaceholder": "Ej. TRG-2025-001234",
+            "lastNameLabel": "Correo Electrónico",
+            "lastNamePlaceholder": "Ingresa tu correo electrónico",
+            "submit": "Buscar",
             "submitting": "Buscando..."
         },
         "result": {

@@ -13,6 +13,7 @@
         "platform": "Platform",
         "courses": "Courses",
         "reservations": "Reservations",
+        "reviews": "Reviews",
         "admin": "Admin",
         "support": "Support",
         "helpCenter": "Help Center",
@@ -48,6 +49,42 @@
         "termsOfService": "Terms",
         "madeIn": "Made with ❤️ in Mexico",
         "contact": "Contact"
+    },
+    "onboarding": {
+        "title": "Welcome to TeeReserve!",
+        "subtitle": "We'll guide you through the main features so you can make the most of your experience.",
+        "steps": {
+            "welcome": {
+                "title": "Welcome to TeeReserve!",
+                "description": "We're excited to have you as part of our golf community. Get ready to discover the best courses and live unique experiences."
+            },
+            "explore": {
+                "title": "Explore Golf Courses",
+                "description": "Discover a wide selection of premium golf courses in Mexico. Each course offers unique and challenging experiences.",
+                "action": "View Courses"
+            },
+            "book": {
+                "title": "Book your Tee Time",
+                "description": "Easily book your preferred time slot at any course. Our system allows you to choose date, time and number of players.",
+                "action": "Make Booking"
+            },
+            "profile": {
+                "title": "Complete your Profile",
+                "description": "Customize your profile with your handicap, preferences and photo. This helps us offer you more accurate recommendations.",
+                "action": "Go to Profile"
+            },
+            "gamification": {
+                "title": "Achievement System",
+                "description": "Earn XP and unlock achievements while you play. Compete with other golfers and climb the community ranking."
+            }
+        },
+        "navigation": {
+            "next": "Next",
+            "previous": "Previous",
+            "skip": "Skip",
+            "finish": "Finish",
+            "getStarted": "Get Started"
+        }
     },
     "themeToggle": {
         "light": "Light",
@@ -180,7 +217,9 @@
         "featuredCoursesTitle": "Featured Courses",
         "featuredCoursesSubtitle": "Discover the top-rated courses in the area",
         "recommendationsTitle": "Recommended for You",
-        "recommendationsSubtitle": "AI recommendations based on your preferences"
+        "recommendationsSubtitle": "AI recommendations based on your preferences",
+        "featuredReviewsTitle": "What Our Golfers Say",
+        "featuredReviewsSubtitle": "Don't just take our word for it. Listen to thousands of satisfied golfers who have experienced the best of golf through TeeReserve."
     },
     "coursesPage": {
         "title": "Find Your Next Round",
@@ -441,14 +480,14 @@
     },
     "bookingLookupPage": {
         "title": "Find Your Reservation",
-        "subtitle": "Enter your booking details below to view your tee time information.",
+        "subtitle": "Search for your booking as a guest or log in to see all your reservations.",
         "form": {
-            "title": "Look Up Booking",
-            "description": "You can find the Booking ID in your confirmation email.",
-            "bookingIdLabel": "Booking ID",
-            "bookingIdPlaceholder": "e.g., a1b2c3d4",
-            "lastNameLabel": "Last Name on Reservation",
-            "lastNamePlaceholder": "e.g., Smith",
+            "title": "Look Up Booking (Guest)",
+            "description": "You can use either your Booking ID or Confirmation Number. Both can be found in your confirmation email.",
+            "bookingIdLabel": "Booking ID or Confirmation Number",
+            "bookingIdPlaceholder": "e.g., TRG-2025-001234 or a1b2c3d4",
+            "lastNameLabel": "Email Address",
+            "lastNamePlaceholder": "Enter your email address",
             "submit": "Find Reservation",
             "submitting": "Searching..."
         },

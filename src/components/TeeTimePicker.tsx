@@ -4,7 +4,7 @@
 import { useState, useEffect, useTransition } from "react"
 import { format } from "date-fns"
 
-import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send, MessageSquare, CheckCircle, Info, Star, ShieldCheck, Tag } from "lucide-react"
+import { Calendar as CalendarIcon, Users, Sun, Moon, Zap, Loader2, Send, MessageSquare, CheckCircle, Info, Star, ShieldCheck, Tag, Flag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -21,18 +21,31 @@ import { Label } from "./ui/label"
 import { Separator } from "./ui/separator"
 import { dateLocales } from "@/lib/date-utils"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/context/AuthContext"
 
 interface TeeTimePickerProps {
     courseId: string
     basePrice: number,
+    teeTimeInterval?: number,
+    operatingHours?: {
+        openingTime: string;
+        closingTime: string;
+    },
+    availableHoles?: number[],
+    holeDetails?: {
+        holes9?: { yards?: number; par?: number };
+        holes18?: { yards?: number; par?: number };
+        holes27?: { yards?: number; par?: number };
+    },
     lang: Locale,
 }
 
 const TAX_RATE = 0.16; // 16%
 
-export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps) {
+export function TeeTimePicker({ courseId, basePrice, teeTimeInterval, operatingHours, availableHoles = [18], holeDetails, lang }: TeeTimePickerProps) {
     const [date, setDate] = useState<Date | undefined>();
     const [players, setPlayers] = useState<number>(2)
+    const [holes, setHoles] = useState<number>(availableHoles[0] || 18)
     const [teeTimes, setTeeTimes] = useState<TeeTime[]>([]);
     const [isPending, startTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
@@ -40,6 +53,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     const [comments, setComments] = useState("");
     const [isGroupBooking, setIsGroupBooking] = useState(false);
     const router = useRouter();
+    const { user } = useAuth();
 
 
     useEffect(() => {
@@ -54,10 +68,15 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         if (!date || isGroupBooking) return;
         setSelectedTeeTime(null); 
         startTransition(async () => {
-            const fetchedTeeTimes = await getTeeTimesForCourse(courseId, date, basePrice);
+            const fetchedTeeTimes = await getTeeTimesForCourse(
+                courseId, 
+                date, 
+                basePrice,
+                // Remove extra arguments to match the expected 3 parameters
+            );
             setTeeTimes(fetchedTeeTimes);
         });
-    }, [courseId, date, basePrice, isGroupBooking]);
+    }, [courseId, date, basePrice, teeTimeInterval, operatingHours, isGroupBooking]);
     
     const handlePlayersChange = (value: string) => {
         if (value === 'group') {
@@ -71,12 +90,34 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     
     const availableTimes = teeTimes.filter(t => t.status === 'available');
     
-    const subtotal = selectedTeeTime ? selectedTeeTime.price * players : 0;
+    // Calculate price based on holes selected
+    const getHoleMultiplier = (holes: number) => {
+        switch (holes) {
+            case 9: return 0.6; // 60% of 18-hole price
+            case 27: return 1.4; // 140% of 18-hole price
+            default: return 1; // 18 holes = 100%
+        }
+    };
+    
+    const subtotal = selectedTeeTime ? selectedTeeTime.price * players * getHoleMultiplier(holes) : 0;
     const taxes = subtotal * TAX_RATE;
     const totalPrice = subtotal + taxes;
 
     const bookingUrl = selectedTeeTime && date
-    ? `/${lang}/book/confirm?courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&price=${subtotal.toFixed(2)}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`
+    ? (() => {
+        const params = `courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&holes=${holes}&price=${subtotal.toFixed(2)}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`;
+        
+        // Construir URL de reserva - todos van a book/confirm
+        const bookingUrl = `/${lang}/book/confirm?${params}`;
+
+        console.log('🔄 Redirection logic:', {
+          hasUser: !!user,
+          isAnonymous: user?.isAnonymous,
+          redirectTo: bookingUrl
+        });
+        
+        return bookingUrl;
+    })()
     : '#';
 
     if (!isClient) {
@@ -100,7 +141,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
     }
 
     return (
-        <Card>
+        <Card id="booking-form">
             <CardHeader>
                 <CardTitle className="font-headline text-2xl text-primary">Book a Tee Time</CardTitle>
             </CardHeader>
@@ -142,11 +183,46 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                     <SelectValue placeholder="Select players" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {Array.from({ length: 8 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
-                                    <SelectItem value="group">8+ Players (Groups)</SelectItem>
+                                    {Array.from({ length: 4 }, (_, i) => i + 1).map(p => <SelectItem key={p} value={p.toString()}>{p} Player{p > 1 ? 's' : ''}</SelectItem>)}
+                                    <SelectItem value="group">5+ Players (Groups)</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {players > 4 && !isGroupBooking && (
+                                <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-2 rounded-md text-xs flex items-start gap-2">
+                                    <Info className="h-4 w-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-semibold">Máximo 4 jugadores por tee time</p>
+                                        <p>Para más de 4 jugadores, selecciona "5+ Players (Groups)" o reserva múltiples tee times.</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+                        {availableHoles.length > 1 && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-muted-foreground flex items-center"><Flag className="mr-2 h-4 w-4" /> Holes</label>
+                                <Select onValueChange={(value) => setHoles(parseInt(value))} defaultValue={holes.toString()}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select holes" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableHoles.map(h => {
+                                            const holeKey = `holes${h}` as keyof typeof holeDetails;
+                                            const details = holeDetails?.[holeKey];
+                                            return (
+                                                <SelectItem key={h} value={h.toString()}>
+                                                    {h} Holes
+                                                    {details && (
+                                                        <span className="text-xs text-muted-foreground ml-2">
+({details && details.yards ? `${details.yards} yds, ` : ''}Par {details && details.par ? details.par : (h === 9 ? 36 : h === 18 ? 72 : 108)})
+                                                        </span>
+                                                    )}
+                                                </SelectItem>
+                                            );
+                                        })}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
 
                     {isGroupBooking ? (
@@ -165,22 +241,44 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                 </div>
                             ) : availableTimes.length > 0 ? (
-                                <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2">
-                                    {availableTimes.map(teeTime => {
-                                        const isSelected = selectedTeeTime?.id === teeTime.id;
-                                        return (
+                                selectedTeeTime ? (
+                                    // Compressed view - show only selected time with expand option
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-center gap-2">
                                             <Button 
-                                                key={teeTime.id} 
-                                                variant={isSelected ? 'default' : (teeTime.status === 'available' ? 'outline' : 'secondary')} 
-                                                className="flex flex-col h-auto"
-                                                disabled={teeTime.status !== 'available'}
-                                                onClick={() => setSelectedTeeTime(teeTime)}
+                                                variant="default"
+                                                className="flex flex-col h-auto min-w-[100px]"
                                             >
-                                                <span className="font-semibold text-base">{teeTime.time}</span>
+                                                <span className="font-semibold text-base">{selectedTeeTime.time}</span>
                                             </Button>
-                                        )
-                                    })}
-                                </div>
+                                            <Button 
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setSelectedTeeTime(null)}
+                                                className="text-xs text-muted-foreground hover:text-foreground"
+                                            >
+                                                Ver otros horarios
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    // Expanded view - show all available times
+                                    <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2">
+                                        {availableTimes.map(teeTime => {
+                                            return (
+                                                <Button 
+                                                    key={teeTime.id} 
+                                                    variant={teeTime.status === 'available' ? 'outline' : 'secondary'}
+                                                    className="flex flex-col h-auto"
+                                                    disabled={teeTime.status !== 'available'}
+                                                    onClick={() => setSelectedTeeTime(teeTime)}
+                                                >
+                                                    <span className="font-semibold text-base">{teeTime.time}</span>
+                                                </Button>
+                                            )
+                                        })}
+                                    </div>
+                                )
                             ) : (
                                 <div className="text-center py-8 text-muted-foreground text-sm">
                                     No available tee times for this selection.
@@ -198,7 +296,7 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
                             <p className="font-bold text-primary">{date ? format(date, 'eeee, dd MMMM yyyy', { locale: dateLocales[lang] }) : ''}</p>
                             <Separator className="my-2 bg-primary/20" />
                             <p className="font-bold text-primary">{selectedTeeTime.time}</p>
-                            <p className="text-sm text-primary/90">{players} Players (18 Holes)</p>
+                            <p className="text-sm text-primary/90">{players} Players ({holes} Holes)</p>
                         </div>
                         
                         <div className="text-sm space-y-1">
@@ -279,3 +377,5 @@ export function TeeTimePicker({ courseId, basePrice, lang }: TeeTimePickerProps)
         </Card>
     )
 }
+
+export default TeeTimePicker;

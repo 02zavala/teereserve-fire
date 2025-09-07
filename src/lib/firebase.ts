@@ -1,15 +1,18 @@
 
 import { initializeApp, getApps, getApp, FirebaseOptions, FirebaseApp } from "firebase/app";
-import { getFirestore, Firestore } from "firebase/firestore";
+import { getFirestore, Firestore, initializeFirestore } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import { getAnalytics, isSupported, Analytics } from "firebase/analytics";
+import { getDatabase, Database } from "firebase/database";
+import { getMessaging, Messaging, isSupported as isMessagingSupported } from "firebase/messaging";
 
 // --- Configuration and Validation ---
 
 const firebaseConfig: FirebaseOptions = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
@@ -42,18 +45,69 @@ const isConfigValid = validateFirebaseConfig(firebaseConfig);
 
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
+let realtimeDb: Database | null = null;
 let auth: Auth | null = null;
 let storage: FirebaseStorage | null = null;
 let analytics: Promise<Analytics | null> | null = null;
+let messaging: Promise<Messaging | null> | null = null;
 
 if (isConfigValid) {
     try {
+        // Evitar doble inicialización
         app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-        db = getFirestore(app);
+        
+        // Configurar Firestore con transporte estable
+        try {
+            db = initializeFirestore(app, {
+                experimentalAutoDetectLongPolling: true,
+                useFetchStreams: false,
+            });
+        } catch (error: any) {
+            // Si ya está inicializado, usar la instancia existente
+            if (error.code === 'failed-precondition') {
+                db = getFirestore(app);
+                console.log('Using existing Firestore instance');
+            } else {
+                throw error;
+            }
+        }
+        
+        realtimeDb = getDatabase(app);
         auth = getAuth(app);
         storage = getStorage(app);
+        
+        // Log de conexión para debugging
+        if (typeof window !== 'undefined' && db) {
+            console.log('Firestore initialized with stable transport');
+        }
+        
+        // Connect to emulators in development (disabled for now)
+        // Uncomment the following block if you want to use Firebase emulators
+        /*
+        if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+            try {
+                const { connectFirestoreEmulator } = await import('firebase/firestore');
+                const { connectAuthEmulator } = await import('firebase/auth');
+                const { connectStorageEmulator } = await import('firebase/storage');
+                
+                if (!db._delegate._databaseId.projectId.includes('demo-')) {
+                    connectFirestoreEmulator(db, 'localhost', 8080);
+                }
+                if (!auth.config.emulator) {
+                    connectAuthEmulator(auth, 'http://localhost:9099');
+                }
+                if (!storage._delegate._bucket.includes('demo-')) {
+                    connectStorageEmulator(storage, 'localhost', 9199);
+                }
+            } catch (emulatorError) {
+                console.log('Emulators already connected or not available:', emulatorError);
+            }
+        }
+        */
+        
         if (typeof window !== 'undefined') {
             analytics = isSupported().then(yes => (yes ? getAnalytics(app as FirebaseApp) : null));
+            messaging = isMessagingSupported().then(yes => (yes ? getMessaging(app as FirebaseApp) : null));
         }
     } catch (e) {
          console.error("Error initializing Firebase:", e);
@@ -70,4 +124,4 @@ if (isConfigValid) {
     );
 }
 
-export { db, auth, storage, app, analytics };
+export { db, realtimeDb, auth, storage, app, analytics, messaging };

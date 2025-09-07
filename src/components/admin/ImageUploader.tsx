@@ -55,7 +55,7 @@ export function ImageUploader({ newFiles, setNewFiles, existingImageUrls, setExi
       {allImages.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {allImages.map((image, index) => (
-            <div key={image.value} className="relative group aspect-square">
+            <div key={`${image.type}-${index}-${image.value}`} className="relative group aspect-square">
               <Image
                 src={image.value}
                 alt={image.name || 'Course image'}

@@ -25,12 +25,15 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
   
   return (
     <footer className="bg-gradient-to-br from-foreground to-[#05442F] text-background mt-16">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
                 <Logo className="h-12 w-auto" />
-                <span className="font-headline text-xl font-bold text-background">TeeReserve Golf</span>
+                <div className="flex flex-col -space-y-1">
+                    <span className="font-headline text-xl font-bold text-background">TeeReserve</span>
+                    <span className="font-headline text-xl font-bold text-primary">Golf</span>
+                </div>
             </div>
             <p className="text-background/80 text-sm leading-relaxed mb-6">
               {dictionary.platformDescription}
@@ -149,7 +152,7 @@ export function SecondaryFooter({ dictionary }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-white/20 mt-12 pt-8">
+        <div className="border-t border-white/20 mt-6 pt-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="text-background/80 text-sm min-h-[20px]">
               {currentYear ? `© ${currentYear} TeeReserve Golf. ${dictionary.allRightsReserved}` : '\u00A0'}

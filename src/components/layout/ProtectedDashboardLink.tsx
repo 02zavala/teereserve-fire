@@ -20,7 +20,7 @@ export function ProtectedDashboardLink({ dictionary, lang }: ProtectedDashboardL
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
     useEffect(() => {
-        if (user) {
+        if (user && db) {
             const userDocRef = doc(db, 'users', user.uid);
             getDoc(userDocRef).then(docSnap => {
                 if (docSnap.exists()) {

@@ -1,13 +1,16 @@
+export const revalidate = 300;
+
 import { getDictionary } from "@/lib/get-dictionary";
 import type { Locale } from "@/i18n-config";
 import { BookingLookupClient } from "./BookingLookupClient";
 
 interface BookingLookupPageProps {
-  params: { lang: Locale };
+  params: Promise<{ lang: Locale }>;
 }
 
 export default async function BookingLookupPage({ params }: BookingLookupPageProps) {
-  const dictionary = await getDictionary(params.lang);
+  const { lang } = await params;
+  const dictionary = await getDictionary(lang);
   const t = dictionary.bookingLookupPage;
 
   return (
@@ -16,7 +19,7 @@ export default async function BookingLookupPage({ params }: BookingLookupPagePro
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">{t.title}</h1>
         <p className="mt-2 text-lg text-muted-foreground">{t.subtitle}</p>
       </div>
-      <BookingLookupClient dictionary={t} lang={params.lang} />
+      <BookingLookupClient dictionary={t} lang={lang} />
     </div>
   );
 }

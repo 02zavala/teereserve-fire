@@ -1,16 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { getCourses } from "@/lib/data";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { DeleteCourseButton } from "./DeleteCourseButton";
+import { ToggleCourseVisibilityButton } from "./ToggleCourseVisibilityButton";
 
 
 export default async function CoursesAdminPage() {
-    const courses = await getCourses({});
+    const courses = await getCourses({ includeHidden: true });
     
     return (
         <div>
@@ -35,6 +37,7 @@ export default async function CoursesAdminPage() {
                                 <TableHead>Name</TableHead>
                                 <TableHead>Location</TableHead>
                                 <TableHead className="hidden md:table-cell">Base Price</TableHead>
+                                <TableHead className="hidden lg:table-cell">Visibility</TableHead>
                                 <TableHead>
                                     <span className="sr-only">Actions</span>
                                 </TableHead>
@@ -53,9 +56,25 @@ export default async function CoursesAdminPage() {
                                             data-ai-hint="golf course"
                                         />
                                     </TableCell>
-                                    <TableCell className="font-medium">{course.name}</TableCell>
+                                    <TableCell className="font-medium">
+                                        <div className="flex items-center gap-2">
+                                            {course.name}
+                                            {course.hidden && (
+                                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                            )}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>{course.location}</TableCell>
                                     <TableCell className="hidden md:table-cell">${course.basePrice}</TableCell>
+                                    <TableCell className="hidden lg:table-cell">
+                                        <Badge variant={course.hidden ? "secondary" : "default"}>
+                                            {course.hidden ? (
+                                                <><EyeOff className="mr-1 h-3 w-3" />Hidden</>
+                                            ) : (
+                                                <><Eye className="mr-1 h-3 w-3" />Visible</>
+                                            )}
+                                        </Badge>
+                                    </TableCell>
                                     <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -68,6 +87,12 @@ export default async function CoursesAdminPage() {
                                                 <DropdownMenuItem asChild>
                                                    <Link href={`/admin/courses/edit/${course.id}`}>Edit</Link>
                                                 </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <ToggleCourseVisibilityButton 
+                                                    courseId={course.id} 
+                                                    courseName={course.name}
+                                                    isHidden={course.hidden || false}
+                                                />
                                                 <DropdownMenuSeparator />
                                                 <DeleteCourseButton courseId={course.id} courseName={course.name} />
                                             </DropdownMenuContent>

@@ -7,10 +7,10 @@ import { loadStripe } from '@stripe/stripe-js';
 import { createPaymentIntent } from '@/ai/flows/create-payment-intent';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
-import CheckoutForm from '@/components/CheckoutForm';
+import { LazyCheckoutForm } from '@/components/LazyComponents';
 import { Loader2 } from 'lucide-react';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHER_KEY!);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const TAX_RATE = 0.16; // 16%
 
@@ -31,7 +31,7 @@ function ConfirmPageContent() {
             const tax = subtotal * TAX_RATE;
             const total = subtotal + tax;
 
-            createPaymentIntent({ amount: Math.round(total * 100) }) // Convert to cents
+            createPaymentIntent({ amount: Math.round(total * 100), currency: 'usd' }) // Convert to cents
                 .then(data => {
                     setClientSecret(data.clientSecret);
                 })
@@ -65,7 +65,7 @@ function ConfirmPageContent() {
 
     return (
         <Elements options={options} stripe={stripePromise}>
-            <CheckoutForm />
+            <LazyCheckoutForm />
         </Elements>
     );
 }

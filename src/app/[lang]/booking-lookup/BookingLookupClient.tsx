@@ -14,6 +14,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Loader2, Search } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useErrorHandler, commonValidators } from '@/hooks/useErrorHandler';
+import { ValidationError } from '@/lib/error-handling';
 import { BookingResultCard } from './BookingResultCard';
 
 interface BookingLookupClientProps {
@@ -22,8 +24,8 @@ interface BookingLookupClientProps {
 }
 
 const formSchema = z.object({
-  bookingId: z.string().min(5, 'Booking ID must be at least 5 characters.'),
-  lastName: z.string().min(2, 'Last name is required.'),
+  bookingId: z.string().min(5, 'Booking ID must be at least 5 characters.').max(50, 'Booking ID is too long.'),
+  email: z.string().email('Please enter a valid email address.').max(254, 'Email is too long.'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -32,26 +34,57 @@ export function BookingLookupClient({ dictionary, lang }: BookingLookupClientPro
   const [booking, setBooking] = useState<Booking | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { handleAsyncError } = useErrorHandler();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       bookingId: '',
-      lastName: '',
+      email: '',
     },
   });
 
-  const onSubmit = async (values: FormValues) => {
-    setIsLoading(true);
-    setError(null);
-    setBooking(null);
-    const result = await lookupBookingAction(values);
-    if (result.success) {
-      setBooking(result.data as Booking);
-    } else {
-      setError(result.error);
-    }
-    setIsLoading(false);
+  const onSubmit = (values: FormValues) => {
+    handleAsyncError(async () => {
+      try {
+        console.log('Starting booking lookup with values:', { ...values, email: '[REDACTED]' });
+        
+        // Validación adicional de datos
+        if (!values.bookingId.trim()) {
+          throw new ValidationError('Booking ID is required');
+        }
+        
+        if (!commonValidators.isValidEmail(values.email)) {
+          throw new ValidationError('Please enter a valid email address');
+        }
+        
+        // Validar formato de Booking ID (debe ser alfanumérico con guiones)
+        if (!/^[A-Za-z0-9-]+$/.test(values.bookingId.trim())) {
+          throw new ValidationError('Booking ID can only contain letters, numbers, and hyphens');
+        }
+        
+        setIsLoading(true);
+        setError(null);
+        setBooking(null);
+        
+        const result = await lookupBookingAction({
+          bookingId: values.bookingId.trim().toUpperCase(),
+          email: values.email.trim().toLowerCase()
+        });
+        
+        if (result.success) {
+          setBooking(result.data as Booking);
+          console.log('Booking lookup successful');
+        } else {
+          setError(result.error || 'Unknown error occurred');
+          console.log('Booking lookup failed:', result.error);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }, {
+      defaultMessage: 'Failed to lookup booking'
+    });
   };
 
   return (
@@ -80,12 +113,12 @@ export function BookingLookupClient({ dictionary, lang }: BookingLookupClientPro
                 />
                 <FormField
                   control={form.control}
-                  name="lastName"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dictionary.form.lastNameLabel}</FormLabel>
                       <FormControl>
-                        <Input placeholder={dictionary.form.lastNamePlaceholder} {...field} />
+                        <Input type="email" placeholder={dictionary.form.lastNamePlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

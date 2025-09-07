@@ -1,0 +1,144 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions for security
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function validateUserData() {
+      return request.resource.data.keys().hasAll(['email', 'name']) &&
+        request.resource.data.email is string &&
+        request.resource.data.name is string &&
+        request.resource.data.email.matches('.*@.*\..*');
+    }
+    
+    function validateBookingData() {
+      return request.resource.data.keys().hasAll(['courseId', 'date', 'time', 'players', 'totalPrice']) &&
+        request.resource.data.courseId is string &&
+        request.resource.data.date is timestamp &&
+        request.resource.data.time is string &&
+        request.resource.data.players is number &&
+        request.resource.data.players >= 1 &&
+        request.resource.data.players <= 4 &&
+        request.resource.data.totalPrice is number &&
+        request.resource.data.totalPrice >= 0;
+    }
+    
+    function validateReviewData() {
+      return request.resource.data.keys().hasAll(['courseId', 'rating', 'comment']) &&
+        request.resource.data.courseId is string &&
+        request.resource.data.rating is number &&
+        request.resource.data.rating >= 1 &&
+        request.resource.data.rating <= 5 &&
+        request.resource.data.comment is string &&
+        request.resource.data.comment.size() <= 1000;
+    }
+    
+    // Users can read and write their own user document with validation
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(userId) && validateUserData();
+      allow update: if isAuthenticated() && isOwner(userId) && validateUserData();
+      allow delete: if isAdmin();
+    }
+    
+    // Courses collection - read access for all, write only for admins
+    match /courses/{courseId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+      
+      // Reviews subcollection
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if isAuthenticated() && validateReviewData() && 
+          isOwner(request.resource.data.userId);
+        allow update: if isAuthenticated() && 
+          (isOwner(resource.data.userId) || isAdmin()) &&
+          validateReviewData();
+        allow delete: if isAuthenticated() && 
+          (isOwner(resource.data.userId) || isAdmin());
+      }
+    }
+    
+    // Reviews collection (global)
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && validateReviewData() && 
+        isOwner(request.resource.data.userId);
+      allow update: if isAuthenticated() && 
+        (isOwner(resource.data.userId) || isAdmin()) &&
+        validateReviewData();
+      allow delete: if isAuthenticated() && 
+        (isOwner(resource.data.userId) || isAdmin());
+    }
+    
+    // Guest booking drafts - allow anonymous users to manage their own drafts
+    match /guestBookingDrafts/{id} {
+      allow create: if isAuthenticated() && 
+                   request.resource.data.createdByUid == request.auth.uid;
+      allow read, update, delete: if isAuthenticated() && 
+                                 resource.data.createdByUid == request.auth.uid;
+    }
+
+    // Bookings collection
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated() && 
+        (isOwner(resource.data.userId) || isAdmin() ||
+         (resource.data.isGuest == true && 
+          resource.data.guest.email == request.auth.token.email));
+      allow create: if false; // Only via Cloud Functions
+      allow update: if isAuthenticated() && 
+        (isOwner(resource.data.userId) || isAdmin());
+      allow delete: if isAuthenticated() && 
+        (isOwner(resource.data.userId) || isAdmin());
+    }
+    
+    // Admin collections - only for admin users
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Coupons collection
+    match /coupons/{couponId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // User badges and gamification
+    match /userBadges/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create, update: if isAuthenticated() && isOwner(userId);
+      allow delete: if isAdmin();
+    }
+    
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && 
+        (isOwner(resource.data.userId) || isAdmin());
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && 
+        (isOwner(resource.data.userId) || isAdmin());
+    }
+    
+    // Analytics and logs - admin only
+    match /analytics/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // System configuration - admin only
+    match /config/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}

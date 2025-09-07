@@ -1,4 +1,6 @@
 
+export const revalidate = 300;
+
 import * as React from 'react';
 import Image from 'next/image';
 import { getDictionary } from "@/lib/get-dictionary";
@@ -9,12 +11,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Award, Target, Users, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
+
 import { getTeamMembers, getAboutPageContent } from '@/lib/data';
 
 
 interface AboutPageProps {
-    params: { lang: Locale };
+    params: Promise<{ lang: Locale }>;
 }
 
 export default async function AboutPage({ params: paramsProp }: AboutPageProps) {
@@ -146,7 +148,7 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
                     </Button>
                 </div>
             </section>
-             <SecondaryFooter dictionary={dictionary.secondaryFooter} />
+       
         </div>
     );
 }

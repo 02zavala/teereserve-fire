@@ -21,8 +21,9 @@ export const metadata: Metadata = {
   description: 'Book your next golf adventure in Los Cabos.',
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/favicon.ico',
+    icon: ['/favicon.ico', '/favicon.svg'],
+    apple: '/apple-touch-icon.svg',
+    shortcut: '/favicon.ico',
   },
 }
 

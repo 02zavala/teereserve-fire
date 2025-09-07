@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 
 interface ContactPageProps {
-    params: { lang: Locale };
+    params: Promise<{ lang: Locale }>;
 }
 
 export default async function ContactPage({ params: paramsProp }: ContactPageProps) {

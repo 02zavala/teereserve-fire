@@ -43,3 +43,8 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+
+# Firebase Admin SDK
+firebase-admin-key.json
+service-account-key.json
+teereserve-golf-firebase-adminsdk-*.json

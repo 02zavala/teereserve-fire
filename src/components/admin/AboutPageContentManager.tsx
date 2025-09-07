@@ -113,7 +113,7 @@ export function AboutPageContentManager({ initialContent }: AboutPageContentMana
                     <FormLabel>Hero Image (1920x800)</FormLabel>
                     <div className="w-full aspect-[16/9] relative border rounded-md overflow-hidden bg-muted flex items-center justify-center">
                         {heroPreview ? (
-                             <NextImage src={heroPreview} alt="Hero preview" fill className="object-cover" />
+                             <NextImage src={heroPreview} alt="Hero preview" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
                         ) : (
                             <ImageIcon className="h-12 w-12 text-muted-foreground" />
                         )}
@@ -140,7 +140,7 @@ export function AboutPageContentManager({ initialContent }: AboutPageContentMana
                     <FormLabel>Mission Image (600x600)</FormLabel>
                     <div className="w-full aspect-square relative border rounded-md overflow-hidden bg-muted flex items-center justify-center">
                          {missionPreview ? (
-                             <NextImage src={missionPreview} alt="Mission preview" fill className="object-cover" />
+                             <NextImage src={missionPreview} alt="Mission preview" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
                         ) : (
                             <ImageIcon className="h-12 w-12 text-muted-foreground" />
                         )}

@@ -9,10 +9,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getDictionary } from '@/lib/get-dictionary';
 import { Locale } from '@/i18n-config';
-import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
+
 
 interface RecommendationsPageProps {
-  params: { lang: Locale };
+  params: Promise<{ lang: Locale }>;
 }
 
 export default async function AIRecommendationsPage({ params: paramsProp }: RecommendationsPageProps) {
@@ -57,7 +57,7 @@ export default async function AIRecommendationsPage({ params: paramsProp }: Reco
             </CardContent>
           </Card>
         </div>
-        <SecondaryFooter dictionary={dictionary.secondaryFooter} />
+
       </>
     );
   }
@@ -186,7 +186,7 @@ export default async function AIRecommendationsPage({ params: paramsProp }: Reco
           )}
         </div>
       </div>
-       <SecondaryFooter dictionary={dictionary.secondaryFooter} />
+ 
     </div>
   );
 }

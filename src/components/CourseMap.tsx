@@ -41,3 +41,5 @@ export function CourseMap({ lat, lng, name }: CourseMapProps) {
       </GoogleMap>
   );
 }
+
+export default CourseMap;

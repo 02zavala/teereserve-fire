@@ -122,3 +122,5 @@ export function GamificationSection({ userProfile }: GamificationSectionProps) {
         </Card>
     );
 }
+
+export default GamificationSection;

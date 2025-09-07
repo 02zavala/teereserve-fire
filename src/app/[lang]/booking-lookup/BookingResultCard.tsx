@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { Booking } from '@/types';
+import type { Booking, BookingStatus, GolfCourse } from '@/types';
 import type { Locale } from '@/i18n-config';
 import { format } from 'date-fns';
 import { dateLocales } from '@/lib/date-utils';
@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Users, DollarSign, ArrowLeft, User, MessageSquare } from 'lucide-react';
+import { GuestBookingActions } from '@/components/guest/GuestBookingActions';
+import { getCourseById } from '@/lib/data';
 
 interface BookingResultCardProps {
   booking: Booking;
@@ -21,6 +23,7 @@ interface BookingResultCardProps {
 export function BookingResultCard({ booking, dictionary, lang, onReset }: BookingResultCardProps) {
     const [formattedDate, setFormattedDate] = useState('');
     const [isClient, setIsClient] = useState(false);
+    const [course, setCourse] = useState<GolfCourse | null>(null);
 
     useEffect(() => {
         setIsClient(true);
@@ -34,14 +37,47 @@ export function BookingResultCard({ booking, dictionary, lang, onReset }: Bookin
         }
     }, [booking.date, lang]);
 
-    const getStatusVariant = (status: Booking['status']) => {
-        switch (status) {
-            case 'Confirmed': return 'default';
-            case 'Completed': return 'secondary';
-            case 'Cancelled': return 'destructive';
-            case 'Pending':
-            default: return 'outline';
+    useEffect(() => {
+        if (booking.courseId) {
+            getCourseById(booking.courseId).then(courseData => {
+                if (courseData) {
+                    setCourse(courseData);
+                }
+            }).catch(error => {
+                console.error('Error loading course data:', error);
+            });
         }
+    }, [booking.courseId]);
+
+    const getStatusVariant = (status: BookingStatus) => {
+        switch (status) {
+            case 'confirmed': return 'default';
+            case 'completed': return 'secondary';
+            case 'canceled_customer':
+            case 'canceled_admin': return 'destructive';
+            case 'checked_in': return 'default';
+            case 'rescheduled': return 'secondary';
+            case 'no_show': return 'destructive';
+            case 'disputed': return 'destructive';
+            case 'pending':
+            default:
+                return 'outline';
+        }
+    }
+
+    const getStatusLabel = (status: BookingStatus): string => {
+        const labels: Record<BookingStatus, string> = {
+            pending: 'Pendiente',
+            confirmed: 'Confirmada',
+            rescheduled: 'Reprogramada',
+            checked_in: 'Check-in',
+            completed: 'Completada',
+            canceled_customer: 'Cancelada (Cliente)',
+            canceled_admin: 'Cancelada (Admin)',
+            no_show: 'No Show',
+            disputed: 'En Disputa'
+        };
+        return labels[status] || status;
     }
 
   return (
@@ -52,7 +88,7 @@ export function BookingResultCard({ booking, dictionary, lang, onReset }: Bookin
                     <CardTitle className="font-headline text-2xl text-primary">{dictionary.title}</CardTitle>
                     <CardDescription>{dictionary.subtitle} #{booking.id.substring(0, 7)}</CardDescription>
                 </div>
-                <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                <Badge variant={getStatusVariant(booking.status)}>{getStatusLabel(booking.status)}</Badge>
             </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -91,6 +127,14 @@ export function BookingResultCard({ booking, dictionary, lang, onReset }: Bookin
                 <span className="font-semibold">{dictionary.total}</span>
                 <span className="font-bold text-accent text-2xl">${booking.totalPrice.toFixed(2)}</span>
             </div>
+            
+            {/* Acciones para invitados */}
+            {course && (
+                <div className="flex justify-center">
+                    <GuestBookingActions booking={booking} course={course} dictionary={dictionary} />
+                </div>
+            )}
+            
              <Button onClick={onReset} variant="outline" className="w-full">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {dictionary.backButton}

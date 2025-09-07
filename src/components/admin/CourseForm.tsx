@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { GolfCourse } from "@/types";
@@ -22,14 +23,48 @@ import { addCourse, updateCourse } from "@/lib/data";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ImageUploader } from "./ImageUploader";
+import TimeIntervalSettings from "./TimeIntervalSettings";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  name: z.string().min(3, "Course name must be at least 3 characters."),
-  location: z.string().min(3, "Location is required."),
-  description: z.string().min(10, "Description must be at least 10 characters."),
-  rules: z.string().optional(),
-  basePrice: z.coerce.number().min(0, "Base price must be a positive number."),
+  name: z.string().min(3, "Course name must be at least 3 characters.").max(100, "Course name cannot exceed 100 characters."),
+  location: z.string().min(3, "Location is required.").max(100, "Location cannot exceed 100 characters."),
+  description: z.string().min(10, "Description must be at least 10 characters.").max(1000, "Description cannot exceed 1000 characters."),
+  rules: z.string().max(500, "Rules cannot exceed 500 characters.").optional(),
+  basePrice: z.coerce.number().min(1, "Base price must be at least $1.").max(10000, "Base price cannot exceed $10,000."),
+  hidden: z.boolean().optional(),
+  teeTimeInterval: z.coerce.number().min(5, "Interval must be at least 5 minutes.").max(60, "Interval cannot exceed 60 minutes."),
+  operatingHours: z.object({
+    openingTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format (HH:MM)"),
+    closingTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format (HH:MM)")
+  }).refine((data) => {
+    const [openHour, openMin] = data.openingTime.split(':').map(Number);
+    const [closeHour, closeMin] = data.closingTime.split(':').map(Number);
+    const openTime = openHour * 60 + openMin;
+    const closeTime = closeHour * 60 + closeMin;
+    return closeTime > openTime;
+  }, {
+    message: "Closing time must be after opening time",
+    path: ["closingTime"]
+  }),
+  // Course specifications
+  availableHoles: z.array(z.number()).min(1, "At least one hole option must be selected"),
+  totalYards: z.coerce.number().min(1000, "Total yards must be at least 1000").max(15000, "Total yards cannot exceed 15,000").optional(),
+  par: z.coerce.number().min(27, "Par must be at least 27").max(108, "Par cannot exceed 108"),
+  holeDetails: z.object({
+    holes9: z.object({
+      yards: z.coerce.number().min(500, "9-hole yards must be at least 500").max(5000, "9-hole yards cannot exceed 5,000"),
+      par: z.coerce.number().min(27, "9-hole par must be at least 27").max(45, "9-hole par cannot exceed 45")
+    }).optional(),
+    holes18: z.object({
+      yards: z.coerce.number().min(4000, "18-hole yards must be at least 4000").max(8500, "18-hole yards cannot exceed 8,500"),
+      par: z.coerce.number().min(54, "18-hole par must be at least 54").max(90, "18-hole par cannot exceed 90")
+    }).optional(),
+    holes27: z.object({
+      yards: z.coerce.number().min(6000, "27-hole yards must be at least 6000").max(12000, "27-hole yards cannot exceed 12,000"),
+      par: z.coerce.number().min(81, "27-hole par must be at least 81").max(135, "27-hole par cannot exceed 135")
+    }).optional()
+  }).optional()
 });
 
 type CourseFormValues = z.infer<typeof formSchema>;
@@ -52,17 +87,83 @@ export function CourseForm({ course }: CourseFormProps) {
       location: course?.location || "",
       description: course?.description || "",
       rules: course?.rules || "",
-      basePrice: course?.basePrice || 0,
+      basePrice: course?.basePrice || 50,
+      hidden: course?.hidden || false,
+      teeTimeInterval: course?.teeTimeInterval || 15,
+      operatingHours: {
+        openingTime: course?.operatingHours?.openingTime || "06:00",
+        closingTime: course?.operatingHours?.closingTime || "19:00"
+      },
+      availableHoles: course?.availableHoles || [18],
+      totalYards: course?.totalYards || 6500,
+      par: course?.par || 72,
+      holeDetails: {
+        holes9: course?.holeDetails?.holes9 || {
+          yards: 3200,
+          par: 36
+        },
+        holes18: course?.holeDetails?.holes18 || {
+          yards: 6500,
+          par: 72
+        },
+        holes27: course?.holeDetails?.holes27 || {
+          yards: 9800,
+          par: 108
+        }
+      }
     },
   });
 
   async function onSubmit(values: CourseFormValues) {
     setIsSubmitting(true);
     try {
+      // Additional validation before submission
+      const validationErrors: string[] = [];
+      
+      // Validate hole details consistency
+      if (values.availableHoles.includes(9) && !values.holeDetails?.holes9) {
+        validationErrors.push("9-hole details are required when 9 holes is selected");
+      }
+      if (values.availableHoles.includes(18) && !values.holeDetails?.holes18) {
+        validationErrors.push("18-hole details are required when 18 holes is selected");
+      }
+      if (values.availableHoles.includes(27) && !values.holeDetails?.holes27) {
+        validationErrors.push("27-hole details are required when 27 holes is selected");
+      }
+      
+      // Validate total yards consistency
+      if (values.totalYards) {
+        // For 18-hole courses, total yards should be close to 18-hole yards
+        if (values.availableHoles.includes(18) && values.holeDetails?.holes18) {
+          const variance = Math.abs(values.totalYards - values.holeDetails.holes18.yards);
+          if (variance > 500) {
+            validationErrors.push("Total yards should be close to 18-hole yards (within 500 yards)");
+          }
+        }
+        // For 9-hole only courses, total yards should be close to 9-hole yards
+        else if (values.availableHoles.includes(9) && !values.availableHoles.includes(18) && values.holeDetails?.holes9) {
+          const variance = Math.abs(values.totalYards - values.holeDetails.holes9.yards);
+          if (variance > 300) {
+            validationErrors.push("Total yards should be close to 9-hole yards (within 300 yards)");
+          }
+        }
+      }
+      
+      if (validationErrors.length > 0) {
+        toast({
+          title: "Validation Error",
+          description: validationErrors.join(". "),
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const courseData = {
         ...values,
         newImages,
-        existingImageUrls
+        existingImageUrls,
+        teeTimeInterval: values.teeTimeInterval,
+        operatingHours: values.operatingHours
       };
 
       if (course) {
@@ -176,6 +277,199 @@ export function CourseForm({ course }: CourseFormProps) {
                             <FormMessage />
                             </FormItem>
                         )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="hidden"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                    <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                    <FormLabel>
+                                        Hide course from public listings
+                                    </FormLabel>
+                                    <p className="text-sm text-muted-foreground">
+                                        When checked, this course will only be visible to administrators
+                                    </p>
+                                </div>
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Course Specifications */}
+                    <div className="space-y-6">
+                        <h3 className="text-lg font-semibold">Course Specifications</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="availableHoles"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Available Holes</FormLabel>
+                                        <FormControl>
+                                            <div className="space-y-2">
+                                                {[9, 18, 27].map((holes) => (
+                                                    <label key={holes} className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={field.value.includes(holes)}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    field.onChange([...field.value, holes]);
+                                                                } else {
+                                                                    field.onChange(field.value.filter(h => h !== holes));
+                                                                }
+                                                            }}
+                                                            className="rounded border-gray-300"
+                                                        />
+                                                        <span>{holes} holes</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="totalYards"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Total Yards (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="6500" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="par"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Course Par</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="72" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Hole Details */}
+                        {form.watch("availableHoles").includes(9) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
+                                <h4 className="col-span-full font-medium">9 Holes Details</h4>
+                                <FormField
+                                    control={form.control}
+                                    name="holeDetails.holes9.yards"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>9-Hole Yards</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="3200" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="holeDetails.holes9.par"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>9-Hole Par</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="36" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )}
+
+                        {form.watch("availableHoles").includes(18) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
+                                <h4 className="col-span-full font-medium">18 Holes Details</h4>
+                                <FormField
+                                    control={form.control}
+                                    name="holeDetails.holes18.yards"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>18-Hole Yards</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="6500" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="holeDetails.holes18.par"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>18-Hole Par</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="72" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )}
+
+                        {form.watch("availableHoles").includes(27) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
+                                <h4 className="col-span-full font-medium">27 Holes Details</h4>
+                                <FormField
+                                    control={form.control}
+                                    name="holeDetails.holes27.yards"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>27-Hole Yards</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="9800" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="holeDetails.holes27.par"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>27-Hole Par</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="108" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <TimeIntervalSettings
+                        control={form.control}
+                        teeTimeInterval={form.watch("teeTimeInterval")}
+                        operatingHours={form.watch("operatingHours")}
                     />
 
                     <FormItem>

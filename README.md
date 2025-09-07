@@ -32,6 +32,12 @@ TeeReserve is a premium golf booking platform built with a modern tech stack, fo
 - **User Profiles**: Personalized user dashboards with booking history, scorecard management, and gamification elements.
 - **Gamification**: XP and achievement system to enhance user engagement.
 - **Guest Booking Lookup**: Allows users without an account to check their reservation status.
+- **Notification System**: Comprehensive notification system with email, in-app, and SMS notifications.
+  - Professional email templates for welcome, booking confirmations, and reminders.
+  - In-app notifications with toasts, modals, and notification bell.
+  - User-configurable notification preferences.
+  - SMS notifications for urgent updates and booking reminders.
+- **Webhook Integration**: n8n webhook system for advanced automation and third-party integrations.
 
 ---
 
@@ -141,6 +147,15 @@ ZOHO_MAIL_CLIENT_ID=your_client_id
 ZOHO_MAIL_CLIENT_SECRET=your_client_secret
 ZOHO_MAIL_REFRESH_TOKEN=your_refresh_token
 CONTACT_FORM_RECIPIENT=recipient_email@yourdomain.com
+
+# SMS Configuration (Twilio)
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=your_twilio_phone_number
+
+# Webhook Configuration (n8n)
+N8N_WEBHOOK_URL=your_n8n_webhook_url
+WEBHOOK_SECRET=your_webhook_secret_key
 ```
 
 ---

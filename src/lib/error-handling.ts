@@ -63,7 +63,12 @@ const firebaseErrorMessages: Record<string, string> = {
   'auth/requires-recent-login': 'Esta operación es sensible y requiere autenticación reciente. Por favor, inicia sesión de nuevo.',
   'auth/invalid-credential': 'La credencial proporcionada es incorrecta o ha expirado.',
   'auth/network-request-failed': 'Error de red. Por favor, comprueba tu conexión a internet.',
-  'auth/too-many-requests': 'Hemos bloqueado todas las solicitudes de este dispositivo debido a actividad inusual. Inténtalo de nuevo más tarde.'
+  'auth/too-many-requests': 'Hemos bloqueado todas las solicitudes de este dispositivo debido a actividad inusual. Inténtalo de nuevo más tarde.',
+  'invalid-argument': 'Los datos proporcionados no son válidos. Por favor, verifica la información e inténtalo de nuevo.',
+  'firestore/invalid-argument': 'Los datos de Firestore no son válidos. Por favor, verifica la información e inténtalo de nuevo.',
+  'permission-denied': 'No tienes permisos para realizar esta operación.',
+  'unavailable': 'El servicio no está disponible temporalmente. Por favor, inténtalo más tarde.',
+  'unauthenticated': 'Debes iniciar sesión para realizar esta operación.'
 };
 
 /**

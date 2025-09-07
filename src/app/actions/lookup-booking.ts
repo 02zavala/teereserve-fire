@@ -5,13 +5,13 @@ import { getBookingByIdAndLastName } from '@/lib/data';
 
 const formSchema = z.object({
   bookingId: z.string().min(5),
-  lastName: z.string().min(2),
+  email: z.string().email('Please enter a valid email address.'),
 });
 
-export async function lookupBookingAction(data: { bookingId: string; lastName: string }) {
+export async function lookupBookingAction(data: { bookingId: string; email: string }) {
   try {
     const validatedData = formSchema.parse(data);
-    const booking = await getBookingByIdAndLastName(validatedData.bookingId, validatedData.lastName);
+    const booking = await getBookingByIdAndLastName(validatedData.bookingId, validatedData.email);
     return { success: true, data: booking };
   } catch (error) {
     if (error instanceof z.ZodError) {

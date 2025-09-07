@@ -16,11 +16,30 @@ import { LogOut, User, LayoutGrid, GanttChartSquare, Search } from 'lucide-react
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "../ui/skeleton";
 import { usePathname } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export function UserNav() {
   const { user, userProfile, loading, logout } = useAuth();
+  const { toast } = useToast();
   const pathname = usePathname();
   const lang = pathname.split('/')[1] || 'en';
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Sesión cerrada",
+        description: "Has cerrado sesión exitosamente.",
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast({
+        title: "Error",
+        description: "Hubo un problema al cerrar sesión.",
+        variant: "destructive"
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -109,7 +128,7 @@ export function UserNav() {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

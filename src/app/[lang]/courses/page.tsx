@@ -1,16 +1,19 @@
 
+export const revalidate = 300;
+
 import * as React from 'react';
 import { getCourses } from '@/lib/data';
 import { CourseCard } from '@/components/CourseCard';
+import LinkComponent from '@/components/LinkComponent';
 import { CourseSearchForm } from '@/components/CourseSearchForm';
 import { getDictionary } from '@/lib/get-dictionary';
 import { Locale } from '@/i18n-config';
 import type { Metadata } from 'next';
-import { SecondaryFooter } from '@/components/layout/SecondaryFooter';
+
 
 interface CoursesPageProps {
-    params: { lang: Locale };
-    searchParams: { [key: string]: string | string[] | undefined };
+    params: Promise<{ lang: Locale }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({ params: paramsProp, searchParams: searchParamsProp }: CoursesPageProps): Promise<Metadata> {
@@ -49,7 +52,13 @@ export default async function CoursesPage({ params: paramsProp, searchParams: se
             <div className="container mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {courses.map((course) => (
-                        <CourseCard key={course.id} course={course} dictionary={dictionary.courseCard} lang={params.lang} />
+                        <LinkComponent 
+                            key={course.id}
+                            href={`/${params.lang}/courses/${course.id}`}
+                            className="block"
+                        >
+                            <CourseCard course={course} dictionary={dictionary.courseCard} lang={params.lang} asLink />
+                        </LinkComponent>
                     ))}
                 </div>
                 {courses.length === 0 && (
@@ -59,7 +68,7 @@ export default async function CoursesPage({ params: paramsProp, searchParams: se
                     </div>
                 )}
             </div>
-            <SecondaryFooter dictionary={dictionary.secondaryFooter} />
+
         </>
     );
 }

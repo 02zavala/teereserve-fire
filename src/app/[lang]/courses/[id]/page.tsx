@@ -2,21 +2,21 @@
 
 import { getCourseById } from '@/lib/data';
 import { getDictionary } from '@/lib/get-dictionary';
-import { notFound, useParams, usePathname } from 'next/navigation';
+import { notFound, useParams, usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { MapPin, ShieldCheck, Star, Sun, Wind, Droplets, Eye, Gauge, CheckCircle } from 'lucide-react';
-import { TeeTimePicker } from '@/components/TeeTimePicker';
-import { ReviewSection } from '@/components/ReviewSection';
-import { Recommendations } from '@/components/Recommendations';
+import { LazyTeeTimePicker, LazyReviewSection, LazyRecommendations, LazyCourseMap } from '@/components/LazyComponents';
 import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CourseMap } from '@/components/CourseMap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import type { Locale } from '@/i18n-config';
 import type { GolfCourse } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format } from "date-fns";
 import { dateLocales } from "@/lib/date-utils";
+import { BookingModal } from '@/components/BookingModal';
+import { useAuth } from '@/context/AuthContext';
 
 function WeatherPlaceholder() {
     return (
@@ -114,9 +114,12 @@ function WeatherPlaceholder() {
 export default function CourseDetailPage() {
     const params = useParams();
     const pathname = usePathname();
+    const router = useRouter();
+    const { user } = useAuth();
     const [course, setCourse] = useState<GolfCourse | null>(null);
     const [dictionary, setDictionary] = useState<any>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
     const courseId = Array.isArray(params.id) ? params.id[0] : params.id;
     const lang = (pathname.split('/')[1] || 'en') as Locale;
@@ -196,12 +199,12 @@ export default function CourseDetailPage() {
                         {/* Image Gallery */}
                         <div>
                              <div className="relative aspect-video w-full rounded-lg overflow-hidden mb-4">
-                                {selectedImage && <Image src={selectedImage} alt={`${course.name} view`} data-ai-hint="golf course scene" fill className="object-cover" />}
+                                {selectedImage && <Image src={selectedImage} alt={`${course.name} view`} data-ai-hint="golf course scene" fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw" priority />}
                             </div>
                             <div className="flex gap-2 overflow-x-auto pb-2">
                                {course.imageUrls.map((url, index) => (
                                    <div key={index} className="relative aspect-video w-28 h-20 flex-shrink-0 cursor-pointer rounded-md overflow-hidden" onClick={() => setSelectedImage(url)}>
-                                       <Image src={url} alt={`${course.name} thumbnail ${index + 1}`} fill className="object-cover" />
+                                       <Image src={url} alt={`${course.name} thumbnail ${index + 1}`} fill className="object-cover" sizes="112px" />
                                         {selectedImage === url && <div className="absolute inset-0 border-2 border-primary rounded-md" />}
                                    </div>
                                ))}
@@ -220,7 +223,7 @@ export default function CourseDetailPage() {
                                 <div className="my-8">
                                     <h2 className="font-headline text-3xl font-semibold text-primary mb-4">Location</h2>
                                     <div className="aspect-video w-full rounded-lg overflow-hidden">
-                                        <CourseMap lat={course.latLng.lat} lng={course.latLng.lng} name={course.name} />
+                                        <LazyCourseMap lat={course.latLng.lat} lng={course.latLng.lng} name={course.name} />
                                     </div>
                                 </div>
                             )}
@@ -235,15 +238,55 @@ export default function CourseDetailPage() {
                     {/* Right Column (Sidebar) */}
                     <aside className="lg:col-span-1">
                         <div className="sticky top-24 space-y-8">
+                            {/* Booking Card */}
+                            <Card className="bg-card/90 backdrop-blur-sm border-border/60 shadow-lg">
+                                <CardHeader>
+                                    <CardTitle className="font-headline text-2xl text-primary">Reservar Tee Time</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="text-center">
+                                        <p className="text-3xl font-bold text-primary">${course.basePrice}</p>
+                                        <p className="text-sm text-muted-foreground">por jugador</p>
+                                    </div>
+                                    <Button 
+                                        onClick={() => {
+                                            // Hacer scroll al formulario de reserva
+                                            const bookingForm = document.getElementById('booking-form');
+                                            if (bookingForm) {
+                                                bookingForm.scrollIntoView({ 
+                                                    behavior: 'smooth',
+                                                    block: 'start'
+                                                });
+                                            }
+                                        }}
+                                        className="w-full text-lg py-6"
+                                        size="lg"
+                                    >
+                                        Reservar Ahora
+                                    </Button>
+                                    <p className="text-xs text-muted-foreground text-center">
+                                        Reserva sin cuenta o inicia sesión para gestionar tus reservas
+                                    </p>
+                                </CardContent>
+                            </Card>
+                            
                             <WeatherPlaceholder />
-                             <TeeTimePicker courseId={course.id} basePrice={course.basePrice} lang={lang} />
+                             <LazyTeeTimePicker 
+                                courseId={course.id} 
+                                basePrice={course.basePrice} 
+                                teeTimeInterval={course.teeTimeInterval}
+                                operatingHours={course.operatingHours}
+                                availableHoles={course.availableHoles}
+                                holeDetails={course.holeDetails}
+                                lang={lang} 
+                            />
                         </div>
                     </aside>
                 </div>
                 
                 {/* Reviews Section */}
                 <div className="my-12 border-t pt-12">
-                    <ReviewSection course={course} />
+                    <LazyReviewSection course={course} />
                 </div>
 
                  {/* Recommendations Section */}
@@ -252,9 +295,17 @@ export default function CourseDetailPage() {
                         <h2 className="font-headline text-3xl font-bold text-primary md:text-4xl">You Might Also Like</h2>
                         <p className="mt-2 text-lg text-muted-foreground">Other courses you may enjoy</p>
                     </div>
-                    <Recommendations courseId={course.id} dictionary={dictionary.courseCard} lang={lang} />
+                    <LazyRecommendations courseId={course.id} dictionary={dictionary.courseCard} lang={lang} />
                 </div>
             </div>
+            
+            {/* Booking Modal */}
+            <BookingModal 
+                isOpen={isBookingModalOpen}
+                onClose={() => setIsBookingModalOpen(false)}
+                course={course}
+                lang={lang}
+            />
         </div>
     )
 }

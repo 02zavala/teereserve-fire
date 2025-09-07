@@ -31,6 +31,8 @@ const SendBookingConfirmationEmailOutputSchema = z.object({
   message: z.string(),
 });
 
+export type SendBookingConfirmationEmailOutput = z.infer<typeof SendBookingConfirmationEmailOutputSchema>;
+
 const sendBookingConfirmationEmailFlow = ai.defineFlow(
   {
     name: 'sendBookingConfirmationEmailFlow',

@@ -6,25 +6,47 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, Loader2 } from "lucide-react";
+import { PlusCircle, Loader2 } from "lucide-react";
 import { getBookings } from "@/lib/data";
-import type { Booking } from "@/types";
+import type { Booking, BookingStatus } from "@/types";
 import { format } from "date-fns";
 import { usePathname } from "next/navigation";
 import type { Locale } from "@/i18n-config";
 import { dateLocales } from "@/lib/date-utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BookingActionsMenu } from "@/components/admin/BookingActionsMenu";
+import { toast } from "@/hooks/use-toast";
 
 
-function getStatusVariant(status: Booking['status']) {
+function getStatusVariant(status: BookingStatus) {
     switch (status) {
-        case 'Confirmed': return 'default';
-        case 'Completed': return 'secondary';
-        case 'Cancelled': return 'destructive';
-        case 'Pending':
+        case 'confirmed': return 'default';
+        case 'completed': return 'secondary';
+        case 'canceled_customer':
+        case 'canceled_admin': return 'destructive';
+        case 'checked_in': return 'default';
+        case 'rescheduled': return 'secondary';
+        case 'no_show': return 'destructive';
+        case 'disputed': return 'destructive';
+        case 'pending':
         default:
             return 'outline';
     }
+}
+
+function getStatusLabel(status: BookingStatus): string {
+    const labels: Record<BookingStatus, string> = {
+        pending: 'Pendiente',
+        confirmed: 'Confirmada',
+        rescheduled: 'Reprogramada',
+        checked_in: 'Check-in',
+        completed: 'Completada',
+        canceled_customer: 'Cancelada (Cliente)',
+        canceled_admin: 'Cancelada (Admin)',
+        no_show: 'No Show',
+        disputed: 'En Disputa'
+    };
+    return labels[status] || status;
 }
 
 function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
@@ -60,15 +82,14 @@ function BookingRow({ booking, lang }: { booking: Booking, lang: Locale }) {
             <TableCell>
                 {isClient && formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}
             </TableCell>
+            <TableCell>{booking.players} players</TableCell>
+            <TableCell>{booking.holes || 18} holes</TableCell>
             <TableCell>${booking.totalPrice.toFixed(2)}</TableCell>
             <TableCell>
-                <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+                <Badge variant={getStatusVariant(booking.status)}>{getStatusLabel(booking.status)}</Badge>
             </TableCell>
             <TableCell>
-                <Button aria-haspopup="true" size="icon" variant="ghost">
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Toggle menu</span>
-                </Button>
+                <BookingActionsMenu booking={booking} />
             </TableCell>
         </TableRow>
     );
@@ -114,6 +135,8 @@ export default function BookingsAdminPage() {
                                     <TableHead>Course</TableHead>
                                     <TableHead>User</TableHead>
                                     <TableHead>Date</TableHead>
+                                    <TableHead>Players</TableHead>
+                                    <TableHead>Holes</TableHead>
                                     <TableHead>Total</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>

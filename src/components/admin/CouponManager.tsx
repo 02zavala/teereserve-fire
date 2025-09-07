@@ -14,6 +14,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useErrorHandler, commonValidators } from '@/hooks/useErrorHandler';
+import { ValidationError } from '@/lib/error-handling';
 import { Loader2, PlusCircle, Trash2, TicketPercent } from 'lucide-react';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -95,6 +97,7 @@ export function CouponManager({ initialCoupons }: CouponManagerProps) {
   const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { handleAsyncError } = useErrorHandler();
   const pathname = usePathname();
   const lang = (pathname.split('/')[1] || 'en') as Locale;
 
@@ -121,34 +124,116 @@ export function CouponManager({ initialCoupons }: CouponManagerProps) {
 
   const onSubmit = async (values: CouponFormValues) => {
     setIsLoading(true);
+    
+    // Validación de datos antes de enviar
     try {
+      // Validar código del cupón
+      if (!values.code?.trim()) {
+        throw new ValidationError('Validation failed', { code: 'Coupon code is required' });
+      }
+      
+      if (values.code.length < 3) {
+        throw new ValidationError('Validation failed', { code: 'Coupon code must be at least 3 characters' });
+      }
+      
+      if (!/^[A-Z0-9_-]+$/i.test(values.code)) {
+        throw new ValidationError('Validation failed', { code: 'Coupon code can only contain letters, numbers, hyphens, and underscores' });
+      }
+      
+      // Verificar si el código ya existe
+      if (coupons.some(coupon => coupon.code.toLowerCase() === values.code.toLowerCase())) {
+        throw new ValidationError('Validation failed', { code: 'A coupon with this code already exists' });
+      }
+      
+      // Validar valor del descuento
+      if (!values.discountValue || values.discountValue <= 0) {
+        throw new ValidationError('Validation failed', { discountValue: 'Discount value must be greater than 0' });
+      }
+      
+      if (values.discountType === 'percentage' && values.discountValue > 100) {
+        throw new ValidationError('Validation failed', { discountValue: 'Percentage discount cannot exceed 100%' });
+      }
+      
+      // Validar fecha de expiración
+      if (values.expiresAt) {
+        const expirationDate = new Date(values.expiresAt);
+        const now = new Date();
+        if (expirationDate <= now) {
+          throw new ValidationError('Validation failed', { expiresAt: 'Expiration date must be in the future' });
+        }
+      }
+      
+    } catch (validationError) {
+      setIsLoading(false);
+      return handleAsyncError(
+        () => Promise.reject(validationError),
+        { defaultMessage: 'Please check the coupon data and try again' }
+      );
+    }
+
+    const result = await handleAsyncError(async () => {
       const newCoupon = await addCoupon({
         ...values,
+        code: values.code.toUpperCase(), // Normalizar código a mayúsculas
         expiresAt: values.expiresAt ? new Date(values.expiresAt).toISOString() : undefined,
       });
+      
       setCoupons(prev => [newCoupon, ...prev]);
-      toast({ title: 'Success', description: 'Coupon created successfully.' });
+      toast({ 
+        title: 'Success', 
+        description: `Coupon "${newCoupon.code}" created successfully.` 
+      });
+      
       form.reset({
         code: '',
         discountType: 'percentage',
         discountValue: undefined,
         expiresAt: '',
       });
-    } catch (error) {
-      toast({ title: 'Error', description: 'Failed to create coupon.', variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
-    }
+      
+      return newCoupon;
+    }, {
+      defaultMessage: 'Failed to create coupon. Please try again.',
+      onError: (error) => {
+        console.error('Coupon creation error:', {
+          error,
+          couponData: values,
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    setIsLoading(false);
   };
 
   const handleDelete = async (code: string) => {
-    try {
+    if (!code?.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Invalid coupon code.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const result = await handleAsyncError(async () => {
       await deleteCoupon(code);
       setCoupons(prev => prev.filter(c => c.code !== code));
-      toast({ title: 'Success', description: 'Coupon deleted.' });
-    } catch (error) {
-      toast({ title: 'Error', description: 'Failed to delete coupon.', variant: 'destructive' });
-    }
+      toast({ 
+        title: 'Success', 
+        description: `Coupon "${code}" deleted successfully.` 
+      });
+      return true;
+    }, {
+      defaultMessage: 'Failed to delete coupon. Please try again.',
+      onError: (error) => {
+        console.error('Coupon deletion error:', {
+          error,
+          couponCode: code,
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
   };
 
   return (
@@ -258,3 +343,5 @@ export function CouponManager({ initialCoupons }: CouponManagerProps) {
     </div>
   );
 }
+
+export default CouponManager;

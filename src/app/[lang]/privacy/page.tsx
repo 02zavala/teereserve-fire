@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { getDictionary } from "@/lib/get-dictionary";
 import type { Locale } from "@/i18n-config";
-import { SecondaryFooter } from "@/components/layout/SecondaryFooter";
+
 import { Card, CardContent } from "@/components/ui/card";
 
 interface PrivacyPageProps {
-    params: { lang: Locale };
+    params: Promise<{ lang: Locale }>;
 }
 
 export default async function PrivacyPage({ params: paramsProp }: PrivacyPageProps) {
@@ -28,7 +28,7 @@ export default async function PrivacyPage({ params: paramsProp }: PrivacyPagePro
                     <CardContent className="p-8 space-y-6 text-foreground/80 leading-relaxed">
                         <p>{t.introduction}</p>
                         
-                        {t.sections.map((section, index) => (
+                        {t.sections.map((section: { title: string; content: string }, index: number) => (
                             <div key={index}>
                                 <h2 className="font-headline text-2xl font-bold text-primary mb-3">{section.title}</h2>
                                 <div className="space-y-4 prose prose-sm max-w-none prose-p:text-foreground/80 prose-li:text-foreground/80 prose-a:text-primary" dangerouslySetInnerHTML={{ __html: section.content }} />
@@ -37,7 +37,7 @@ export default async function PrivacyPage({ params: paramsProp }: PrivacyPagePro
                     </CardContent>
                 </Card>
             </div>
-            <SecondaryFooter dictionary={dictionary.secondaryFooter} />
+    
         </div>
     );
 }

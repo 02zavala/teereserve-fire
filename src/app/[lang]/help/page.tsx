@@ -2,6 +2,8 @@
 import * as React from 'react';
 import Link from "next/link";
 import { ArrowLeft, Phone, Mail, MessageCircle } from "lucide-react";
+export const revalidate = 300;
+
 import { getDictionary } from "@/lib/get-dictionary";
 import type { Locale } from "@/i18n-config";
 import { Button } from "@/components/ui/button";
@@ -10,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 
 interface HelpPageProps {
-    params: { lang: Locale };
+    params: Promise<{ lang: Locale }>;
 }
 
 export default async function HelpPage({ params: paramsProp }: HelpPageProps) {
@@ -90,7 +92,7 @@ export default async function HelpPage({ params: paramsProp }: HelpPageProps) {
           <Card className="p-8">
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-8 text-center font-headline">{t.faq.title}</h2>
             <Accordion type="single" collapsible className="w-full max-w-4xl mx-auto">
-              {t.faq.questions.map((item, index) => (
+              {t.faq.questions.map((item: { question: string; answer: string }, index: number) => (
                 <AccordionItem value={`item-${index}`} key={index}>
                   <AccordionTrigger className="text-lg text-left hover:no-underline">{item.question}</AccordionTrigger>
                   <AccordionContent className="text-base text-muted-foreground">

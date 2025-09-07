@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useErrorHandler, commonValidators } from '@/hooks/useErrorHandler';
+import { ValidationError } from '@/lib/error-handling';
 import { Loader2, PlusCircle, Trash2, Edit, XCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
@@ -63,6 +65,7 @@ export function TeamMemberManager({ initialTeamMembers }: TeamMemberManagerProps
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { handleAsyncError, wrapAsyncFunction } = useErrorHandler();
 
   const form = useForm<TeamMemberFormValues>({
     resolver: zodResolver(formSchema),
@@ -92,10 +95,50 @@ export function TeamMemberManager({ initialTeamMembers }: TeamMemberManagerProps
 
   const onSubmit = async (values: TeamMemberFormValues) => {
     setIsLoading(true);
+    
+    // Validación de datos antes de enviar
     try {
+      // Validar campos requeridos
+      if (!values.name?.trim()) {
+        throw new ValidationError('Validation failed', { name: 'Name is required' });
+      }
+      if (!values.role_en?.trim()) {
+        throw new ValidationError('Validation failed', { role_en: 'English role is required' });
+      }
+      if (!values.role_es?.trim()) {
+        throw new ValidationError('Validation failed', { role_es: 'Spanish role is required' });
+      }
+      if (values.order < 0) {
+        throw new ValidationError('Validation failed', { order: 'Order must be a positive number' });
+      }
+    } catch (validationError) {
+      setIsLoading(false);
+      return handleAsyncError(
+        () => Promise.reject(validationError),
+        { defaultMessage: 'Please check the form data and try again' }
+      );
+    }
+
+    const result = await handleAsyncError(async () => {
       let avatarUrl = editingMember?.avatarUrl;
 
+      // Validar archivo de avatar si existe
       if (avatarFile) {
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        
+        if (avatarFile.size > maxSize) {
+          throw new ValidationError('File validation failed', { 
+            avatar: 'Avatar file must be smaller than 5MB' 
+          });
+        }
+        
+        if (!allowedTypes.includes(avatarFile.type)) {
+          throw new ValidationError('File validation failed', { 
+            avatar: 'Avatar must be a JPEG, PNG, or WebP image' 
+          });
+        }
+
         avatarUrl = await uploadTeamMemberAvatar(
           avatarFile,
           editingMember?.id
@@ -113,34 +156,60 @@ export function TeamMemberManager({ initialTeamMembers }: TeamMemberManagerProps
         setTeamMembers([...teamMembers, savedMember]);
       }
 
-      toast({ title: 'Success', description: 'Team member saved.' });
-      resetFormAndState();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save team member.',
-        variant: 'destructive',
+      toast({ 
+        title: 'Success', 
+        description: `Team member ${editingMember ? 'updated' : 'created'} successfully.` 
       });
-    } finally {
-      setIsLoading(false);
-    }
+      resetFormAndState();
+      
+      return savedMember;
+    }, {
+      defaultMessage: 'Failed to save team member. Please try again.',
+      onError: (error) => {
+        console.error('Team member save error:', {
+          error,
+          memberData: values,
+          editingMember: editingMember?.id,
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    setIsLoading(false);
   };
 
   const handleDelete = async (id: string) => {
-    setIsLoading(true);
-    try {
-      await deleteTeamMember(id);
-      setTeamMembers(teamMembers.filter((m) => m.id !== id));
-      toast({ title: 'Success', description: 'Team member deleted.' });
-    } catch (error) {
+    if (!id) {
       toast({
         title: 'Error',
-        description: 'Failed to delete team member.',
+        description: 'Invalid team member ID.',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
+      return;
     }
+
+    setIsLoading(true);
+    
+    const result = await handleAsyncError(async () => {
+      await deleteTeamMember(id);
+      setTeamMembers(teamMembers.filter((m) => m.id !== id));
+      toast({ 
+        title: 'Success', 
+        description: 'Team member deleted successfully.' 
+      });
+      return true;
+    }, {
+      defaultMessage: 'Failed to delete team member. Please try again.',
+      onError: (error) => {
+        console.error('Team member deletion error:', {
+          error,
+          memberId: id,
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    setIsLoading(false);
   };
 
   return (

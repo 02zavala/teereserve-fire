@@ -1,0 +1,23 @@
+=== GENERACIÓN DEL ZOHO MAIL REFRESH TOKEN ===
+
+Paso 1: URL de autorización generada:
+
+https://accounts.zoho.com/oauth/v2/auth?scope=ZohoMail.Send.ALL&client_id=1000.RYLW545COCCKA6PS6CQLRB8FFHHBES&response_type=code&access_type=offline&redirect_uri=https%3A//teereserve.golf/auth/callback&prompt=consent
+
+=== INSTRUCCIONES ===
+
+1. Copia la URL de arriba y ábrela en tu navegador
+2. Inicia sesión en tu cuenta de Zoho Mail (info@teereserve.golf)
+3. Autoriza la aplicación
+4. Después de autorizar, serás redirigido (puede mostrar error, es normal)
+5. En la barra de direcciones, busca el parámetro 'code='
+6. Copia todo el valor después de 'code=' (antes del siguiente &)
+7. Pégame ese código aquí para continuar con el paso 2
+
+=== DATOS QUE TENEMOS ===
+Client ID: 1000.RYLW545COCCKA6PS6CQLRB8FFHHBES
+Client Secret: c78be4a08b890d11c548608500b79accc00065d1c1
+Redirect URI: https://teereserve.golf/auth/callback
+
+=== SIGUIENTE PASO ===
+Una vez que tengas el código de autorización, lo usaremos para generar el refresh token.

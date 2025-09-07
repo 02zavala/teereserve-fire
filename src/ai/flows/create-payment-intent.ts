@@ -13,12 +13,13 @@ import { z } from 'genkit';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2024-06-20',
+    apiVersion: '2025-02-24.acacia',
 });
 
 const CreatePaymentIntentInputSchema = z.object({
     amount: z.number().describe('The amount in the smallest currency unit (e.g., cents).'),
     currency: z.string().default('usd').describe('The currency of the payment.'),
+    setup_future_usage: z.string().optional().describe('Whether to save the payment method for future use.'),
 });
 export type CreatePaymentIntentInput = z.infer<typeof CreatePaymentIntentInputSchema>;
 
@@ -42,6 +43,13 @@ const createPaymentIntentFlow = ai.defineFlow(
                 amount: validatedInput.amount,
                 currency: validatedInput.currency,
                 automatic_payment_methods: { enabled: true },
+                setup_future_usage: validatedInput.setup_future_usage as 'off_session' | undefined,
+                // Force 3D Secure authentication for all card payments
+                payment_method_options: {
+                    card: {
+                        request_three_d_secure: 'automatic'
+                    }
+                },
             });
 
             if (!paymentIntent.client_secret) {

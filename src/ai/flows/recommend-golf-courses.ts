@@ -29,7 +29,7 @@ const GolfCourseRecommendationSchema = z.object({
   description: z.string().describe('A short, personalized description of why this course is recommended for the user.'),
   price: z.number().describe('The price to play at this golf course.'),
   location: z.string().describe('The location of the recommended course (e.g., "Cabo San Lucas").'),
-  imageUrl: z.string().describe("URL of an image of the golf course. It must be a placeholder image from 'https://placehold.co/800x600.png'"),
+  imageUrl: z.string().describe('A high-quality golf course image URL from Unsplash (use https://images.unsplash.com/photo-[id]?w=800&h=600&fit=crop&crop=center format)'),
   reason: z.string().describe('The reasons this course is recommended to the user, based on their past preferences or current context.'),
   tags: z.array(z.string()).describe("Descriptive tags such as 'best value today' or 'recommended for your style of play'."),
 });
@@ -85,7 +85,8 @@ const recommendGolfCoursesFlow = ai.defineFlow(
       Format your recommendations in JSON format.
       Include a personalized description of why each course is recommended for the user.
       Include the price, image URL and descriptive tags as well.
-      The imageUrl must be a placeholder image from 'https://placehold.co/800x600.png'.
+      Use high-quality golf course images from Unsplash with format: https://images.unsplash.com/photo-[id]?w=800&h=600&fit=crop&crop=center
+      Vary the photo IDs to show different golf course scenes: 1535131749006-b7f58c99034b, 1593111774240-d529f12cf4bb, 1587174486073-ae5e5cff23aa, 1506905925346-21bda4d32df4, 1596727147705-61a532a659bd, 1551698618-1dfe5d97d256.
       The tags are used to highlight reasons or special offers such as "best value today" or "recommended for your style of play".
       `,
       output: { schema: RecommendGolfCoursesOutputSchema },

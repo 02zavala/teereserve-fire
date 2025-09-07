@@ -82,7 +82,7 @@ export function Testimonials({ dictionary }: TestimonialsProps) {
                       alt={testimonials[currentIndex].name}
                     />
                     <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                      {testimonials[currentIndex].name.split(' ').map(n => n[0]).join('')}
+                      {testimonials[currentIndex].name.split(' ').map((n: string) => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
 
@@ -114,7 +114,7 @@ export function Testimonials({ dictionary }: TestimonialsProps) {
             </Button>
 
             <div className="flex space-x-2">
-              {testimonials.map((_, index) => (
+              {testimonials.map((_: any, index: number) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}

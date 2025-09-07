@@ -38,10 +38,16 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
     useEffect(() => {
         if (!selectedDate) return;
         startFetching(async () => {
-            const times = await getTeeTimesForCourse(course.id, selectedDate, course.basePrice);
+            const times = await getTeeTimesForCourse(
+                course.id, 
+                selectedDate, 
+                course.basePrice,
+                course.teeTimeInterval,
+                course.operatingHours
+            );
             setTeeTimes(times);
         });
-    }, [selectedDate, course.id, course.basePrice]);
+    }, [selectedDate, course.id, course.basePrice, course.teeTimeInterval, course.operatingHours]);
     
     const handleTeeTimeChange = (id: string, field: 'price' | 'status', value: string | number) => {
         setTeeTimes(currentTimes =>
@@ -123,7 +129,7 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
                                                 <TableCell>
                                                     <Input
                                                         type="number"
-                                                        value={teeTime.price}
+                                                        value={teeTime.price || ''}
                                                         onChange={(e) => handleTeeTimeChange(teeTime.id, 'price', parseInt(e.target.value))}
                                                         className="h-8 w-24"
                                                         disabled={isSaving}
@@ -131,7 +137,7 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
                                                 </TableCell>
                                                 <TableCell>
                                                      <Select
-                                                        value={teeTime.status}
+                                                        value={teeTime.status || 'available'}
                                                         onValueChange={(value: TeeTime['status']) => handleTeeTimeChange(teeTime.id, 'status', value)}
                                                         disabled={isSaving}
                                                      >

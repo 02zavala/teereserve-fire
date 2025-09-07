@@ -1,40 +1,56 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image"; // ✅ añadido
 import { Facebook, Twitter, Instagram, Mail, Phone, Globe } from 'lucide-react';
-import type { getDictionary } from "@/lib/get-dictionary";
-import { Logo } from "../Logo";
+import type { getSharedDictionary } from "@/lib/dictionaries/shared";
+// ❌ quitado: import { Logo } from "../Logo";
 import { useAuth } from "@/context/AuthContext";
+import { usePathname } from "next/navigation";
 import { Locale } from "@/i18n-config";
 
-
 interface FooterProps {
-    dictionary: Awaited<ReturnType<typeof getDictionary>>;
-    lang: Locale;
+  dictionary: Awaited<ReturnType<typeof getSharedDictionary>>;
+  lang: Locale;
 }
-
 
 export function Footer({ dictionary, lang }: FooterProps) {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
   const { user } = useAuth();
+  const pathname = usePathname();
 
   useEffect(() => {
-    // This effect runs only on the client, after hydration
     setCurrentYear(new Date().getFullYear());
   }, []);
 
-  const reservationsLink = user ? `/${lang}/profile#bookings` : `/${lang}/login`;
+  if (pathname.includes('/admin')) {
+    return null;
+  }
+
+  const reservationsLink = user ? `/${lang}/profile#bookings` : `/${lang}/booking-lookup`;
 
   return (
     <footer className="bg-card text-card-foreground border-t">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
-             <div className="flex items-center space-x-2 mb-4">
-                <Logo className="h-20 w-auto" />
-                <span className="font-headline text-2xl font-bold text-foreground">TeeReserve Golf</span>
+            <div className="flex items-center space-x-2 mb-4">
+              {/* ✅ Solo cambiamos el logo */}
+              <div className="h-20 w-20">
+                <Image
+                  src="/logo-final.png"
+                  alt="TeeReserve Golf"
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              <div className="flex flex-col -space-y-1">
+                <span className="font-headline text-2xl font-bold text-foreground">TeeReserve</span>
+                <span className="font-headline text-2xl font-bold text-primary">Golf</span>
+              </div>
             </div>
             <p className="text-muted-foreground text-sm">
               {dictionary.footer.platformDescription}
@@ -43,7 +59,7 @@ export function Footer({ dictionary, lang }: FooterProps) {
 
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-4">
-                {dictionary.footer.platform}
+              {dictionary.footer.platform}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -60,6 +76,14 @@ export function Footer({ dictionary, lang }: FooterProps) {
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   {dictionary.footer.reservations}
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href={`/${lang}/reviews`}
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {dictionary.footer.reviews}
                 </Link>
               </li>
             </ul>
@@ -166,7 +190,8 @@ export function Footer({ dictionary, lang }: FooterProps) {
             </div>
           </div>
         </div>
-        <div className="border-t border-border mt-8 pt-8">
+
+        <div className="border-t border-border mt-6 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">
               {currentYear ? `© ${currentYear} TeeReserve Golf. ${dictionary.footer.allRightsReserved}` : `\u00A0`}
@@ -192,5 +217,5 @@ export function Footer({ dictionary, lang }: FooterProps) {
         </div>
       </div>
     </footer>
-  )
+  );
 }

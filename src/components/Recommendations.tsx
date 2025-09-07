@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import { recommendGolfCourses } from '@/ai/flows/recommend-golf-courses';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import SafeImage from '@/components/SafeImage';
+import { normalizeImageUrl } from '@/lib/normalize';
 import Link from 'next/link';
+import LinkComponent from './LinkComponent';
 import { Badge } from './ui/badge';
 import { MapPin } from 'lucide-react';
 import { getDictionary } from '@/lib/get-dictionary';
@@ -95,12 +97,12 @@ export function Recommendations({ courseId, userId, dictionary, lang }: Recommen
       {recommendations.slice(0, 3).map((rec) => {
         const courseUrl = `/${lang}/courses/${rec.courseId}`;
         return (
-          <Card key={rec.courseId} className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-            <CardHeader className="p-0">
-              <Link href={courseUrl} className="block">
+          <LinkComponent key={rec.courseId} href={courseUrl} className="block">
+            <Card className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+              <CardHeader className="p-0">
                 <div className="relative h-56 w-full">
-                  <Image
-                    src={rec.imageUrl}
+                  <SafeImage
+                    src={normalizeImageUrl(rec.imageUrl) ?? '/images/fallback.svg'}
                     alt={`Image of ${rec.name}`}
                     data-ai-hint="golf course aerial"
                     fill
@@ -112,25 +114,27 @@ export function Recommendations({ courseId, userId, dictionary, lang }: Recommen
                     </div>
                   )}
                 </div>
-              </Link>
-            </CardHeader>
-            <CardContent className="flex-grow p-4">
-              <CardTitle className="mb-2 font-headline text-2xl text-primary">
-                <Link href={courseUrl}>{rec.name}</Link>
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">{rec.description}</p>
-            </CardContent>
-            <CardFooter className="flex items-center justify-between bg-card p-4">
-              <div className="text-lg font-bold">
-                {dictionary.from} <span className="text-accent">${rec.price}</span>
-              </div>
-              <Button asChild>
-                <Link href={courseUrl}>{dictionary.viewTimes}</Link>
-              </Button>
-            </CardFooter>
-          </Card>
+              </CardHeader>
+              <CardContent className="flex-grow p-4">
+                <CardTitle className="mb-2 font-headline text-2xl text-primary">
+                  {rec.name}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">{rec.description}</p>
+              </CardContent>
+              <CardFooter className="flex items-center justify-between bg-card p-4">
+                <div className="text-lg font-bold">
+                  {dictionary.from} <span className="text-accent">${rec.price}</span>
+                </div>
+                <Button>
+                  {dictionary.viewTimes}
+                </Button>
+              </CardFooter>
+            </Card>
+          </LinkComponent>
         )
       })}
     </div>
   );
 }
+
+export default Recommendations;

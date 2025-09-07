@@ -14,6 +14,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useErrorHandler, commonValidators } from '@/hooks/useErrorHandler';
+import { ValidationError } from '@/lib/error-handling';
 import { Loader2, PlusCircle, Trash2, Calendar, Trophy } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from './ui/skeleton';
@@ -38,10 +40,10 @@ interface ScorecardManagerProps {
 }
 
 const formSchema = z.object({
-    courseName: z.string().min(3, "Course name is required."),
+    courseName: z.string().min(2, "Course name must be at least 2 characters.").max(100, "Course name is too long."),
     date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date" }),
-    score: z.coerce.number().min(1, "Score must be a positive number."),
-    notes: z.string().optional(),
+    score: z.coerce.number().min(18, "Score must be at least 18.").max(200, "Score must be less than 200."),
+    notes: z.string().max(500, "Notes are too long.").optional(),
 });
 
 type ScorecardFormValues = z.infer<typeof formSchema>;
@@ -119,6 +121,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
+    const { handleAsyncError } = useErrorHandler();
     const pathname = usePathname();
     const lang = (pathname.split('/')[1] || 'en') as Locale;
 
@@ -126,8 +129,8 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             courseName: "",
-            date: undefined,
-            score: undefined,
+            date: "",
+            score: "",
             notes: "",
         },
     });
@@ -142,16 +145,24 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
         }
     }, [isClient, form]);
     
-    const fetchScorecards = async () => {
-        try {
-            const fetchedScorecards = await getUserScorecards(user.uid);
-            setScorecards(fetchedScorecards);
-        } catch (error) {
-            console.error("Failed to fetch scorecards:", error);
-            toast({ title: "Error", description: "Could not load scorecards.", variant: "destructive" });
-        } finally {
-            setIsLoading(false);
-        }
+    const fetchScorecards = () => {
+        handleAsyncError(async () => {
+            try {
+                console.log('Fetching scorecards for user:', user.uid);
+                
+                if (!user.uid) {
+                    throw new ValidationError('User ID is required to fetch scorecards');
+                }
+                
+                const fetchedScorecards = await getUserScorecards(user.uid);
+                setScorecards(fetchedScorecards);
+                console.log('Successfully fetched', fetchedScorecards.length, 'scorecards');
+            } finally {
+                setIsLoading(false);
+            }
+        }, {
+            defaultMessage: 'Failed to fetch scorecards'
+        });
     };
 
     useEffect(() => {
@@ -161,36 +172,90 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user.uid]);
 
-    const onSubmit = async (values: ScorecardFormValues) => {
-        try {
+    const onSubmit = (values: ScorecardFormValues) => {
+        handleAsyncError(async () => {
+            console.log('Submitting scorecard with values:', { ...values, userId: user.uid });
+            
+            // Validación adicional de datos
+            if (!values.courseName.trim()) {
+                throw new ValidationError('Course name is required');
+            }
+            
+            if (values.courseName.trim().length < 2) {
+                throw new ValidationError('Course name must be at least 2 characters');
+            }
+            
+            if (!/^[a-zA-Z0-9\s\-&'.]+$/.test(values.courseName.trim())) {
+                throw new ValidationError('Course name contains invalid characters');
+            }
+            
+            if (!values.date) {
+                throw new ValidationError('Date is required');
+            }
+            
+            // Validar que la fecha no sea futura
+            const selectedDate = new Date(values.date);
+            const today = new Date();
+            today.setHours(23, 59, 59, 999); // Permitir fechas de hoy
+            
+            if (selectedDate > today) {
+                throw new ValidationError('Cannot add scorecards for future dates');
+            }
+            
+            if (!values.score || values.score < 18 || values.score > 200) {
+                throw new ValidationError('Score must be between 18 and 200');
+            }
+            
+            if (values.notes && values.notes.length > 500) {
+                throw new ValidationError('Notes are too long (maximum 500 characters)');
+            }
+            
+            if (!user.uid) {
+                throw new ValidationError('User authentication required');
+            }
+            
             const input: ScorecardInput = {
                 userId: user.uid,
-                ...values
+                courseName: values.courseName.trim(),
+                date: values.date,
+                score: values.score,
+                notes: values.notes?.trim() || undefined
             };
+            
             await addUserScorecard(input);
+            
             toast({ title: "Scorecard Added!", description: "Your new score has been saved." });
+            
             form.reset({
                  courseName: "",
                  date: format(new Date(), 'yyyy-MM-dd'),
                  score: undefined,
                  notes: "",
             });
+            
             await fetchScorecards();
-        } catch (error) {
-             console.error("Failed to add scorecard:", error);
-             toast({ title: "Error", description: "Could not save scorecard.", variant: "destructive" });
-        }
+            console.log('Scorecard added successfully');
+        });
     };
 
-    const handleDelete = async (id: string) => {
-        try {
-            await deleteUserScorecard(user.uid, id);
+    const handleDelete = (id: string) => {
+        handleAsyncError(async () => {
+            console.log('Deleting scorecard with ID:', id);
+            
+            if (!id || !id.trim()) {
+                throw new ValidationError('Scorecard ID is required for deletion');
+            }
+            
+            if (!user.uid) {
+                throw new ValidationError('User authentication required');
+            }
+            
+            await deleteUserScorecard(user.uid, id.trim());
+            
             toast({ title: "Scorecard Deleted", description: "The scorecard has been removed." });
             setScorecards(prev => prev.filter(sc => sc.id !== id));
-        } catch (error) {
-             console.error("Failed to delete scorecard:", error);
-             toast({ title: "Error", description: "Could not delete scorecard.", variant: "destructive" });
-        }
+            console.log('Scorecard deleted successfully');
+        });
     };
 
     return (
@@ -278,3 +343,5 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
         </div>
     );
 }
+
+export default ScorecardManager;

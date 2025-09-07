@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useErrorHandler, commonValidators } from "@/hooks/useErrorHandler";
+import { ValidationError } from "@/lib/error-handling";
 import { updateUserProfile, uploadProfilePicture } from "@/lib/data";
 import { User } from "firebase/auth";
 import type { UserProfile } from "@/types";
@@ -36,8 +38,8 @@ interface ProfileEditorProps {
 }
 
 const formSchema = z.object({
-  displayName: z.string().min(2, "Name must be at least 2 characters."),
-  handicap: z.coerce.number().min(0).max(54).optional(),
+  displayName: z.string().min(2, "Name must be at least 2 characters.").max(50, "Name must be less than 50 characters."),
+  handicap: z.coerce.number().min(0, "Handicap must be 0 or higher.").max(54, "Handicap must be 54 or lower.").optional(),
 });
 
 type ProfileFormValues = z.infer<typeof formSchema>;
@@ -47,31 +49,66 @@ export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(userProfile.photoURL);
   const { toast } = useToast();
+  const { handleAsyncError } = useErrorHandler();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       displayName: userProfile.displayName || "",
-      handicap: userProfile.handicap || undefined,
+      handicap: userProfile.handicap || "",
     },
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select a valid image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Validar tamaño de archivo (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
-  const onSubmit = async (values: ProfileFormValues) => {
-    try {
+  const onSubmit = (values: ProfileFormValues) => {
+    handleAsyncError(async () => {
+      console.log('Starting profile update with values:', values);
+      
+      // Validación adicional de datos
+      if (!/^[a-zA-Z0-9\s\-'.]+$/.test(values.displayName)) {
+        throw new ValidationError('Display name must contain only letters, numbers, spaces, and basic punctuation');
+      }
+      
+      if (values.handicap !== undefined && (values.handicap < 0 || values.handicap > 54)) {
+        throw new ValidationError('Handicap must be between 0 and 54');
+      }
+      
       let photoURL = userProfile.photoURL;
       const updates: Partial<UserProfile> = {};
 
       if (imageFile) {
+        console.log('Uploading profile picture...');
         photoURL = await uploadProfilePicture(user.uid, imageFile);
         updates.photoURL = photoURL;
+        console.log('Profile picture uploaded successfully');
       }
 
       if (values.displayName !== userProfile.displayName) {
@@ -82,8 +119,10 @@ export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: 
       }
       
       if (Object.keys(updates).length > 0) {
+        console.log('Updating profile with:', updates);
         await updateProfile(user, { displayName: updates.displayName, photoURL: updates.photoURL });
         await updateUserProfile(user.uid, updates);
+        console.log('Profile updated successfully');
       }
       
       toast({
@@ -92,14 +131,7 @@ export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: 
       });
       onProfileUpdate(updates);
       setIsOpen(false);
-    } catch (error) {
-      console.error("Failed to update profile:", error);
-      toast({
-        title: "Update Failed",
-        description: "Could not save your profile. Please try again.",
-        variant: "destructive",
-      });
-    }
+    });
   };
 
   return (

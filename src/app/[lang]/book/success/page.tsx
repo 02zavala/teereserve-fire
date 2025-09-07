@@ -5,10 +5,14 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Mail, Printer, Share2, Info, User, Calendar, Clock, Users, DollarSign } from 'lucide-react';
+import { CheckCircle, Mail, Printer, Share2, Info, User, Calendar, Clock, Users, DollarSign, Flag, Send, FileText } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { getCourseById } from '@/lib/data';
-import type { GolfCourse } from '@/types';
+import { getCourseById, getBookingById } from '@/lib/data';
+import type { GolfCourse, Booking } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import type { Locale } from '@/i18n-config';
@@ -26,15 +30,21 @@ function SuccessPageContent() {
     const { user, loading: authLoading } = useAuth();
     
     const [course, setCourse] = useState<GolfCourse | null>(null);
+    const [booking, setBooking] = useState<Booking | null>(null);
     const [loading, setLoading] = useState(true);
     const [totalPrice, setTotalPrice] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
     const [isClient, setIsClient] = useState(false);
+    const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+    const [recipientEmail, setRecipientEmail] = useState('');
+    const [isSending, setIsSending] = useState(false);
 
+    const bookingId = searchParams.get('bookingId');
     const courseId = searchParams.get('courseId');
     const date = searchParams.get('date');
     const time = searchParams.get('time');
     const players = searchParams.get('players');
+    const holes = searchParams.get('holes');
     const price = searchParams.get('price'); // This is now subtotal
 
     const lang = (pathname.split('/')[1] || 'en') as Locale;
@@ -55,28 +65,59 @@ function SuccessPageContent() {
     }, [date, lang, isClient]);
 
     useEffect(() => {
-        if (!courseId) {
-            router.push(`/${lang}/courses`);
-            return;
-        }
+        const loadBookingData = async () => {
+            if (bookingId) {
+                // Load booking by ID
+                try {
+                    const bookingData = await getBookingById(bookingId);
+                    if (bookingData) {
+                        setBooking(bookingData);
+                        setTotalPrice(bookingData.totalPrice.toString());
+                        
+                        // Load course data
+                        const courseData = await getCourseById(bookingData.courseId);
+                        setCourse(courseData || null);
+                    }
+                } catch (error) {
+                    console.error('Error loading booking:', error);
+                    router.push(`/${lang}/courses`);
+                }
+            } else if (courseId) {
+                // Fallback to URL parameters
+                if (price) {
+                    const subtotalNum = parseFloat(price);
+                    const total = subtotalNum * (1 + TAX_RATE);
+                    setTotalPrice(total.toFixed(2));
+                }
 
-        if (price) {
-            const subtotalNum = parseFloat(price);
-            const total = subtotalNum * (1 + TAX_RATE);
-            setTotalPrice(total.toFixed(2));
-        }
-
-        getCourseById(courseId).then(data => {
-            setCourse(data || null);
-        }).finally(() => {
+                try {
+                    const courseData = await getCourseById(courseId);
+                    setCourse(courseData || null);
+                } catch (error) {
+                    console.error('Error loading course:', error);
+                }
+            } else {
+                router.push(`/${lang}/courses`);
+                return;
+            }
+            
             setLoading(false);
-        });
-    }, [courseId, router, lang, date, price]);
+        };
+
+        loadBookingData();
+    }, [bookingId, courseId, router, lang, price]);
     
     const handlePrint = () => window.print();
 
     const getShareMessage = () => {
-        const message = `Booking Confirmation:\n\nCourse: ${course?.name}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal: $${totalPrice}\n\nBooked via TeeReserve!`;
+        const confirmationText = booking?.confirmationNumber ? `\nConfirmation #: ${booking.confirmationNumber}` : '';
+        const courseName = booking?.courseName || course?.name;
+        const bookingDate = booking?.date ? format(new Date(booking.date), "PPP", { locale: dateLocales[lang] }) : formattedDate;
+        const bookingTime = booking?.time || time;
+        const bookingPlayers = booking?.players || players;
+        const bookingHoles = booking?.holes || holes || '18';
+        
+        const message = `Booking Confirmation:${confirmationText}\n\nCourse: ${courseName}\nDate: ${bookingDate}\nTime: ${bookingTime}\nPlayers: ${bookingPlayers}\nHoles: ${bookingHoles}\nTotal: $${totalPrice}\n\nBooked via TeeReserve!`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         if (navigator.share) {
             navigator.share({
@@ -90,10 +131,71 @@ function SuccessPageContent() {
     };
 
     const getEmailMessage = () => {
-        const subject = `Your Booking Confirmation for ${course?.name}`;
-        const body = `Hello,\n\nHere are the details of your confirmed booking:\n\nCourse: ${course?.name}\nLocation: ${course?.location}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal Price: $${totalPrice}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
+        const courseName = booking?.courseName || course?.name;
+        const confirmationText = booking?.confirmationNumber ? `\nConfirmation Number: ${booking.confirmationNumber}` : '';
+        const bookingDate = booking?.date ? format(new Date(booking.date), "PPP", { locale: dateLocales[lang] }) : formattedDate;
+        const bookingTime = booking?.time || time;
+        const bookingPlayers = booking?.players || players;
+        const bookingHoles = booking?.holes || holes || '18';
+        
+        const subject = `Your Booking Confirmation for ${courseName}`;
+        const body = `Hello,\n\nHere are the details of your confirmed booking:${confirmationText}\n\nCourse: ${courseName}\nLocation: ${course?.location}\nDate: ${bookingDate}\nTime: ${bookingTime}\nPlayers: ${bookingPlayers}\nHoles: ${bookingHoles}\nTotal Price: $${totalPrice}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
         return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
+
+    const handleSendToEmail = async () => {
+        if (!recipientEmail) {
+            toast({
+                title: "Error",
+                description: "Por favor ingresa un correo electrónico válido",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setIsSending(true);
+        try {
+            const response = await fetch('/api/send-booking-receipt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    recipientEmail,
+                    bookingDetails: {
+                        confirmationNumber: booking?.confirmationNumber,
+                        courseName: booking?.courseName || course?.name,
+                        courseLocation: course?.location,
+                        date: booking?.date ? format(new Date(booking.date), "PPP", { locale: dateLocales[lang] }) : formattedDate,
+                        time: booking?.time || time,
+                        players: booking?.players || players,
+                        holes: booking?.holes || holes || '18',
+                        totalPrice,
+                        userName: booking?.userName || user?.displayName || 'Cliente'
+                    }
+                })
+            });
+
+            if (response.ok) {
+                toast({
+                    title: "¡Enviado!",
+                    description: `Comprobante enviado exitosamente a ${recipientEmail}`,
+                });
+                setIsEmailDialogOpen(false);
+                setRecipientEmail('');
+            } else {
+                throw new Error('Error al enviar el correo');
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "No se pudo enviar el comprobante. Inténtalo de nuevo.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsSending(false);
+        }
+    };
 
     if (loading || authLoading) {
          return (
@@ -123,40 +225,95 @@ function SuccessPageContent() {
                         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <p className="text-sm text-muted-foreground">Name</p>
-                                <p className="font-semibold">{user?.displayName || 'N/A'}</p>
+                                <p className="font-semibold">{booking?.userName || user?.displayName || 'N/A'}</p>
                             </div>
                              <div>
                                 <p className="text-sm text-muted-foreground">Email</p>
-                                <p className="font-semibold">{user?.email}</p>
+                                <p className="font-semibold">{booking?.userEmail || user?.email}</p>
                             </div>
                              <div>
                                 <p className="text-sm text-muted-foreground">Phone</p>
-                                <p className="font-semibold">{user?.phoneNumber || 'Not provided'}</p>
+                                <p className="font-semibold">{booking?.userPhone || user?.phoneNumber || 'Not provided'}</p>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                         <Button variant="default" onClick={handlePrint} className="bg-green-700 hover:bg-green-800"><Printer className="mr-2 h-4 w-4"/> Print Receipt</Button>
                         <Button variant="outline" asChild><a href={getEmailMessage()}><Mail className="mr-2 h-4 w-4"/> Send by Email</a></Button>
+                        <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline"><Send className="mr-2 h-4 w-4"/> Send to Another Email</Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>Enviar comprobante a otro correo</DialogTitle>
+                                    <DialogDescription>
+                                        Ingresa el correo electrónico donde quieres enviar el comprobante de reserva.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor="email" className="text-right">
+                                            Correo
+                                        </Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            placeholder="ejemplo@correo.com"
+                                            value={recipientEmail}
+                                            onChange={(e) => setRecipientEmail(e.target.value)}
+                                            className="col-span-3"
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button 
+                                        type="button" 
+                                        variant="outline" 
+                                        onClick={() => setIsEmailDialogOpen(false)}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                    <Button 
+                                        type="button" 
+                                        onClick={handleSendToEmail}
+                                        disabled={isSending}
+                                    >
+                                        {isSending ? 'Enviando...' : 'Enviar'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                         <Button variant="outline" onClick={getShareMessage}><Share2 className="mr-2 h-4 w-4"/> Share</Button>
                     </div>
 
                     <Card>
                         <CardHeader>
                             <CardTitle>Booking Details</CardTitle>
+                            {booking?.confirmationNumber && (
+                                <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-primary" />
+                                    <span className="text-sm text-muted-foreground">Confirmation #:</span>
+                                    <span className="font-mono font-semibold text-primary">{booking.confirmationNumber}</span>
+                                </div>
+                            )}
                         </CardHeader>
                         <CardContent>
-                             <h3 className="font-semibold text-lg">{course?.name}</h3>
+                             <h3 className="font-semibold text-lg">{booking?.courseName || course?.name}</h3>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mt-2">
                                 <div className="flex items-center text-muted-foreground">
-                                    <Calendar className="h-4 w-4 mr-2" /> Date: 
-                                    <span className="font-medium text-foreground ml-1">
-                                      {isClient && formattedDate ? formattedDate : <Skeleton className="h-4 w-24 inline-block" />}
-                                    </span>
-                                </div>
-                                <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{time}</span></div>
-                                <div className="flex items-center text-muted-foreground"><Users className="h-4 w-4 mr-2" /> Players: <span className="font-medium text-foreground ml-1">{players}</span></div>
+                                     <Calendar className="h-4 w-4 mr-2" /> Date: 
+                                     <span className="font-medium text-foreground ml-1">
+                                       {isClient && (booking?.date || formattedDate) ? 
+                                         (booking?.date ? format(new Date(booking.date), "PPP", { locale: dateLocales[lang] }) : formattedDate) : 
+                                         <Skeleton className="h-4 w-24 inline-block" />
+                                       }
+                                     </span>
+                                 </div>
+                                <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{booking?.time || time}</span></div>
+                                <div className="flex items-center text-muted-foreground"><Users className="h-4 w-4 mr-2" /> Players: <span className="font-medium text-foreground ml-1">{booking?.players || players}</span></div>
+                                <div className="flex items-center text-muted-foreground"><Flag className="h-4 w-4 mr-2" /> Holes: <span className="font-medium text-foreground ml-1">{booking?.holes || holes || '18'}</span></div>
                                 <div className="flex items-center text-muted-foreground"><DollarSign className="h-4 w-4 mr-2" /> Total: <span className="font-medium text-foreground ml-1">${totalPrice}</span></div>
                             </div>
                         </CardContent>
@@ -199,7 +356,7 @@ function SuccessPageContent() {
                     
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-center pt-4">
                          <Button asChild>
-                            <Link href={`/${lang}/profile`}>
+                            <Link href={`/${lang}/booking-lookup`}>
                             <User className="mr-2 h-4 w-4" /> View All My Bookings
                             </Link>
                         </Button>
