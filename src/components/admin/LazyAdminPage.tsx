@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 
 // Lazy load admin components
 const LazyDashboard = lazy(() => import('@/components/admin/Dashboard').then(module => ({ default: module.Dashboard })));
-const LazyBackupManager = lazy(() => import('./BackupManager').then(module => ({ default: module.default })));
+const LazyBackupManager = lazy(() => import('./BackupRestore'));
 
 // Loading skeleton for admin pages
 function AdminPageSkeleton() {
@@ -90,6 +90,7 @@ function createLazyAdminPage<T extends object>(
 }
 
 export { LazyDashboard, LazyBackupManager };
+
 
 
 
