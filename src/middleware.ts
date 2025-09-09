@@ -198,19 +198,11 @@ export function middleware(request: NextRequest) {
   if (pathnameIsMissingLocale) {
     const locale = getLocale(request)
 
-    // If the pathname is just "/", redirect to the locale root.
-    // Otherwise, prefix the pathname with the locale.
-    const newPath = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
-    
-    const response = NextResponse.redirect(
-      new URL(newPath, request.url)
+    // e.g. incoming request is /products
+    // The new URL is now /en-US/products
+    return NextResponse.redirect(
+      new URL(`/${locale}${pathname}`, request.url)
     )
-    
-    // Agregar headers de segurección
-    addSecurityHeaders(response);
-    addCSRFToken(request, response);
-    
-    return response;
   }
   
   // Crear respuesta normal con headers de seguridad
