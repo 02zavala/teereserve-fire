@@ -1,3 +1,4 @@
+
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
@@ -8,7 +9,7 @@ admin.initializeApp();
 
 // Initialize Stripe
 const stripe = new Stripe(functions.config().stripe.secret_key, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2024-06-20',
 });
 
 // CORS configuration
@@ -182,15 +183,24 @@ export const finalizeGuestBooking = functions.https.onRequest(async (req, res) =
  */
 export const stripeWebhook = functions.https.onRequest(async (req, res) => {
   const sig = req.headers['stripe-signature'] as string;
-  const endpointSecret = functions.config().stripe.webhook_secret;
+  let endpointSecret;
+
+  // Asegurarse de que el secreto del webhook está configurado
+  if (functions.config().stripe && functions.config().stripe.webhook_secret) {
+    endpointSecret = functions.config().stripe.webhook_secret;
+  } else {
+    console.error('Stripe webhook secret is not configured in Firebase functions config.');
+    res.status(400).send('Webhook secret not configured.');
+    return;
+  }
 
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err);
-    res.status(400).send('Webhook signature verification failed');
+  } catch (err: any) {
+    console.error('Webhook signature verification failed:', err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
 
@@ -199,12 +209,12 @@ export const stripeWebhook = functions.https.onRequest(async (req, res) => {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       console.log('Payment succeeded:', paymentIntent.id);
-      // Additional logic can be added here
+      // Aquí puedes agregar lógica para actualizar el estado de la reserva en Firestore
       break;
     case 'payment_intent.payment_failed':
       const failedPayment = event.data.object as Stripe.PaymentIntent;
       console.log('Payment failed:', failedPayment.id);
-      // Handle failed payment
+      // Aquí puedes manejar el fallo del pago, como notificar al usuario
       break;
     default:
       console.log(`Unhandled event type ${event.type}`);
@@ -212,6 +222,7 @@ export const stripeWebhook = functions.https.onRequest(async (req, res) => {
 
   res.json({ received: true });
 });
+
 
 /**
  * Clean up expired booking drafts
