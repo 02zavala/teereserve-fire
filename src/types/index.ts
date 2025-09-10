@@ -1,5 +1,7 @@
 
 
+export type Locale = 'en' | 'es';
+
 export interface ReviewUserInput {
   name: string;
   avatarUrl?: string;
@@ -77,6 +79,7 @@ export interface GolfCourseInput {
   basePrice: number;
   imageUrls: string[];
   hidden?: boolean; // Campo para ocultar cursos del público
+  isFeatured?: boolean; // New field for featured courses
   latLng?: {
     lat: number;
     lng: number;
@@ -124,8 +127,11 @@ export type PaymentStatus =
 export interface BookingInput {
     userId: string;
     userName: string;
+    userEmail?: string;
+    userPhone?: string;
     courseId: string;
     courseName: string;
+    courseLocation?: string;
     date: string; // YYYY-MM-DD
     time: string; // HH:mm
     players: number;
@@ -141,6 +147,7 @@ export interface BookingInput {
     refundAmount?: number;
     cancellationReason?: string;
     adminNotes?: string;
+    formattedDate?: string;
 }
 
 export interface Booking extends BookingInput {
@@ -161,6 +168,13 @@ export interface Booking extends BookingInput {
     };
     teeDateTime?: Date;
     numberOfPlayers?: number;
+    isGuest?: boolean;
+    guest?: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string;
+    };
 }
 
 export interface BookingAddOn {
@@ -427,9 +441,10 @@ export interface PriceCache {
   id: string;
   courseId: string;
   date: string; // YYYY-MM-DD
-  timeBandId?: string;
-  dow: number; // Día de la semana
+  timeBand?: string;
   pricePerPlayer: number;
+  totalPrice: number;
+  appliedRules?: any[];
   calculatedAt: string;
   expiresAt: string;
 }

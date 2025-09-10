@@ -109,7 +109,7 @@ function generateSiteMap() {
 export async function GET() {
   try {
     // Get courses for dynamic course pages
-    const courses = await getCourses();
+    const courses = await getCourses({});
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://teereserve.golf';
     const currentDate = new Date().toISOString();
     

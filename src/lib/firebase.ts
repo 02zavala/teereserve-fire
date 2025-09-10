@@ -12,7 +12,6 @@ import { getMessaging, Messaging, isSupported as isMessagingSupported } from "fi
 const firebaseConfig: FirebaseOptions = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
@@ -81,30 +80,6 @@ if (isConfigValid) {
             console.log('Firestore initialized with stable transport');
         }
         
-        // Connect to emulators in development (disabled for now)
-        // Uncomment the following block if you want to use Firebase emulators
-        /*
-        if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-            try {
-                const { connectFirestoreEmulator } = await import('firebase/firestore');
-                const { connectAuthEmulator } = await import('firebase/auth');
-                const { connectStorageEmulator } = await import('firebase/storage');
-                
-                if (!db._delegate._databaseId.projectId.includes('demo-')) {
-                    connectFirestoreEmulator(db, 'localhost', 8080);
-                }
-                if (!auth.config.emulator) {
-                    connectAuthEmulator(auth, 'http://localhost:9099');
-                }
-                if (!storage._delegate._bucket.includes('demo-')) {
-                    connectStorageEmulator(storage, 'localhost', 9199);
-                }
-            } catch (emulatorError) {
-                console.log('Emulators already connected or not available:', emulatorError);
-            }
-        }
-        */
-        
         if (typeof window !== 'undefined') {
             analytics = isSupported().then(yes => (yes ? getAnalytics(app as FirebaseApp) : null));
             messaging = isMessagingSupported().then(yes => (yes ? getMessaging(app as FirebaseApp) : null));
@@ -117,6 +92,7 @@ if (isConfigValid) {
          auth = null;
          storage = null;
          analytics = null;
+         messaging = null;
     }
 } else {
     console.error(

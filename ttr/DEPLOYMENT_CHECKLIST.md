@@ -81,4 +81,4 @@ Una vez que la aplicación esté en vivo, estas acciones son clave para su éxit
 
 ---
 
-En resumen, la plataforma está funcionalmente lista. El siguiente gran paso es la **configuración del entorno de producción**. Una vez hecho eso, estarás listo para tu *soft launch*. ¡Felicidades de nuevo por este increíble proyecto!
+En resumen, la plataforma está funcionalmente lista. El siguiente gran paso es la **configuración del entorno de producción**. Una vez hecho eso, estarás listo para tu *soft launch*. ¡Felicidades de nuevo por este increíble proyecto

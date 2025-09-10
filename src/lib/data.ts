@@ -1,6 +1,6 @@
 import type { GolfCourse, Review, TeeTime, Booking, BookingInput, ReviewInput, UserProfile, Scorecard, ScorecardInput, AchievementId, TeamMember, AboutPageContent, Coupon, CouponInput, ReviewLike, ReviewComment, ReviewBadge, UserReviewStats } from '@/types';
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, query, where, setDoc, CollectionReference, writeBatch, serverTimestamp, orderBy, limit, deleteDoc, runTransaction, increment, QueryConstraint } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { format, startOfDay, subDays, isAfter, parse, set, isToday, isBefore, addMinutes } from 'date-fns';
 import { sendBookingConfirmationEmail } from '@/ai/flows/send-booking-confirmation-email';
@@ -57,7 +57,8 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       imageUrls: [
         "/images/fallback.svg"
       ],
-      latLng: { lat: 22.876, lng: -109.931 }
+      latLng: { lat: 22.876, lng: -109.931 },
+      isFeatured: true,
     },
     {
       id: "palmilla-golf-club",
@@ -82,7 +83,8 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       imageUrls: [
         "/images/fallback.svg"
       ],
-      latLng: { lat: 23.013, lng: -109.736 }
+      latLng: { lat: 23.013, lng: -109.736 },
+      isFeatured: true,
     },
     {
         id: 'cabo-del-sol',
@@ -105,7 +107,8 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         imageUrls: [
             "/images/fallback.svg"
         ],
-        latLng: { lat: 22.918, lng: -109.831 }
+        latLng: { lat: 22.918, lng: -109.831 },
+        isFeatured: true,
     },
     {
         id: 'puerto-los-cabos',
@@ -311,7 +314,7 @@ const serializeTimestamps = (data: any): any => {
   return data;
 };
 
-export const getCourses = async ({ location, includeHidden = false }: { location?: string; includeHidden?: boolean }): Promise<GolfCourse[]> => {
+export const getCourses = async ({ location, includeHidden = false, isFeatured }: { location?: string; includeHidden?: boolean; isFeatured?: boolean }): Promise<GolfCourse[]> => {
   const coursesMap = new Map<string, Omit<GolfCourse, 'reviews'>>();
 
   // Add initial static courses to the map
@@ -323,7 +326,13 @@ export const getCourses = async ({ location, includeHidden = false }: { location
   if (db) {
       try {
           const coursesCol = collection(db, 'courses');
-          const firestoreSnapshot = await getDocs(coursesCol);
+          const constraints: QueryConstraint[] = [];
+          if (isFeatured) {
+              constraints.push(where("isFeatured", "==", true));
+          }
+          const firestoreQuery = query(coursesCol, ...constraints);
+          const firestoreSnapshot = await getDocs(firestoreQuery);
+          
           firestoreSnapshot.forEach(doc => {
               const rawCourseData = doc.data();
               const serializedCourseData = serializeTimestamps(rawCourseData) as Omit<GolfCourse, 'id' | 'reviews'>;
@@ -356,6 +365,10 @@ export const getCourses = async ({ location, includeHidden = false }: { location
   }
   
   let coursesWithoutReviews = Array.from(coursesMap.values());
+
+  if (isFeatured) {
+      coursesWithoutReviews = coursesWithoutReviews.filter(course => course.isFeatured);
+  }
 
   // Filtrar cursos ocultos si no se incluyen explícitamente
   if (!includeHidden) {
@@ -526,6 +539,15 @@ export const updateCourseVisibility = async (courseId: string, hidden: boolean):
         updatedAt: serverTimestamp()
     });
 }
+
+export const updateCourseFeaturedStatus = async (courseId: string, isFeatured: boolean): Promise<void> => {
+    if (!db) throw new Error("Firestore is not initialized.");
+    const courseDocRef = doc(db, 'courses', courseId);
+    await updateDoc(courseDocRef, {
+        isFeatured,
+        updatedAt: serverTimestamp()
+    });
+};
 
 // *** Tee Time Functions ***
 

@@ -1,11 +1,11 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image"; // ✅ añadido
+import Image from "next/image";
 import { Facebook, Twitter, Instagram, Mail, Phone, Globe } from 'lucide-react';
 import type { getSharedDictionary } from "@/lib/dictionaries/shared";
-// ❌ quitado: import { Logo } from "../Logo";
 import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 import { Locale } from "@/i18n-config";
@@ -36,7 +36,6 @@ export function Footer({ dictionary, lang }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              {/* ✅ Solo cambiamos el logo */}
               <div className="h-20 w-20">
                 <Image
                   src="/logo-final.png"

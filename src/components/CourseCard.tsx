@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button'
 import { MapPin, Star } from 'lucide-react'
 import { StarRating } from './StarRating'
-import { CourseImage } from '@/components/ui/optimized-image'
+import SafeImage from '@/components/SafeImage'
 import { normalizeImageUrl } from '@/lib/normalize'
 import type { getDictionary } from '@/lib/get-dictionary'
 import type { Locale } from '@/i18n-config'
@@ -28,11 +28,11 @@ export function CourseCard({ course, dictionary, lang, asLink = false }: CourseC
     <Card className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
       <CardHeader className="p-0">
         <div className="relative h-56 w-full overflow-hidden rounded-t-lg">
-          <CourseImage
+          <SafeImage
             src={normalizeImageUrl(course.imageUrls?.[0]) ?? '/images/fallback.svg'}
             alt={`Vista del campo de golf ${course.name}`}
             fill
-            className="transition-transform duration-300 group-hover:scale-110"
+            className="transition-transform duration-300 group-hover:scale-110 object-cover"
             priority={false}
             quality={85}
           />

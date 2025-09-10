@@ -3,11 +3,8 @@ import * as React from 'react';
 import { Sidebar, SidebarProvider, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset } from "@/components/ui/sidebar";
 import { Home, GanttChartSquare, BookMarked, Users, Settings, MessageSquareQuote, FileText, TicketPercent, Database } from "lucide-react";
 import Link from "next/link";
-import { UserNav } from "@/components/auth/UserNav";
-import { Header } from "@/components/layout/Header";
 import { type Locale } from "@/i18n-config";
 import { AdminAuthGuard } from "@/components/auth/AdminAuthGuard";
-import { getSharedDictionary } from "@/lib/dictionaries/shared";
 
 export default async function AdminLayout({
   children,
@@ -18,7 +15,7 @@ export default async function AdminLayout({
 }) {
   const params = await paramsProp;
   const lang = params.lang;
-  const sharedDictionary = await getSharedDictionary(lang);
+  
   return (
     <AdminAuthGuard>
       <SidebarProvider>
@@ -100,7 +97,6 @@ export default async function AdminLayout({
                   <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                       <div className="flex items-center gap-2 px-4">
                           <SidebarTrigger className="-ml-1" />
-                          <Header lang={lang} dictionary={sharedDictionary} />
                       </div>
                   </header>
                   <main className="flex-1 overflow-y-auto p-4 md:p-6">
