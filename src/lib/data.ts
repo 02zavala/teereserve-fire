@@ -55,11 +55,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         holes18: { yards: 7040, par: 72 }
       },
       imageUrls: [
-        "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center",
+        "/images/fallback.svg"
       ],
       latLng: { lat: 22.876, lng: -109.931 }
     },
@@ -84,11 +80,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         holes27: { yards: 10500, par: 108 }
       },
       imageUrls: [
-        "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center",
+        "/images/fallback.svg"
       ],
       latLng: { lat: 23.013, lng: -109.736 }
     },
@@ -111,11 +103,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
           holes18: { yards: 6945, par: 72 }
         },
         imageUrls: [
-            "https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center", 
-            "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center", 
-            "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center", 
-            "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center", 
-            "https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center"
+            "/images/fallback.svg"
         ],
         latLng: { lat: 22.918, lng: -109.831 }
     },
@@ -140,11 +128,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
           holes27: { yards: 10200, par: 108 }
         },
         imageUrls: [
-            "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center", 
-            "https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center",
-            "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center",
-            "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center",
-            "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center"
+            "/images/fallback.svg"
         ],
         latLng: { lat: 23.064, lng: -109.682 }
     },
@@ -166,7 +150,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         holeDetails: {
           holes9: { yards: 3000, par: 36 }
         },
-        imageUrls: ['https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 23.045, lng: -109.708 }
     },
     {
@@ -181,7 +165,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
           openingTime: "07:00",
           closingTime: "18:00"
         },
-        imageUrls: ['https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 22.955, lng: -109.789 }
     },
     {
@@ -196,7 +180,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
           openingTime: "07:30",
           closingTime: "17:30"
         },
-        imageUrls: ['https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 23.078, lng: -109.735 }
     },
     {
@@ -211,7 +195,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
           openingTime: "06:30",
           closingTime: "18:30"
         },
-        imageUrls: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 22.898, lng: -109.897 }
     },
     {
@@ -226,7 +210,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
           openingTime: "06:00",
           closingTime: "19:00"
         },
-        imageUrls: ['https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 22.951, lng: -110.021 }
     },
     {
@@ -236,7 +220,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Firma de Gary Player, 18 hoyos con vistas panorámicas al Mar de Cortés. Cambios de elevación dramáticos, desierto y mar, con practice range y halfway house escénica.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 80,
-        imageUrls: ['https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 24.195, lng: -110.320 }
     },
     {
@@ -246,7 +230,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Diseñado por Arthur Hills, estilo links oceánico de 18 hoyos en 7,039 yardas. Paisaje de dunas reminiscentes de Escocia, con vistas al Golfo de California.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 90,
-        imageUrls: ['https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 24.237, lng: -110.334 }
     },
     {
@@ -256,7 +240,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: '18 hoyos multi-temáticos por Rees Jones, con valles, arroyos, dunas y colinas. Vistas panorámicas a Danzante Bay y Mar de Cortés, greens slick y vientos desafiantes.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 150,
-        imageUrls: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 25.828, lng: -111.306 }
     },
     {
@@ -266,7 +250,7 @@ const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Diseñado por Robert Trent Jones II, links-like con fairways anchos, condiciones firmes y rápidas. Vistas de desierto y mar, terreno divertido para todos los niveles.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 250,
-        imageUrls: ['https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center', 'https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=800&h=600&fit=crop&crop=center'],
+        imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 23.633, lng: -109.689 }
     },
   ];

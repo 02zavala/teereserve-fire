@@ -1,9 +1,8 @@
 
 "use client";
 
-import { LazyDashboard } from '@/components/admin/LazyAdminPage';
-
+import { Dashboard } from '@/components/admin/Dashboard';
 
 export default function DashboardPage() {
-    return <LazyDashboard />;
+    return <Dashboard />;
 }

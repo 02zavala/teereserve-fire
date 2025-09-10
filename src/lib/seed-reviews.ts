@@ -23,7 +23,7 @@ const sampleReviews: SampleReview[] = [
   {
     userId: 'user1',
     userName: 'Carlos Mendoza',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    userAvatar: '/images/fallback.svg',
     rating: 5,
     text: 'Experiencia increíble en este campo de golf. Las vistas son espectaculares y el servicio es de primera clase.',
     comment: 'Experiencia increíble en este campo de golf. Las vistas son espectaculares y el servicio es de primera clase.',
@@ -39,7 +39,7 @@ const sampleReviews: SampleReview[] = [
   {
     userId: 'user2',
     userName: 'María González',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+    userAvatar: '/images/fallback.svg',
     rating: 5,
     text: 'El campo está en perfectas condiciones. Los greens son rápidos y justos. Definitivamente regresaré.',
     comment: 'El campo está en perfectas condiciones. Los greens son rápidos y justos. Definitivamente regresaré.',
@@ -55,7 +55,7 @@ const sampleReviews: SampleReview[] = [
   {
     userId: 'user3',
     userName: 'Roberto Silva',
-    userAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    userAvatar: '/images/fallback.svg',
     rating: 4,
     text: 'Excelente campo con desafíos interesantes. El personal es muy amable y profesional.',
     comment: 'Excelente campo con desafíos interesantes. El personal es muy amable y profesional.',
@@ -71,7 +71,7 @@ const sampleReviews: SampleReview[] = [
   {
     userId: 'user4',
     userName: 'Ana Rodríguez',
-    userAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    userAvatar: '/images/fallback.svg',
     rating: 5,
     text: 'Las instalaciones son de lujo. El club house tiene todo lo que necesitas para una experiencia completa.',
     comment: 'Las instalaciones son de lujo. El club house tiene todo lo que necesitas para una experiencia completa.',
@@ -87,7 +87,7 @@ const sampleReviews: SampleReview[] = [
   {
     userId: 'user5',
     userName: 'Diego Martínez',
-    userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+    userAvatar: '/images/fallback.svg',
     rating: 4,
     text: 'Campo muy bien mantenido con vistas impresionantes. La experiencia de juego es excepcional.',
     comment: 'Campo muy bien mantenido con vistas impresionantes. La experiencia de juego es excepcional.',
@@ -103,7 +103,7 @@ const sampleReviews: SampleReview[] = [
   {
     userId: 'user6',
     userName: 'Sofía López',
-    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+    userAvatar: '/images/fallback.svg',
     rating: 5,
     text: 'Una joya escondida. El diseño del campo es desafiante pero justo. Altamente recomendado.',
     comment: 'Una joya escondida. El diseño del campo es desafiante pero justo. Altamente recomendado.',

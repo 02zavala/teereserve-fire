@@ -29,7 +29,7 @@ const GolfCourseRecommendationSchema = z.object({
   description: z.string().describe('A short, personalized description of why this course is recommended for the user.'),
   price: z.number().describe('The price to play at this golf course.'),
   location: z.string().describe('The location of the recommended course (e.g., "Cabo San Lucas").'),
-  imageUrl: z.string().describe('A high-quality golf course image URL from Unsplash (use https://images.unsplash.com/photo-[id]?w=800&h=600&fit=crop&crop=center format)'),
+  imageUrl: z.string().describe("The URL for the course's primary image. This MUST be taken from the provided imageUrl in the available course list."),
   reason: z.string().describe('The reasons this course is recommended to the user, based on their past preferences or current context.'),
   tags: z.array(z.string()).describe("Descriptive tags such as 'best value today' or 'recommended for your style of play'."),
 });
@@ -53,13 +53,14 @@ const recommendGolfCoursesFlow = ai.defineFlow(
     // 1. Fetch the list of available golf courses
     const availableCourses = await getCourses({});
     
-    // 2. Prepare the course data for the prompt
+    // 2. Prepare the course data for the prompt, including the image URL
     const courseListForPrompt = availableCourses.map(course => ({
       id: course.id,
       name: course.name,
       location: course.location,
       description: course.description.substring(0, 150) + '...', // Keep it brief
       basePrice: course.basePrice,
+      imageUrl: course.imageUrls[0] || '', // Provide the primary image URL
     }));
 
     // 3. Define the prompt with the added context
@@ -83,10 +84,8 @@ const recommendGolfCoursesFlow = ai.defineFlow(
       Do NOT recommend the course if its ID matches the 'Current Course ID'.
 
       Format your recommendations in JSON format.
+      For each recommendation, you MUST use the exact 'imageUrl' provided for that course from the list above. Do not invent or use any other image source.
       Include a personalized description of why each course is recommended for the user.
-      Include the price, image URL and descriptive tags as well.
-      Use high-quality golf course images from Unsplash with format: https://images.unsplash.com/photo-[id]?w=800&h=600&fit=crop&crop=center
-      Vary the photo IDs to show different golf course scenes: 1535131749006-b7f58c99034b, 1593111774240-d529f12cf4bb, 1587174486073-ae5e5cff23aa, 1506905925346-21bda4d32df4, 1596727147705-61a532a659bd, 1551698618-1dfe5d97d256.
       The tags are used to highlight reasons or special offers such as "best value today" or "recommended for your style of play".
       `,
       output: { schema: RecommendGolfCoursesOutputSchema },
