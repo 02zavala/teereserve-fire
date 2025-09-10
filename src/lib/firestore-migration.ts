@@ -44,7 +44,7 @@ export interface BookingMigrationData {
  * Enhanced Firestore migration utility for guest booking operations
  */
 export class FirestoreMigrationService {
-  private db: FirebaseFirestore.Firestore;
+  private db: FirebaseFirestore.Firestore | null = null;
   private defaultOptions: MigrationOptions = {
     batchSize: 450,
     validateAfterMigration: true,
@@ -53,7 +53,16 @@ export class FirestoreMigrationService {
   };
 
   constructor(db?: FirebaseFirestore.Firestore) {
-    this.db = db || getFirestore();
+    if (db) {
+      this.db = db;
+    }
+  }
+
+  private getDb(): FirebaseFirestore.Firestore {
+    if (!this.db) {
+      this.db = getFirestore();
+    }
+    return this.db;
   }
 
   /**
@@ -89,7 +98,7 @@ export class FirestoreMigrationService {
       }
 
       // Query for guest bookings
-      const bookingsQuery = this.db.collection('bookings')
+      const bookingsQuery = this.getDb().collection('bookings')
         .where('userId', '==', anonymousUid)
         .where('isGuest', '==', true);
 
@@ -177,7 +186,7 @@ export class FirestoreMigrationService {
       }
 
       // Query for guest bookings
-      const bookingsQuery = this.db.collection('bookings')
+      const bookingsQuery = this.getDb().collection('bookings')
         .where('userId', '==', guestUserId)
         .where('isGuest', '==', true);
 
@@ -255,7 +264,7 @@ export class FirestoreMigrationService {
       skippedIds: []
     };
 
-    const batch = this.db.batch();
+    const batch = this.getDb().batch();
     let operationCount = 0;
 
     for (const doc of bookingDocs) {
@@ -296,7 +305,7 @@ export class FirestoreMigrationService {
         );
 
         // Add to batch
-        const bookingRef = this.db.collection('bookings').doc(bookingId);
+        const bookingRef = this.getDb().collection('bookings').doc(bookingId);
         batch.update(bookingRef, migrationData);
         operationCount++;
         result.successCount++;
@@ -405,7 +414,7 @@ export class FirestoreMigrationService {
   private async validateMigration(targetUserId: string, bookingIds: string[]): Promise<void> {
     try {
       const validationPromises = bookingIds.map(async (bookingId) => {
-        const bookingDoc = await this.db.collection('bookings').doc(bookingId).get();
+        const bookingDoc = await this.getDb().collection('bookings').doc(bookingId).get();
         const data = bookingDoc.data();
         
         if (!data || data.userId !== targetUserId || data.isGuest !== false) {
@@ -431,7 +440,7 @@ export class FirestoreMigrationService {
     guestBookings: number;
   }> {
     try {
-      const bookingsSnapshot = await this.db.collection('bookings')
+      const bookingsSnapshot = await this.getDb().collection('bookings')
         .where('userId', '==', userId)
         .get();
 

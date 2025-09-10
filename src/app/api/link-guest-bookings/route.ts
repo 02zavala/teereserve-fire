@@ -4,36 +4,39 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { FirestoreMigrationService } from '@/lib/firestore-migration';
 
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
+// Helper functions to safely initialize and get Firebase services
+function initializeFirebaseIfNeeded() {
+  if (typeof window !== 'undefined') {
+    throw new Error('Firebase Admin cannot be used on client side');
+  }
+  
+  if (!getApps().length) {
+    try {
+      if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+        initializeApp({
+          credential: cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          }),
+        });
+      } else {
+        throw new Error('Firebase environment variables not configured');
+      }
+    } catch (error) {
+      console.error('Firebase initialization failed:', error);
+      throw error;
     }
-  } catch (error) {
-    // During build time, Firebase initialization might fail
-    console.warn('Firebase initialization failed during build:', error);
   }
 }
 
-// Helper functions to safely get Firebase services
 function getFirebaseAuth() {
-  if (!getApps().length) {
-    throw new Error('Firebase not initialized');
-  }
+  initializeFirebaseIfNeeded();
   return getAuth();
 }
 
 function getFirebaseFirestore() {
-  if (!getApps().length) {
-    throw new Error('Firebase not initialized');
-  }
+  initializeFirebaseIfNeeded();
   return getFirestore();
 }
 
