@@ -6,13 +6,20 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 
 // Initialize Firebase Admin if not already initialized
 if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+  try {
+    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+      initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+      });
+    }
+  } catch (error) {
+    // During build time, Firebase initialization might fail
+    console.warn('Firebase initialization failed during build:', error);
+  }
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

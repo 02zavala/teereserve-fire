@@ -6,13 +6,35 @@ import { FirestoreMigrationService } from '@/lib/firestore-migration';
 
 // Initialize Firebase Admin if not already initialized
 if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+  try {
+    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+      initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+      });
+    }
+  } catch (error) {
+    // During build time, Firebase initialization might fail
+    console.warn('Firebase initialization failed during build:', error);
+  }
+}
+
+// Helper functions to safely get Firebase services
+function getFirebaseAuth() {
+  if (!getApps().length) {
+    throw new Error('Firebase not initialized');
+  }
+  return getAuth();
+}
+
+function getFirebaseFirestore() {
+  if (!getApps().length) {
+    throw new Error('Firebase not initialized');
+  }
+  return getFirestore();
 }
 
 interface LinkGuestBookingsRequest {
@@ -32,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await getFirebaseAuth().verifyIdToken(token);
 
     const body: LinkGuestBookingsRequest = await request.json();
     const { guestUserId, authenticatedUserId, bookingIds = [] } = body;
@@ -52,7 +74,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = getFirestore();
+    const db = getFirebaseFirestore();
 
     // Link guest bookings to authenticated user using enhanced migration service
     const migrationService = new FirestoreMigrationService(db);
@@ -335,7 +357,7 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await getFirebaseAuth().verifyIdToken(token);
     
     const { searchParams } = new URL(request.url);
     const guestUserId = searchParams.get('guestUserId');
@@ -347,7 +369,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const db = getFirestore();
+    const db = getFirebaseFirestore();
     
     // Get guest bookings
     const bookingsQuery = db.collection('bookings')

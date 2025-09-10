@@ -48,3 +48,8 @@ runConfig:
       secret: ZOHO_MAIL_FROM
     - variable: CONTACT_FORM_RECIPIENT
       secret: CONTACT_FORM_RECIPIENT
+env:
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+  - variable: NEXT_PUBLIC_STRIPE
+    secret: NEXT_PUBLIC_STRIPE

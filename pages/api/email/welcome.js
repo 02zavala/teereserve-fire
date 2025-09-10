@@ -1,5 +1,14 @@
 import { EmailService } from '../../../lib/email';
-import { verifyIdToken } from '../../../lib/firebase-admin';
+import { auth as adminAuth } from '../../../src/lib/firebase-admin';
+
+// Helper function to verify token
+const verifyIdToken = async (token) => {
+  if (!adminAuth) {
+    throw new Error("Firebase Admin SDK not initialized.");
+  }
+  return await adminAuth.verifyIdToken(token);
+};
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

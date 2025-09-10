@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "teetime-concierge"
-  }
+    "default": "teetime-concierge",
+    "fire": "teereserve-golf"
+  },
+  "targets": {},
+  "etags": {}
 }

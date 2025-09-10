@@ -35,7 +35,7 @@ interface CourseDataInput {
 // NOTE: The images for this initial set of courses are static assets.
 // They are located in the `/public` folder and served directly.
 // Any new courses added via the admin panel will have their images uploaded to Firebase Storage.
-const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
+export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
     {
       id: "solmar-golf-links",
       name: "Solmar Golf Links",
