@@ -70,6 +70,12 @@
         ]
       }
     ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "ssrteereservegolf"
+      }
+    ],
     "cleanUrls": true,
     "trailingSlash": false
   },

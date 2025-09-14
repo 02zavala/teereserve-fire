@@ -106,22 +106,8 @@ export function TeeTimePicker({ courseId, basePrice, teeTimeInterval, operatingH
     const taxes = subtotal * TAX_RATE;
     const totalPrice = subtotal + taxes;
 
-    const bookingUrl = selectedTeeTime && date
-    ? (() => {
-        const params = `courseId=${courseId}&date=${format(date, 'yyyy-MM-dd')}&time=${selectedTeeTime.time}&players=${players}&holes=${holes}&price=${subtotal.toFixed(2)}&teeTimeId=${selectedTeeTime.id}&comments=${encodeURIComponent(comments)}`;
-        
-        // Construir URL de reserva - todos van a book/confirm
-        const bookingUrl = `/${lang}/book/confirm?${params}`;
-
-        console.log('🔄 Redirection logic:', {
-          hasUser: !!user,
-          isAnonymous: user?.isAnonymous,
-          redirectTo: bookingUrl
-        });
-        
-        return bookingUrl;
-    })()
-    : '#';
+    // No necesitamos construir URL aquí, el flujo de pago se maneja en BookingModal
+    const bookingUrl = '#';
 
     if (!isClient) {
         return (

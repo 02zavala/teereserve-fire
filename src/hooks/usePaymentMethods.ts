@@ -85,15 +85,11 @@ export function usePaymentMethods() {
     try {
       const token = await user.getIdToken();
       
-      // Generate idempotency key for this operation
-      const idempotencyKey = `save-pm-${paymentMethodId}-${Date.now()}`;
-      
       const response = await fetchWithAbort('/api/payment-methods', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-          'Idempotency-Key': idempotencyKey,
         },
         body: JSON.stringify({ paymentMethodId }),
       });
@@ -132,9 +128,21 @@ export function usePaymentMethods() {
       
       throw new Error('Invalid response format');
     } catch (error: any) {
-      console.error({ scope: 'savePaymentMethod', err: error });
+      // Improved error logging with more details
+      const errorDetails = {
+        scope: 'savePaymentMethod',
+        error: error?.message || 'Unknown error',
+        errorType: error?.constructor?.name || 'Unknown',
+        errorCode: error?.code,
+        errorType_stripe: error?.type,
+        paymentMethodId,
+        timestamp: new Date().toISOString(),
+        stack: error?.stack
+      };
       
-      const errorMessage = error.message || 'Failed to save payment method';
+      console.error('SavePaymentMethod Error Details:', errorDetails);
+      
+      const errorMessage = error?.message || 'Failed to save payment method';
       toast({
         title: 'Error',
         description: errorMessage,
