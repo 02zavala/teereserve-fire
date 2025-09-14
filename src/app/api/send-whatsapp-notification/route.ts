@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
             `⏰ *Hora:* ${time}\n` +
             `👥 *Jugadores:* ${players}\n` +
             `⛳ *Hoyos:* ${holes}\n` +
-            `💰 *Total Pagado:* $${totalPrice}\n\n` +
+            `💰 *Total Pagado:* $${totalPrice ? parseFloat(totalPrice).toFixed(2) : '0.00'}\n\n` +
             `📋 *Información Importante:*\n` +
             `• Llega 30 minutos antes de tu hora de salida\n` +
             `• Presenta este mensaje o tu identificación en recepción\n` +

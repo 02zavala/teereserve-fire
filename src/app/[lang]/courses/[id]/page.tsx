@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { dateLocales } from "@/lib/date-utils";
 import { BookingModal } from '@/components/BookingModal';
 import { useAuth } from '@/context/AuthContext';
+import { pricingEngine } from '@/lib/pricing-engine';
 
 function WeatherPlaceholder() {
     return (
@@ -121,8 +122,8 @@ export default function CourseDetailPage() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
-    const courseId = Array.isArray(params.id) ? params.id[0] : params.id;
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const courseId = params ? (Array.isArray(params.id) ? params.id[0] : params.id) : null;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         if (!courseId || !lang) return;
@@ -241,12 +242,12 @@ export default function CourseDetailPage() {
                             {/* Booking Card */}
                             <Card className="bg-card/90 backdrop-blur-sm border-border/60 shadow-lg">
                                 <CardHeader>
-                                    <CardTitle className="font-headline text-2xl text-primary">Reservar Tee Time</CardTitle>
+                                    <CardTitle className="font-headline text-2xl text-primary">{dictionary.courseDetail?.bookTeeTime || 'Book Tee Time'}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="text-center">
-                                        <p className="text-3xl font-bold text-primary">${course.basePrice}</p>
-                                        <p className="text-sm text-muted-foreground">por jugador</p>
+                                        <p className="text-3xl font-bold text-primary">${course ? pricingEngine.getMinimumPrice(course.id) : 295}</p>
+                                        <p className="text-sm text-muted-foreground">{dictionary.courseDetail?.perPlayer || 'per player'}</p>
                                     </div>
                                     <Button 
                                         onClick={() => {

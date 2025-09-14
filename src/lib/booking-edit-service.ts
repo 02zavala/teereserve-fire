@@ -120,6 +120,12 @@ class BookingEditService {
     const warnings: string[] = []
     const rules = this.getCourseRules(course.id)
     const now = new Date()
+    
+    if (!booking.teeDateTime) {
+      reasons.push('Fecha y hora de tee time no válida')
+      return { canEdit: false, reasons, warnings }
+    }
+    
     const teeTime = new Date(booking.teeDateTime)
     const hoursUntilTee = (teeTime.getTime() - now.getTime()) / (1000 * 60 * 60)
 
@@ -171,7 +177,7 @@ class BookingEditService {
         booking,
         course,
         newData.teeDateTime,
-        newData.numberOfPlayers || booking.numberOfPlayers
+        newData.numberOfPlayers || booking.numberOfPlayers || booking.players || 1
       )
       reasons.push(...dateValidation.reasons)
       warnings.push(...dateValidation.warnings)
@@ -198,11 +204,13 @@ class BookingEditService {
   ): { reasons: string[]; warnings: string[] } {
     const reasons: string[] = []
     const warnings: string[] = []
-    const currentPlayers = booking.numberOfPlayers
+    const currentPlayers = booking.numberOfPlayers || booking.players || 1
 
-    // Validar límites del curso
-    if (newPlayerCount < course.minPlayers || newPlayerCount > course.maxPlayers) {
-      reasons.push(`El número de jugadores debe estar entre ${course.minPlayers} y ${course.maxPlayers}`)
+    // Validar límites del curso (usar valores por defecto si no están definidos)
+    const minPlayers = 1; // Default minimum players
+    const maxPlayers = 4; // Default maximum players
+    if (newPlayerCount < minPlayers || newPlayerCount > maxPlayers) {
+      reasons.push(`El número de jugadores debe estar entre ${minPlayers} y ${maxPlayers}`)
     }
 
     // Validar reducción de jugadores
@@ -232,7 +240,7 @@ class BookingEditService {
 
     // Validar lead time del curso
     const hoursUntilNewTee = (newDateTime.getTime() - now.getTime()) / (1000 * 60 * 60)
-    const minLeadTime = course.minLeadTimeHours || 3
+    const minLeadTime = 3 // Default minimum lead time in hours
     if (hoursUntilNewTee < minLeadTime) {
       reasons.push(`Se requiere mínimo ${minLeadTime} horas de anticipación`)
     }
@@ -301,7 +309,7 @@ class BookingEditService {
     newData: EditableBookingData
   ): PriceCalculation {
     const rules = this.getCourseRules(course.id)
-    const originalTotal = booking.totalAmount
+    const originalTotal = booking.pricing_snapshot?.total_cents ? booking.pricing_snapshot.total_cents / 100 : 0
     let newTotal = originalTotal
     let rescheduleFee = 0
     let transferFee = 0
@@ -318,14 +326,18 @@ class BookingEditService {
 
     // Calcular diferencia por cambio de jugadores
     if (newData.numberOfPlayers && newData.numberOfPlayers !== booking.numberOfPlayers) {
-      const playerDiff = newData.numberOfPlayers - booking.numberOfPlayers
-      const pricePerPlayer = booking.totalAmount / booking.numberOfPlayers
+      const currentPlayers = booking.numberOfPlayers || booking.players || 1
+      const playerDiff = newData.numberOfPlayers - currentPlayers
+      const pricePerPlayer = originalTotal / currentPlayers
       
       if (playerDiff > 0) {
         // Agregar jugadores
         newTotal += playerDiff * pricePerPlayer
       } else {
         // Quitar jugadores
+        if (!booking.teeDateTime) {
+          throw new Error('Booking tee date time is required for player reduction calculation')
+        }
         const hoursUntilTee = (new Date(booking.teeDateTime).getTime() - new Date().getTime()) / (1000 * 60 * 60)
         const refundPercent = hoursUntilTee >= rules.minPlayersReductionHours 
           ? rules.playerReductionRefundPercent.early 
@@ -371,7 +383,7 @@ class BookingEditService {
   private detectChanges(booking: Booking, newData: EditableBookingData): BookingChange[] {
     const changes: BookingChange[] = []
 
-    if (newData.teeDateTime && newData.teeDateTime.getTime() !== new Date(booking.teeDateTime).getTime()) {
+    if (newData.teeDateTime && booking.teeDateTime && newData.teeDateTime.getTime() !== new Date(booking.teeDateTime).getTime()) {
       changes.push({
         field: 'teeDateTime',
         oldValue: booking.teeDateTime,
@@ -389,12 +401,12 @@ class BookingEditService {
       })
     }
 
-    if (newData.customerInfo) {
+    if (newData.customerInfo && booking.customerInfo) {
       Object.entries(newData.customerInfo).forEach(([key, value]) => {
-        if (value && value !== booking.customerInfo[key as keyof typeof booking.customerInfo]) {
+        if (value && value !== booking.customerInfo![key as keyof typeof booking.customerInfo]) {
           changes.push({
             field: `customerInfo.${key}`,
-            oldValue: booking.customerInfo[key as keyof typeof booking.customerInfo],
+            oldValue: booking.customerInfo![key as keyof typeof booking.customerInfo],
             newValue: value,
             description: `${key} cambiado`
           })
@@ -477,7 +489,7 @@ class BookingEditService {
           booking,
           course,
           newData.teeDateTime,
-          newData.numberOfPlayers || booking.numberOfPlayers
+          newData.numberOfPlayers || booking.numberOfPlayers || booking.players || 1
         )
         
         if (!inventoryResult.success) {
@@ -616,7 +628,7 @@ class BookingEditService {
   ): Promise<Booking> {
     const updatedBooking: Booking = {
       ...booking,
-      ...(newData.teeDateTime && { teeDateTime: newData.teeDateTime.toISOString() }),
+      ...(newData.teeDateTime && { teeDateTime: newData.teeDateTime }),
       ...(newData.numberOfPlayers && { numberOfPlayers: newData.numberOfPlayers }),
       ...(newData.addOns && { addOns: newData.addOns }),
       ...(newData.customerInfo && { 
@@ -641,6 +653,9 @@ class BookingEditService {
     try {
       const rules = this.getCourseRules(course.id)
       const now = new Date()
+      if (!booking.teeDateTime) {
+        throw new Error('Booking tee date time is required for validation')
+      }
       const teeTime = new Date(booking.teeDateTime)
       const hoursUntilTee = (teeTime.getTime() - now.getTime()) / (1000 * 60 * 60)
 

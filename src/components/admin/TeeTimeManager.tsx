@@ -41,13 +41,11 @@ export function TeeTimeManager({ course, lang }: TeeTimeManagerProps) {
             const times = await getTeeTimesForCourse(
                 course.id, 
                 selectedDate, 
-                course.basePrice,
-                course.teeTimeInterval,
-                course.operatingHours
+                course.basePrice
             );
             setTeeTimes(times);
         });
-    }, [selectedDate, course.id, course.basePrice, course.teeTimeInterval, course.operatingHours]);
+    }, [selectedDate, course.id, course.basePrice]);
     
     const handleTeeTimeChange = (id: string, field: 'price' | 'status', value: string | number) => {
         setTeeTimes(currentTimes =>

@@ -178,23 +178,64 @@ export async function sendBookingConfirmation(userEmail, bookingDetails) {
                     <span class="value">${bookingDetails.players}</span>
                   </div>
                   
-                  ${bookingDetails.subtotal ? `
-                  <div class="detail-row">
-                    <span class="label">💰 Subtotal:</span>
-                    <span class="value">$${bookingDetails.subtotal} USD</span>
-                  </div>
-                  ` : ''}
+                  <!-- Payment Summary Section -->
+                  <h3 style="color: #2d5016; margin: 20px 0 10px 0; border-bottom: 2px solid #4a7c59; padding-bottom: 5px;">💳 Resumen de Pago</h3>
                   
-                  ${bookingDetails.discount ? `
+                  ${bookingDetails.pricing_snapshot ? `
+                  <!-- Using pricing_snapshot data -->
                   <div class="detail-row">
-                    <span class="label">🎟️ Descuento ${bookingDetails.discountCode ? '(' + bookingDetails.discountCode + ')' : ''}:</span>
-                    <span class="value" style="color: #059669;">-$${bookingDetails.discount} USD</span>
+                    <span class="label">Subtotal:</span>
+                    <span class="value">${new Intl.NumberFormat('es-MX', { style: 'currency', currency: bookingDetails.pricing_snapshot.currency || 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bookingDetails.pricing_snapshot.subtotal_cents / 100)}</span>
                   </div>
-                  ` : ''}
+                  
+                  <div class="detail-row">
+                    <span class="label">Impuestos (${(bookingDetails.pricing_snapshot.tax_rate * 100).toFixed(0)}%):</span>
+                    <span class="value">${new Intl.NumberFormat('es-MX', { style: 'currency', currency: bookingDetails.pricing_snapshot.currency || 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bookingDetails.pricing_snapshot.tax_cents / 100)}</span>
+                  </div>
+                  
+                  ${bookingDetails.pricing_snapshot.discount_cents > 0 ? `
+                  <div class="detail-row">
+                    <span class="label">Descuento${bookingDetails.pricing_snapshot.promo_code ? ' (' + bookingDetails.pricing_snapshot.promo_code + ')' : ''}:</span>
+                    <span class="value" style="color: #059669;">-${new Intl.NumberFormat('es-MX', { style: 'currency', currency: bookingDetails.pricing_snapshot.currency || 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bookingDetails.pricing_snapshot.discount_cents / 100)}</span>
+                  </div>
+                  ` : `
+                  <div class="detail-row">
+                    <span class="label">Descuento:</span>
+                    <span class="value">$0.00</span>
+                  </div>
+                  `}
                   
                   <div class="total">
-                    💰 Total Final: $${bookingDetails.totalPrice} USD
+                    💰 Total: ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: bookingDetails.pricing_snapshot.currency || 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bookingDetails.pricing_snapshot.total_cents / 100)}
                   </div>
+                  ` : `
+                  <!-- Fallback to legacy pricing data -->
+                  <div class="detail-row">
+                    <span class="label">Subtotal:</span>
+                    <span class="value">${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((bookingDetails.subtotal_cents || bookingDetails.subtotal * 100 || 0) / 100)}</span>
+                  </div>
+                  
+                  <div class="detail-row">
+                    <span class="label">Impuestos (16%):</span>
+                    <span class="value">${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((bookingDetails.tax_cents || bookingDetails.taxes * 100 || 0) / 100)}</span>
+                  </div>
+                  
+                  ${(bookingDetails.discount_cents > 0 || bookingDetails.discount > 0) ? `
+                  <div class="detail-row">
+                    <span class="label">Descuento${bookingDetails.discountCode ? ' (' + bookingDetails.discountCode + ')' : ''}:</span>
+                    <span class="value" style="color: #059669;">-${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((bookingDetails.discount_cents || bookingDetails.discount * 100 || 0) / 100)}</span>
+                  </div>
+                  ` : `
+                  <div class="detail-row">
+                    <span class="label">Descuento:</span>
+                    <span class="value">$0.00</span>
+                  </div>
+                  `}
+                  
+                  <div class="total">
+                    💰 Total: ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((bookingDetails.total_cents || bookingDetails.totalPrice * 100 || 0) / 100)}
+                  </div>
+                  `}
                   
                 </div>
                 
@@ -600,7 +641,7 @@ export async function sendBookingReminder(userEmail, userName, bookingDetails) {
                   ${bookingDetails.totalPrice ? `
                   <div class="detail-row">
                     <span class="label">💰 Total Pagado:</span>
-                    <span class="value">$${bookingDetails.totalPrice} USD</span>
+                    <span class="value">${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bookingDetails.totalPrice)}</span>
                   </div>
                   ` : ''}
                 </div>

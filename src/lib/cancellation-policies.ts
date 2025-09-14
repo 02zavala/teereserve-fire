@@ -137,6 +137,8 @@ export class CancellationPolicyService {
           updatedAt: new Date(),
         } as CancellationPolicy,
         hoursUntilBooking,
+        description: WEATHER_OVERRIDE_POLICY.description || 'Cancelación por condiciones climáticas - Reembolso completo',
+        fees: [],
       };
     }
 
@@ -186,7 +188,7 @@ export class CancellationPolicyService {
     const fixedFee = policy.fixedFee || 0;
     const netRefund = Math.max(0, refundAmount - fixedFee);
 
-    const fees = [];
+    const fees: Array<{ name: string; amount: number; }> = [];
     if (fixedFee > 0) {
       fees.push({ name: 'Tarifa de procesamiento', amount: fixedFee });
     }

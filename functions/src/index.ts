@@ -2,14 +2,14 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
-import * as cors from 'cors';
+const cors = require('cors');
 
 // Initialize Firebase Admin
 admin.initializeApp();
 
 // Initialize Stripe
 const stripe = new Stripe(functions.config().stripe.secret_key, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-02-24.acacia',
 });
 
 // CORS configuration
@@ -226,25 +226,23 @@ export const stripeWebhook = functions.https.onRequest(async (req, res) => {
 
 /**
  * Clean up expired booking drafts
+ * TODO: Implement scheduled function for cleanup
  */
-export const cleanupExpiredDrafts = functions.pubsub
-  .schedule('every 10 minutes')
-  .onRun(async (context) => {
-    const now = admin.firestore.Timestamp.now();
-    
-    const expiredDrafts = await admin.firestore()
-      .collection('guestBookingDrafts')
-      .where('expiresAt', '<=', now)
-      .get();
+// export const cleanupExpiredDrafts = functions.pubsub.schedule('every 10 minutes').onRun(async (context: functions.EventContext) => {
+//     const now = admin.firestore.Timestamp.now();
+//     
+//     const expiredDrafts = await admin.firestore()
+//       .collection('guestBookingDrafts')
+//       .where('expiresAt', '<=', now)
+//       .get();
 
-    const batch = admin.firestore().batch();
-    
-    expiredDrafts.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
+//     const batch = admin.firestore().batch();
+//     
+//     expiredDrafts.docs.forEach((doc) => {
+//       batch.delete(doc.ref);
+//     });
 
-    await batch.commit();
-    
-    console.log(`Cleaned up ${expiredDrafts.size} expired booking drafts`);
-    return null;
-  });
+//     await batch.commit();
+//     
+//     console.log(`Cleaned up ${expiredDrafts.size} expired booking drafts`);
+//   });

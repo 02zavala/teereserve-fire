@@ -12,11 +12,12 @@ import { DeleteCourseButton } from "./DeleteCourseButton";
 import { ToggleCourseVisibilityButton } from "./ToggleCourseVisibilityButton";
 import { ToggleFeaturedButton } from "./ToggleFeaturedButton";
 import { Locale } from "@/i18n-config";
+import { pricingEngine } from "@/lib/pricing-engine";
 
 
-export default async function CoursesAdminPage({ params }: { params: { lang: Locale }}) {
+export default async function CoursesAdminPage({ params }: { params: Promise<{ lang: Locale }> }) {
     const courses = await getCourses({ includeHidden: true });
-    const lang = params.lang;
+    const { lang } = await params;
     
     return (
         <div>
@@ -72,7 +73,7 @@ export default async function CoursesAdminPage({ params }: { params: { lang: Loc
                                         </div>
                                     </TableCell>
                                     <TableCell>{course.location}</TableCell>
-                                    <TableCell className="hidden md:table-cell">${course.basePrice}</TableCell>
+                                    <TableCell className="hidden md:table-cell">${pricingEngine.getMinimumPrice(course.id)}</TableCell>
                                     <TableCell className="hidden lg:table-cell">
                                         <Badge variant={course.hidden ? "secondary" : "default"}>
                                             {course.hidden ? (

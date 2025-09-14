@@ -503,5 +503,70 @@
             "notFound": "No reservation found with those details. Please check your information and try again.",
             "generic": "An unexpected error occurred. Please try again later."
         }
+    },
+    "reviewsPage": {
+        "writeNewReview": "Write New Review",
+        "golfCourse": "Golf Course",
+        "selectCourse": "Select a course",
+        "rating": "Rating",
+        "experienceType": "Experience Type",
+        "experienceTypes": {
+            "overall": "Overall",
+            "service": "Service",
+            "facilities": "Facilities",
+            "green": "Green"
+        },
+        "yourReview": "Your Review",
+        "reviewPlaceholder": "Share your experience at this golf course...",
+        "publishReview": "Publish Review",
+        "success": {
+            "likeAdded": "Like added",
+            "likeRegistered": "Your like has been registered",
+            "commentAdded": "Comment added",
+            "commentPublished": "Your comment has been published",
+            "linkCopied": "Link copied",
+            "linkCopiedToClipboard": "The link has been copied to clipboard",
+            "reviewSubmitted": "Review submitted",
+            "reviewPendingApproval": "Your review is pending approval"
+        },
+        "errors": {
+            "loadReviews": "Could not load reviews",
+            "signInToLike": "You must sign in to like",
+            "addLike": "Could not add like",
+            "addComment": "Could not add comment",
+            "shareReview": "Could not share review",
+            "signInToReview": "You must sign in to write a review",
+            "requiredFields": "Required fields",
+            "completeAllFields": "Please complete all fields",
+            "submitReview": "Could not submit review"
+        }
+    },
+    "courseDetail": {
+        "bookTeeTime": "Book Tee Time",
+        "perPlayer": "per player"
+    },
+    "common": {
+        "cancel": "Cancel",
+        "error": "Error",
+        "signIn": "Sign In"
+    },
+    "booking": {
+        "title": "Make a Reservation",
+        "loadingCourse": "Loading course...",
+        "duration": "Duration",
+        "price": "Price",
+        "description": "Description",
+        "bookingDetails": "Booking Details",
+        "selectCourse": "Select Course",
+        "courseIdPlaceholder": "Enter course ID",
+        "selectDate": "Select Date",
+        "pickDate": "Pick a date",
+        "selectTime": "Select Time",
+        "selectTimePlaceholder": "Select a time",
+        "participants": "Number of Participants",
+        "specialRequests": "Special Requests",
+        "specialRequestsPlaceholder": "Any special requirements or requests...",
+        "processing": "Processing...",
+        "confirmBooking": "Confirm Booking"
     }
 }

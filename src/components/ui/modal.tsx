@@ -141,7 +141,7 @@ export function Modal({
 
   if (!isOpen) return null;
 
-  const modalContent = (
+  const modalElement = (
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -217,7 +217,7 @@ export function Modal({
 
   // Usar portal para renderizar fuera del DOM tree
   return typeof window !== 'undefined' 
-    ? createPortal(modalContent, document.body)
+    ? createPortal(modalElement, document.body)
     : null;
 }
 

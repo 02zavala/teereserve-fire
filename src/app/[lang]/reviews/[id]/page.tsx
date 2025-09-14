@@ -14,10 +14,20 @@ interface ReviewDetailPageProps {
 }
 
 export async function generateMetadata({ params }: ReviewDetailPageProps): Promise<Metadata> {
-  await params;
+  const resolvedParams = await params;
+  const dictionary = await getDictionary(resolvedParams.lang);
+  
+  const title = resolvedParams.lang === 'es'
+    ? `Reseña de Golf | TeeReserve`
+    : `Golf Review | TeeReserve`;
+    
+  const description = resolvedParams.lang === 'es'
+    ? 'Lee los detalles de esta reseña de golf y las experiencias compartidas por otros golfistas.'
+    : 'Read the details of this golf review and experiences shared by other golfers.';
+  
   return {
-    title: `Reseña de Golf | TeeReserve`,
-    description: 'Lee los detalles de esta reseña de golf y las experiencias compartidas por otros golfistas.',
+    title,
+    description,
   };
 }
 

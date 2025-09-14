@@ -6,6 +6,9 @@ import { app } from '@/lib/firebase';
  */
 export async function detectAuthMethods(email: string) {
   try {
+    if (!app) {
+      throw new Error('Firebase app not initialized');
+    }
     const auth = getAuth(app);
     const methods = await fetchSignInMethodsForEmail(auth, email);
     

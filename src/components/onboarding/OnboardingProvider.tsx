@@ -57,6 +57,7 @@ export function OnboardingProvider({ children, lang }: OnboardingProviderProps) 
   const shouldShowOnboarding = showOnboarding && 
     dictionary && 
     dictionary.onboarding &&
+    pathname &&
     !pathname.includes('/admin') && 
     !pathname.includes('/auth') &&
     !pathname.includes('/login');

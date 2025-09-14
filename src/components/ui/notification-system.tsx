@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { notificationSlideIn } from '@/lib/animations';
@@ -85,7 +85,7 @@ export function useNotifications() {
 export function useToast() {
   const { addNotification } = useNotifications();
 
-  const toast = useCallback({
+  const toast = useMemo(() => ({
     success: (title: string, message?: string, options?: Partial<Notification>) => 
       addNotification({ type: 'success', title, message, ...options }),
     
@@ -134,7 +134,7 @@ export function useToast() {
         throw err;
       }
     },
-  }, [addNotification]);
+  }), [addNotification]);
 
   const { removeNotification } = useNotifications();
 

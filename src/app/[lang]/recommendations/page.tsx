@@ -23,13 +23,25 @@ export default async function AIRecommendationsPage({ params: paramsProp }: Reco
   let error: string | null = null;
 
   try {
-    const recommendationInput = {
-      userId: 'anonymous-user-dynamic',
-      location: 'Los Cabos',
-      numPlayers: 2,
-    };
-    const result = await recommendGolfCourses(recommendationInput);
-    recommendations = result.recommendations || [];
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/recommendations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: 'anonymous-user-dynamic',
+        location: 'Los Cabos',
+        numPlayers: 2,
+      }),
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      recommendations = result.recommendations || [];
+    } else {
+      throw new Error(result.error || 'Failed to get recommendations');
+    }
   } catch (err) {
     console.error("Failed to fetch AI recommendations:", err);
     error = t.error.message;

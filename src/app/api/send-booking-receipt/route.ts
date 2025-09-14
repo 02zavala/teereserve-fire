@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
                             </tr>
                             <tr style="border-top: 2px solid #10B981;">
                                 <td style="padding: 12px 0 8px 0; font-weight: bold; color: #10B981; font-size: 18px;">Total Pagado:</td>
-                                <td style="padding: 12px 0 8px 0; font-weight: bold; color: #10B981; font-size: 18px;">$${totalPrice}</td>
+                                <td style="padding: 12px 0 8px 0; font-weight: bold; color: #10B981; font-size: 18px;">$${totalPrice ? parseFloat(totalPrice).toFixed(2) : '0.00'}</td>
                             </tr>
                         </table>
                     </div>

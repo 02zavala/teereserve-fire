@@ -1,5 +1,5 @@
 import { getFirestore } from 'firebase-admin/firestore';
-import type { FirebaseFirestore } from 'firebase-admin/firestore';
+import type { Firestore } from 'firebase-admin/firestore';
 
 export interface MigrationResult {
   success: boolean;
@@ -44,7 +44,7 @@ export interface BookingMigrationData {
  * Enhanced Firestore migration utility for guest booking operations
  */
 export class FirestoreMigrationService {
-  private db: FirebaseFirestore.Firestore | null = null;
+  private db: Firestore | null = null;
   private defaultOptions: MigrationOptions = {
     batchSize: 450,
     validateAfterMigration: true,
@@ -52,13 +52,13 @@ export class FirestoreMigrationService {
     preserveOriginalData: true
   };
 
-  constructor(db?: FirebaseFirestore.Firestore) {
+  constructor(db?: Firestore) {
     if (db) {
       this.db = db;
     }
   }
 
-  private getDb(): FirebaseFirestore.Firestore {
+  private getDb(): Firestore {
     if (!this.db) {
       this.db = getFirestore();
     }
@@ -245,7 +245,7 @@ export class FirestoreMigrationService {
    * Process a batch of bookings for migration/linking
    */
   private async processMigrationBatch(
-    bookingDocs: FirebaseFirestore.QueryDocumentSnapshot[],
+    bookingDocs: any[],
     sourceUserId: string,
     targetUserId: string,
     specificBookingIds: string[],
@@ -306,7 +306,7 @@ export class FirestoreMigrationService {
 
         // Add to batch
         const bookingRef = this.getDb().collection('bookings').doc(bookingId);
-        batch.update(bookingRef, migrationData);
+        batch.update(bookingRef, migrationData as any);
         operationCount++;
         result.successCount++;
 

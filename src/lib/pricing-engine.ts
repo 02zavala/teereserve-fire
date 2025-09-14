@@ -32,10 +32,16 @@ export class PricingEngine {
   private specialOverrides: SpecialOverride[] = [];
   private baseProducts: Map<string, BaseProduct> = new Map();
   private priceCache: Map<string, PriceCache> = new Map();
+  private authToken: string | null = null;
 
   constructor() {
     // En producción, estos datos vendrían de la base de datos
     this.initializeDefaultData();
+  }
+
+  // Set authentication token for API calls
+  setAuthToken(token: string) {
+    this.authToken = token;
   }
 
   private generateId(): string {
@@ -329,7 +335,7 @@ export class PricingEngine {
         name: 'Rack Temporada Alta',
         seasonId: 'alta-oct-nov-2025',
         priceType: 'fixed',
-        priceValue: 2200,
+        priceValue: 120,
         priority: 90,
         active: true,
         createdAt: new Date().toISOString()
@@ -407,7 +413,7 @@ export class PricingEngine {
     this.baseProducts.set(courseId, {
       id: 'base-palmilla',
       courseId,
-      greenFeeBaseMxn: 1800, // Precio base
+      greenFeeBaseMxn: 95, // Precio base en USD
       cartFeeMxn: 300,
       caddieFeeMxn: 500,
       updatedAt: new Date().toISOString()
@@ -578,6 +584,7 @@ export class PricingEngine {
   updateBaseProduct(courseId: string, updates: Partial<BaseProduct>): BaseProduct {
     const existing = this.baseProducts.get(courseId);
     const updated: BaseProduct = {
+      greenFeeBaseMxn: 0, // Default value
       ...existing,
       ...updates,
       id: existing?.id || this.generateId(),
@@ -673,6 +680,7 @@ export class PricingEngine {
     
     // Cache the result for 10 minutes
     this.priceCache.set(cacheKey, {
+      id: this.generateId(),
       courseId: input.courseId,
       date: input.date,
       timeBand: input.time,
@@ -709,6 +717,7 @@ export class PricingEngine {
           const cacheKey = `${courseId}-${date}-${timeBand.id}`;
           
           results.set(cacheKey, {
+            id: this.generateId(),
             courseId,
             date,
             timeBand: timeBand.id,
@@ -778,6 +787,212 @@ export class PricingEngine {
     if (data.baseProduct) this.baseProducts.set(courseId, data.baseProduct);
     
     this.invalidateCache(courseId);
+  }
+
+  /**
+   * Calcula el precio mínimo para un campo específico
+   * basado en todas las reglas de precios configuradas
+   */
+  getMinimumPrice(courseId: string): number {
+    const priceRules = this.priceRules.get(courseId) || [];
+    const baseProduct = this.baseProducts.get(courseId);
+    const basePrice = baseProduct?.greenFeeBaseMxn || 295;
+    
+    if (priceRules.length === 0) {
+      return basePrice;
+    }
+
+    // Encontrar el precio mínimo entre todas las reglas
+    let minPrice = basePrice;
+    
+    for (const rule of priceRules) {
+      let calculatedPrice = basePrice;
+      
+      if (rule.priceType === 'fixed') {
+        calculatedPrice = rule.priceValue;
+      } else if (rule.priceType === 'delta') {
+        calculatedPrice = basePrice + rule.priceValue;
+      } else if (rule.priceType === 'multiplier') {
+        calculatedPrice = basePrice * rule.priceValue;
+      }
+      
+      if (calculatedPrice < minPrice) {
+        minPrice = calculatedPrice;
+      }
+    }
+
+    return Math.max(minPrice, 0); // Asegurar que no sea negativo
+  }
+
+  // Persistence methods
+  async loadPricingData(courseId: string): Promise<boolean> {
+    if (!this.authToken) {
+      console.warn('No auth token set for pricing engine');
+      return false;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/pricing/load?courseId=${courseId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to load pricing data:', response.statusText);
+        return false;
+      }
+
+      const result = await response.json();
+      if (!result.ok) {
+        console.error('API error loading pricing data:', result.error);
+        return false;
+      }
+
+      const { seasons, timeBands, priceRules, specialOverrides, baseProduct } = result.data;
+
+      // Load data into memory
+      if (seasons && seasons.length > 0) {
+        this.seasons.set(courseId, seasons);
+      }
+      
+      if (timeBands && timeBands.length > 0) {
+        this.timeBands.set(courseId, timeBands);
+      }
+      
+      if (priceRules && priceRules.length > 0) {
+        this.priceRules.set(courseId, priceRules);
+      }
+      
+      if (specialOverrides && specialOverrides.length > 0) {
+        // Filter overrides for this course and merge with existing
+        const courseOverrides = specialOverrides.filter((o: any) => o.courseId === courseId);
+        const otherOverrides = this.specialOverrides.filter(o => o.courseId !== courseId);
+        this.specialOverrides = [...otherOverrides, ...courseOverrides];
+      }
+      
+      if (baseProduct) {
+        this.baseProducts.set(courseId, baseProduct);
+      }
+
+      // Invalidate cache for this course
+      this.invalidateCache(courseId);
+      
+      console.log(`Pricing data loaded successfully for course: ${courseId}`);
+      return true;
+      
+    } catch (error) {
+      console.error('Error loading pricing data:', error);
+      return false;
+    }
+  }
+
+  async savePricingData(courseId: string): Promise<boolean> {
+    if (!this.authToken) {
+      console.warn('No auth token set for pricing engine');
+      return false;
+    }
+
+    try {
+      const pricingData = {
+        courseId,
+        seasons: this.getSeasons(courseId),
+        timeBands: this.getTimeBands(courseId),
+        priceRules: this.getPriceRules(courseId),
+        specialOverrides: this.getSpecialOverrides(courseId),
+        baseProduct: this.getBaseProduct(courseId)
+      };
+
+      const response = await fetch('/api/admin/pricing/save', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pricingData)
+      });
+
+      if (!response.ok) {
+        console.error('Failed to save pricing data:', response.statusText);
+        return false;
+      }
+
+      const result = await response.json();
+      if (!result.ok) {
+        console.error('API error saving pricing data:', result.error);
+        return false;
+      }
+
+      console.log(`Pricing data saved successfully for course: ${courseId}`);
+      return true;
+      
+    } catch (error) {
+      console.error('Error saving pricing data:', error);
+      return false;
+    }
+  }
+
+  // Auto-save wrapper methods that persist changes
+  async addSeasonWithPersistence(season: Omit<Season, 'id' | 'createdAt'>): Promise<Season> {
+    const newSeason = this.addSeason(season);
+    await this.savePricingData(season.courseId);
+    return newSeason;
+  }
+
+  async updateSeasonWithPersistence(id: string, updates: Partial<Season>): Promise<Season | null> {
+    const updated = this.updateSeason(id, updates);
+    if (updated) {
+      await this.savePricingData(updated.courseId);
+    }
+    return updated;
+  }
+
+  async addTimeBandWithPersistence(timeBand: Omit<TimeBand, 'id' | 'createdAt'>): Promise<TimeBand> {
+    const newTimeBand = this.addTimeBand(timeBand);
+    await this.savePricingData(timeBand.courseId);
+    return newTimeBand;
+  }
+
+  async updateTimeBandWithPersistence(id: string, updates: Partial<TimeBand>): Promise<TimeBand | null> {
+    const updated = this.updateTimeBand(id, updates);
+    if (updated) {
+      // Find courseId from the updated timeBand
+      for (const [courseId, timeBands] of this.timeBands.entries()) {
+        if (timeBands.find(t => t.id === id)) {
+          await this.savePricingData(courseId);
+          break;
+        }
+      }
+    }
+    return updated;
+  }
+
+  async addPriceRuleWithPersistence(priceRule: Omit<PriceRule, 'id' | 'createdAt'>): Promise<PriceRule> {
+    const newPriceRule = this.addPriceRule(priceRule);
+    await this.savePricingData(priceRule.courseId);
+    return newPriceRule;
+  }
+
+  async updatePriceRuleWithPersistence(id: string, updates: Partial<PriceRule>): Promise<PriceRule | null> {
+    const updated = this.updatePriceRule(id, updates);
+    if (updated) {
+      // Find courseId from the updated priceRule
+      for (const [courseId, priceRules] of this.priceRules.entries()) {
+        if (priceRules.find(r => r.id === id)) {
+          await this.savePricingData(courseId);
+          break;
+        }
+      }
+    }
+    return updated;
+  }
+
+  async updateBaseProductWithPersistence(courseId: string, updates: Partial<BaseProduct>): Promise<BaseProduct> {
+    const updated = this.updateBaseProduct(courseId, updates);
+    await this.savePricingData(courseId);
+    return updated;
   }
 }
 

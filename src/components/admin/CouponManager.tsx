@@ -99,7 +99,7 @@ export function CouponManager({ initialCoupons }: CouponManagerProps) {
   const { toast } = useToast();
   const { handleAsyncError } = useErrorHandler();
   const pathname = usePathname();
-  const lang = (pathname.split('/')[1] || 'en') as Locale;
+  const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
   const form = useForm<CouponFormValues>({
     resolver: zodResolver(formSchema),

@@ -35,7 +35,7 @@ export function PayPalButton({
   const { toast } = useToast();
 
   const createOrder = (data: any, actions: any) => {
-    logger.info('PayPal: Creating order', { amount, currency });
+    logger.info('PayPal: Creating order', 'paypal', { amount, currency });
     
     return actions.order.create({
       purchase_units: [
@@ -57,11 +57,11 @@ export function PayPalButton({
     setIsLoading(true);
     
     try {
-      logger.info('PayPal: Payment approved', { orderId: data.orderID });
+      logger.info('PayPal: Payment approved', 'paypal', { orderId: data.orderID });
       
       const details = await actions.order.capture();
       
-      logger.info('PayPal: Payment captured successfully', {
+      logger.info('PayPal: Payment captured successfully', 'paypal', {
         orderId: data.orderID,
         paymentId: details.id,
         status: details.status
@@ -75,7 +75,7 @@ export function PayPalButton({
       
       onSuccess(details);
     } catch (error) {
-      logger.error('PayPal: Payment capture failed', { error, orderId: data.orderID });
+      logger.error('PayPal: Payment capture failed', error instanceof Error ? error : new Error(String(error)), 'paypal', { orderId: data.orderID });
       
       toast({
         title: "Error en el pago",
@@ -90,7 +90,7 @@ export function PayPalButton({
   };
 
   const onErrorHandler = (error: any) => {
-    logger.error('PayPal: Payment error', { error });
+    logger.error('PayPal: Payment error', error instanceof Error ? error : new Error(String(error)), 'paypal');
     
     toast({
       title: "Error en PayPal",
@@ -102,7 +102,7 @@ export function PayPalButton({
   };
 
   const onCancel = (data: any) => {
-    logger.info('PayPal: Payment cancelled', { orderId: data.orderID });
+    logger.info('PayPal: Payment cancelled', 'paypal', { orderId: data.orderID });
     
     toast({
       title: "Pago cancelado",

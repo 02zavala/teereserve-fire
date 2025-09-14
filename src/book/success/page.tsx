@@ -30,13 +30,13 @@ function SuccessPageContent() {
     const [totalPrice, setTotalPrice] = useState<string | null>(null);
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
-    const courseId = searchParams.get('courseId');
-    const date = searchParams.get('date');
-    const time = searchParams.get('time');
-    const players = searchParams.get('players');
-    const price = searchParams.get('price'); // This is now subtotal
+    const courseId = searchParams?.get('courseId');
+    const date = searchParams?.get('date');
+    const time = searchParams?.get('time');
+    const players = searchParams?.get('players');
+    const price = searchParams?.get('price'); // This is now subtotal
 
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         // This effect runs only on the client, ensuring `date-fns` has access to the correct locale.
@@ -72,7 +72,7 @@ function SuccessPageContent() {
     const handlePrint = () => window.print();
 
     const getShareMessage = () => {
-        const message = `Booking Confirmation:\n\nCourse: ${course?.name}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal: $${totalPrice}\n\nBooked via TeeReserve!`;
+        const message = `Booking Confirmation:\n\nCourse: ${course?.name}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal: $${totalPrice ? parseFloat(totalPrice).toFixed(2) : '0.00'}\n\nBooked via TeeReserve!`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         // Basic share API for other apps
         if (navigator.share) {
@@ -89,7 +89,7 @@ function SuccessPageContent() {
 
     const getEmailMessage = () => {
         const subject = `Your Booking Confirmation for ${course?.name}`;
-        const body = `Hello,\n\nHere are the details of your confirmed booking:\n\nCourse: ${course?.name}\nLocation: ${course?.location}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal Price: $${totalPrice}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
+        const body = `Hello,\n\nHere are the details of your confirmed booking:\n\nCourse: ${course?.name}\nLocation: ${course?.location}\nDate: ${formattedDate}\nTime: ${time}\nPlayers: ${players}\nTotal Price: $${totalPrice ? parseFloat(totalPrice).toFixed(2) : '0.00'}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
         return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
@@ -158,7 +158,7 @@ function SuccessPageContent() {
                                 </div>
                                 <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{time}</span></div>
                                 <div className="flex items-center text-muted-foreground"><Users className="h-4 w-4 mr-2" /> Players: <span className="font-medium text-foreground ml-1">{players}</span></div>
-                                <div className="flex items-center text-muted-foreground"><DollarSign className="h-4 w-4 mr-2" /> Total: <span className="font-medium text-foreground ml-1">${totalPrice}</span></div>
+                                <div className="flex items-center text-muted-foreground"><DollarSign className="h-4 w-4 mr-2" /> Total: <span className="font-medium text-foreground ml-1">${totalPrice ? parseFloat(totalPrice).toFixed(2) : '0.00'}</span></div>
                             </div>
                         </CardContent>
                     </Card>

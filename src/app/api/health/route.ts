@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   
   try {
     // Get request headers
-    const headersList = headers();
+    const headersList = await headers();
     const userAgent = headersList.get('user-agent') || '';
     
     // Basic health checks

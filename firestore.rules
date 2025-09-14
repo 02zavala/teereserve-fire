@@ -19,7 +19,7 @@ service cloud.firestore {
       return request.resource.data.keys().hasAll(['email', 'name']) &&
         request.resource.data.email is string &&
         request.resource.data.name is string &&
-        request.resource.data.email.matches('.*@.*\..*');
+        request.resource.data.email.matches('.*@.*[.].*');
     }
     
     function validateBookingData() {

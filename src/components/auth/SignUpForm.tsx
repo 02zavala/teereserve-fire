@@ -24,7 +24,7 @@ import { useErrorHandler, commonValidators } from "@/hooks/useErrorHandler"
 import { ValidationError } from "@/lib/error-handling"
 import { useTriggerOnboarding } from "@/hooks/useOnboarding"
 import { sendWelcomeEmail } from "@/ai/flows/send-welcome-email"
-import { sendWebhook } from "@/app/api/webhooks/route"
+import { sendWebhook } from "@/lib/webhooks"
 import { FirebaseError } from "firebase/app"
 import { Loader2 } from "lucide-react"
 import { handleError, translateFirebaseError } from "@/lib/error-handling"
@@ -46,7 +46,7 @@ export function SignUpForm() {
     const { triggerOnboarding } = useTriggerOnboarding()
     const router = useRouter()
     const pathname = usePathname()
-    const lang = pathname.split('/')[1] || 'en'
+    const lang = pathname?.split('/')[1] || 'en'
 
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,7 +54,7 @@ export function SignUpForm() {
       name: "",
       email: "",
       password: "",
-      handicap: "",
+      handicap: undefined,
     },
   })
 
@@ -154,7 +154,7 @@ export function SignUpForm() {
       }, 500);
     }, {
       // Manejo específico de errores de autenticación
-      errorHandler: async (error: any) => {
+      onError: async (error: any) => {
         if (error.code === 'auth/email-already-in-use') {
           // Fallback si la verificación previa falló
           const errorInfo = await handleEmailAlreadyInUse(values.email.trim().toLowerCase());
@@ -204,8 +204,7 @@ export function SignUpForm() {
       router.push(`/${lang}/profile`);
       router.refresh();
     }, {
-      skipErrorsOfType: ['auth/popup-closed-by-user'], // Skip user-cancelled popup errors
-      errorHandler: async (error: any) => {
+      onError: async (error: any) => {
         if (error.code === 'auth/account-exists-with-different-credential') {
           toast({
             title: "Cuenta existente",

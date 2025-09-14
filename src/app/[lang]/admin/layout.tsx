@@ -11,7 +11,7 @@ export default async function AdminLayout({
   params: paramsProp,
 }: {
   children: React.ReactNode,
-  params: { lang: Locale }
+  params: Promise<{ lang: Locale }>
 }) {
   const params = await paramsProp;
   const lang = params.lang;

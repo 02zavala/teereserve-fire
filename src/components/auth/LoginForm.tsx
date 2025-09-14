@@ -41,7 +41,7 @@ export function LoginForm() {
   const { handleAsyncError } = useErrorHandler()
   const router = useRouter()
   const pathname = usePathname()
-  const lang = pathname.split('/')[1] || 'en'
+  const lang = pathname?.split('/')[1] || 'en'
   const { go } = useStableNavigation()
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
@@ -78,7 +78,7 @@ export function LoginForm() {
       
       go(`/${lang}/profile`);
     }, {
-      errorHandler: async (error: any) => {
+      onError: async (error: any) => {
         // Usar mensajes de error amigables
         const friendlyMessage = getFriendlyErrorMessage(error.code);
         
@@ -107,8 +107,7 @@ export function LoginForm() {
       
       go(`/${lang}/profile`);
     }, {
-      ignoredErrors: ['auth/popup-closed-by-user'], // Skip user-cancelled popup errors
-      errorHandler: async (error: any) => {
+      onError: async (error: any) => {
         // Usar mensajes de error amigables
         const friendlyMessage = getFriendlyErrorMessage(error.code);
         

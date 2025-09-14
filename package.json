@@ -1,10 +1,9 @@
-
 {
   "name": "teetime-concierge",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 3001",
+    "dev": "next dev --turbopack --port 3000",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
@@ -12,7 +11,14 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "clean:dev": "rimraf .next && echo cleaned"
+    "clean:dev": "rimraf .next && echo cleaned",
+    "firebase:config": "node scripts/configure-firebase-env.js",
+    "firebase:deploy": "firebase deploy --only hosting,functions",
+    "deploy": "node scripts/deploy.js",
+    "deploy:staging": "firebase hosting:channel:deploy staging",
+    "deploy:preview": "firebase hosting:channel:deploy preview",
+    "predeploy": "npm run build",
+    "postdeploy": "echo 'Deployment completed! Check Firebase Console for details.'"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.5.4",
@@ -50,6 +56,7 @@
     "@sentry/tracing": "^7.120.4",
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^4.5.0",
+    "@types/mustache": "^4.2.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
@@ -63,6 +70,7 @@
     "genkit": "^1.18.0",
     "isomorphic-dompurify": "^2.26.0",
     "lucide-react": "^0.475.0",
+    "mustache": "^4.2.0",
     "negotiator": "^0.6.3",
     "next": "latest",
     "next-pwa": "^5.6.0",

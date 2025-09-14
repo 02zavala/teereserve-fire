@@ -100,7 +100,7 @@ async function sendWithResend(input: SendWelcomeEmailInput) {
     userName: input.userName,
     exploreUrl,
     supportEmail: 'support@teereserve.com'
-  }, input.locale);
+  });
 
   const result = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL || 'TeeReserve Golf <noreply@teereserve.com>',
@@ -123,7 +123,7 @@ async function sendWithResend(input: SendWelcomeEmailInput) {
 
 // Función para enviar con Zoho (fallback)
 async function sendWithZoho(input: SendWelcomeEmailInput) {
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.com',
     port: 465,
     secure: true,
@@ -143,7 +143,7 @@ async function sendWithZoho(input: SendWelcomeEmailInput) {
     userName: input.userName,
     exploreUrl,
     supportEmail: 'support@teereserve.com'
-  }, input.locale);
+  });
 
   const info = await transporter.sendMail({
     from: `"TeeReserve Golf" <${process.env.ZOHO_MAIL_FROM}>`,

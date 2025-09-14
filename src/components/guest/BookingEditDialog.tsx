@@ -137,7 +137,7 @@ export function BookingEditDialog({
       const newDateTime = new Date(selectedDate)
       newDateTime.setHours(hours, minutes, 0, 0)
       
-      if (newDateTime.getTime() !== new Date(booking.teeDateTime).getTime()) {
+      if (booking.teeDateTime && newDateTime.getTime() !== new Date(booking.teeDateTime).getTime()) {
         newEditData.teeDateTime = newDateTime
       }
     }

@@ -10,7 +10,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     const { user, userProfile, loading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const lang = pathname.split('/')[1] || 'en';
+    const lang = pathname?.split('/')[1] || 'en';
 
     useEffect(() => {
         // This effect runs whenever the auth state changes.

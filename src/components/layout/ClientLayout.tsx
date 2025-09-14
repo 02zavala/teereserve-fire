@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider';
 import { PageErrorBoundary } from '@/components/error/ErrorBoundary';
 import { initializeErrorHandling } from '@/lib/error-handler';
+import { initGA4 } from '@/lib/analytics';
 import { Suspense, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { Locale } from '@/i18n-config';
@@ -21,9 +22,14 @@ interface ClientLayoutProps {
 }
 
 export function ClientLayout({ children, lang }: ClientLayoutProps) {
-  // Initialize global error handling
+  // Initialize global error handling and analytics
   useEffect(() => {
     initializeErrorHandling();
+    
+    // Initialize Google Analytics 4
+    if (typeof window !== 'undefined') {
+      initGA4();
+    }
   }, []);
 
   return (

@@ -3,6 +3,7 @@
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Mail, Printer, Share2, Info, User, Calendar, Clock, Users, DollarSign, Flag, Send, FileText } from 'lucide-react';
@@ -19,7 +20,8 @@ import type { Locale } from '@/i18n-config';
 import { useAuth } from '@/context/AuthContext';
 import { Separator } from '@/components/ui/separator';
 import { dateLocales } from '@/lib/date-utils';
-
+import { PriceBreakdown } from '@/components/PriceBreakdown';
+import { usePriceBreakdown } from '@/components/PriceBreakdown';
 
 const TAX_RATE = 0.16;
 
@@ -39,15 +41,65 @@ function SuccessPageContent() {
     const [recipientEmail, setRecipientEmail] = useState('');
     const [isSending, setIsSending] = useState(false);
 
-    const bookingId = searchParams.get('bookingId');
-    const courseId = searchParams.get('courseId');
-    const date = searchParams.get('date');
-    const time = searchParams.get('time');
-    const players = searchParams.get('players');
-    const holes = searchParams.get('holes');
-    const price = searchParams.get('price'); // This is now subtotal
+    // Get URL parameters first
+    const bookingId = searchParams?.get('bookingId');
+    const courseId = searchParams?.get('courseId');
+    const date = searchParams?.get('date');
+    const time = searchParams?.get('time');
+    const players = searchParams?.get('players');
+    const holes = searchParams?.get('holes');
+    const price = searchParams?.get('price'); // This is now subtotal
 
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    // Use pricing_snapshot from booking if available, otherwise calculate from legacy data
+    const priceBreakdown = React.useMemo(() => {
+        // If booking has pricing_snapshot, use it directly (preferred)
+        if (booking?.pricing_snapshot) {
+            return {
+                subtotal_cents: booking.pricing_snapshot.subtotal_cents,
+                tax_cents: booking.pricing_snapshot.tax_cents,
+                discount_cents: booking.pricing_snapshot.discount_cents,
+                total_cents: booking.pricing_snapshot.total_cents,
+                currency: booking.pricing_snapshot.currency,
+                tax_rate: booking.pricing_snapshot.tax_rate,
+                promo_code: booking.pricing_snapshot.promoCode
+            };
+        }
+        
+        // Fallback: calculate from legacy data (for backwards compatibility)
+        const tax_rate = 0.16;
+        const discount_cents = 0;
+        const currency = "USD";
+        
+        let subtotal_cents, tax_cents, total_cents;
+        
+        if (booking?.totalPrice) {
+            // If we have booking data, calculate from total price
+            total_cents = Math.round(booking.totalPrice * 100);
+            subtotal_cents = Math.round((total_cents + discount_cents) / (1 + tax_rate));
+            tax_cents = Math.round(subtotal_cents * tax_rate);
+        } else if (price) {
+            // If we have URL parameters, price is the subtotal
+            subtotal_cents = Math.round(parseFloat(price) * 100);
+            tax_cents = Math.round(subtotal_cents * tax_rate);
+            total_cents = subtotal_cents + tax_cents - discount_cents;
+        } else {
+            // Fallback
+            subtotal_cents = 0;
+            tax_cents = 0;
+            total_cents = 0;
+        }
+        
+        return {
+            subtotal_cents,
+            tax_cents,
+            discount_cents,
+            total_cents,
+            currency,
+            tax_rate
+        };
+    }, [booking?.totalPrice, booking?.pricing_snapshot, price]);
+
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         setIsClient(true);
@@ -117,7 +169,7 @@ function SuccessPageContent() {
         const bookingPlayers = booking?.players || players;
         const bookingHoles = booking?.holes || holes || '18';
         
-        const message = `Booking Confirmation:${confirmationText}\n\nCourse: ${courseName}\nDate: ${bookingDate}\nTime: ${bookingTime}\nPlayers: ${bookingPlayers}\nHoles: ${bookingHoles}\nTotal: $${totalPrice}\n\nBooked via TeeReserve!`;
+        const message = `Booking Confirmation:${confirmationText}\n\nCourse: ${courseName}\nDate: ${bookingDate}\nTime: ${bookingTime}\nPlayers: ${bookingPlayers}\nHoles: ${bookingHoles}\nTotal: $${totalPrice ? parseFloat(totalPrice).toFixed(2) : '0.00'}\n\nBooked via TeeReserve!`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         if (navigator.share) {
             navigator.share({
@@ -139,7 +191,7 @@ function SuccessPageContent() {
         const bookingHoles = booking?.holes || holes || '18';
         
         const subject = `Your Booking Confirmation for ${courseName}`;
-        const body = `Hello,\n\nHere are the details of your confirmed booking:${confirmationText}\n\nCourse: ${courseName}\nLocation: ${course?.location}\nDate: ${bookingDate}\nTime: ${bookingTime}\nPlayers: ${bookingPlayers}\nHoles: ${bookingHoles}\nTotal Price: $${totalPrice}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
+        const body = `Hello,\n\nHere are the details of your confirmed booking:${confirmationText}\n\nCourse: ${courseName}\nLocation: ${course?.location}\nDate: ${bookingDate}\nTime: ${bookingTime}\nPlayers: ${bookingPlayers}\nHoles: ${bookingHoles}\nTotal Price: $${totalPrice ? parseFloat(totalPrice).toFixed(2) : '0.00'}\n\nWe look forward to seeing you on the course!\n\nThe TeeReserve Team`;
         return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
@@ -170,7 +222,10 @@ function SuccessPageContent() {
                         time: booking?.time || time,
                         players: booking?.players || players,
                         holes: booking?.holes || holes || '18',
-                        totalPrice,
+                        totalPrice: booking?.pricing_snapshot ? 
+                            (booking.pricing_snapshot.total_cents / 100).toFixed(2) : 
+                            totalPrice,
+                        pricing_snapshot: booking?.pricing_snapshot,
                         userName: booking?.userName || user?.displayName || 'Cliente'
                     }
                 })
@@ -314,7 +369,21 @@ function SuccessPageContent() {
                                 <div className="flex items-center text-muted-foreground"><Clock className="h-4 w-4 mr-2" /> Time: <span className="font-medium text-foreground ml-1">{booking?.time || time}</span></div>
                                 <div className="flex items-center text-muted-foreground"><Users className="h-4 w-4 mr-2" /> Players: <span className="font-medium text-foreground ml-1">{booking?.players || players}</span></div>
                                 <div className="flex items-center text-muted-foreground"><Flag className="h-4 w-4 mr-2" /> Holes: <span className="font-medium text-foreground ml-1">{booking?.holes || holes || '18'}</span></div>
-                                <div className="flex items-center text-muted-foreground"><DollarSign className="h-4 w-4 mr-2" /> Total: <span className="font-medium text-foreground ml-1">${totalPrice}</span></div>
+                            </div>
+                            
+                            {/* Price Breakdown Section */}
+                            <div className="mt-6 pt-4 border-t">
+                                <h4 className="font-semibold text-base mb-3">💳 Desglose de Pago</h4>
+                                <PriceBreakdown 
+                                    pricing={priceBreakdown}
+                                    locale="es-MX"
+                                    labels={{
+                                        subtotal: "Subtotal",
+                                        tax: "Impuestos (16%)",
+                                        discount: "Descuento",
+                                        total: "Total"
+                                    }}
+                                />
                             </div>
                         </CardContent>
                     </Card>

@@ -11,10 +11,10 @@ export interface TemplateData {
 }
 
 // Template helper function to replace placeholders
+import Mustache from 'mustache';
+
 function replacePlaceholders(template: string, data: TemplateData): string {
-  return template.replace(/{{(\w+)}}/g, (match, key) => {
-    return data[key] || match;
-  });
+  return Mustache.render(template, data);
 }
 
 // Welcome Email Template
@@ -108,7 +108,7 @@ export function getWelcomeEmailTemplate(data: TemplateData): EmailTemplate {
 
 // Booking Confirmation Email Template
 export function getBookingConfirmationTemplate(data: TemplateData): EmailTemplate {
-  const subject = "Booking Confirmed: {{courseName}} - {{date}} at {{time}}";
+  const subject = "Booking Confirmed: \{\{courseName\}\} - \{\{date\}\} at \{\{time\}\}";
   
   const html = `
     <!DOCTYPE html>
@@ -133,17 +133,29 @@ export function getBookingConfirmationTemplate(data: TemplateData): EmailTemplat
           <h1>✅ Booking Confirmed!</h1>
         </div>
         <div class="content">
-          <h2>Hello {{playerName}}!</h2>
+          <h2>Hello \{\{playerName\}\}!</h2>
           <p>Great news! Your tee time has been confirmed. Here are your booking details:</p>
           
           <div class="booking-details">
             <h3>🏌️ Booking Details</h3>
-            <p><strong>Course:</strong> {{courseName}}</p>
-            <p><strong>Date:</strong> {{date}}</p>
-            <p><strong>Time:</strong> {{time}}</p>
-            <p><strong>Players:</strong> {{playerCount}}</p>
-            <p><strong>Booking ID:</strong> {{bookingId}}</p>
-            {{#totalAmount}}<p><strong>Total:</strong> ${{totalAmount}}</p>{{/totalAmount}}
+            <p><strong>Course:</strong> \{\{courseName\}\}</p>
+            <p><strong>Date:</strong> \{\{date\}\}</p>
+            <p><strong>Time:</strong> \{\{time\}\}</p>
+            <p><strong>Players:</strong> \{\{playerCount\}\}</p>
+            <p><strong>Booking ID:</strong> \{\{bookingId\}\}</p>
+            
+            \{\{#subtotal\}\}
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+              <h4>💰 Price Breakdown</h4>
+              <p><strong>Subtotal:</strong> $\{\{subtotal\}\} USD</p>
+              \{\{#discount\}\}<p><strong>Discount \{\{#discountCode\}\}(\{\{discountCode\}\})\{\{/discountCode\}\}:</strong> <span style="color: #059669;">-$\{\{discount\}\} USD</span></p>\{\{/discount\}\}
+              \{\{#taxes\}\}<p><strong>Taxes (\{\{taxRate\}\}%):</strong> $\{\{taxes\}\} USD</p>\{\{/taxes\}\}
+              <p style="font-size: 18px; font-weight: bold; color: #10b981; margin-top: 10px;"><strong>Total Final: $\{\{totalAmount\}\} USD</strong></p>
+            </div>
+            \{\{/subtotal\}\}
+            \{\{^subtotal\}\}
+            \{\{#totalAmount\}\}<p><strong>Total:</strong> $\{\{totalAmount\}\}</p>\{\{/totalAmount\}\}
+            \{\{/subtotal\}\}
           </div>
           
           <h3>📋 What to bring:</h3>
@@ -156,7 +168,7 @@ export function getBookingConfirmationTemplate(data: TemplateData): EmailTemplat
           
           <p><strong>Important:</strong> Please arrive 30 minutes before your tee time for check-in.</p>
           
-          <a href="{{bookingUrl}}" class="button">View Booking Details</a>
+          <a href="\{\{bookingUrl\}\}" class="button">View Booking Details</a>
           
           <p>Need to make changes? Contact the course directly or manage your booking online.</p>
           
@@ -173,17 +185,27 @@ export function getBookingConfirmationTemplate(data: TemplateData): EmailTemplat
   const text = `
     Booking Confirmed!
     
-    Hello {{playerName}}!
+    Hello \{\{playerName\}\}!
     
     Great news! Your tee time has been confirmed. Here are your booking details:
     
     Booking Details:
-    Course: {{courseName}}
-    Date: {{date}}
-    Time: {{time}}
-    Players: {{playerCount}}
-    Booking ID: {{bookingId}}
-    {{#totalAmount}}Total: ${{totalAmount}}{{/totalAmount}}
+    Course: \{\{courseName\}\}
+    Date: \{\{date\}\}
+    Time: \{\{time\}\}
+    Players: \{\{playerCount\}\}
+    Booking ID: \{\{bookingId\}\}
+    
+    \{\{#subtotal\}\}
+    Price Breakdown:
+    Subtotal: $\{\{subtotal\}\} USD
+    \{\{#discount\}\}Discount \{\{#discountCode\}\}(\{\{discountCode\}\})\{\{/discountCode\}\}: -$\{\{discount\}\} USD\{\{/discount\}\}
+    \{\{#taxes\}\}Taxes (\{\{taxRate\}\}%): $\{\{taxes\}\} USD\{\{/taxes\}\}
+    Total Final: $\{\{totalAmount\}\} USD
+    \{\{/subtotal\}\}
+    \{\{^subtotal\}\}
+    \{\{#totalAmount\}\}Total: $\{\{totalAmount\}\}\{\{/totalAmount\}\}
+    \{\{/subtotal\}\}
     
     What to bring:
     - Valid ID
@@ -193,7 +215,7 @@ export function getBookingConfirmationTemplate(data: TemplateData): EmailTemplat
     
     Important: Please arrive 30 minutes before your tee time for check-in.
     
-    View booking details: {{bookingUrl}}
+    View booking details: \{\{bookingUrl\}\}
     
     Need to make changes? Contact the course directly or manage your booking online.
     
@@ -237,7 +259,7 @@ export function getBookingReminderTemplate(data: TemplateData): EmailTemplate {
           <h1>⏰ Tee Time Reminder</h1>
         </div>
         <div class="content">
-          <h2>Hello {{playerName}}!</h2>
+          <h2>Hello \{\{playerName\}\}!</h2>
           
           <div class="reminder-box">
             <h3>🏌️ Your tee time is {{timeUntil}}!</h3>
@@ -308,7 +330,7 @@ export function getBookingReminderTemplate(data: TemplateData): EmailTemplate {
 
 // Payment Confirmation Email Template
 export function getPaymentConfirmationTemplate(data: TemplateData): EmailTemplate {
-  const subject = "Payment Confirmed: {{courseName}} - ${{amount}}";
+  const subject = "Payment Confirmed: \{\{courseName\}\} - $\{\{amount\}\}";
   
   const html = `
     <!DOCTYPE html>
@@ -338,17 +360,17 @@ export function getPaymentConfirmationTemplate(data: TemplateData): EmailTemplat
           
           <div class="payment-details">
             <h3>💰 Payment Details</h3>
-            <p><strong>Amount:</strong> ${{amount}}</p>
-            <p><strong>Course:</strong> {{courseName}}</p>
-            <p><strong>Date:</strong> {{date}}</p>
-            <p><strong>Time:</strong> {{time}}</p>
-            <p><strong>Transaction ID:</strong> {{transactionId}}</p>
-            <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
+            <p><strong>Amount:</strong> $\{\{amount\}\}</p>
+            <p><strong>Course:</strong> \{\{courseName\}\}</p>
+            <p><strong>Date:</strong> \{\{date\}\}</p>
+            <p><strong>Time:</strong> \{\{time\}\}</p>
+            <p><strong>Transaction ID:</strong> \{\{transactionId\}\}</p>
+            <p><strong>Payment Method:</strong> \{\{paymentMethod\}\}</p>
           </div>
           
           <p>Your booking is now fully confirmed and paid. You should receive a separate booking confirmation email shortly.</p>
           
-          <a href="{{receiptUrl}}" class="button">Download Receipt</a>
+          <a href="\{\{receiptUrl\}\}" class="button">Download Receipt</a>
           
           <p>If you have any questions about this payment, please contact our support team.</p>
           
@@ -365,21 +387,21 @@ export function getPaymentConfirmationTemplate(data: TemplateData): EmailTemplat
   const text = `
     Payment Confirmed
     
-    Hello {{playerName}}!
+    Hello \{\{playerName\}\}!
     
     Your payment has been successfully processed. Here are the details:
     
     Payment Details:
-    Amount: ${{amount}}
-    Course: {{courseName}}
-    Date: {{date}}
-    Time: {{time}}
-    Transaction ID: {{transactionId}}
-    Payment Method: {{paymentMethod}}
+    Amount: $\{\{amount\}\}
+    Course: \{\{courseName\}\}
+    Date: \{\{date\}\}
+    Time: \{\{time\}\}
+    Transaction ID: \{\{transactionId\}\}
+    Payment Method: \{\{paymentMethod\}\}
     
     Your booking is now fully confirmed and paid. You should receive a separate booking confirmation email shortly.
     
-    Download receipt: {{receiptUrl}}
+    Download receipt: \{\{receiptUrl\}\}
     
     If you have any questions about this payment, please contact our support team.
     

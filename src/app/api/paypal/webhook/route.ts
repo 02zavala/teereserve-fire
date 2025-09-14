@@ -19,16 +19,11 @@ function verifyPayPalWebhook(payload: string, headers: any): boolean {
 
     // For production, you should implement proper webhook signature verification
     // using PayPal's public certificate. For now, we'll do basic validation.
-    logger.info('PayPal webhook: Headers validated', {
-      webhookId,
-      authAlgo,
-      transmission,
-      certId
-    });
+    logger.info(`PayPal webhook: Headers validated - webhookId: ${webhookId}, authAlgo: ${authAlgo}, transmission: ${transmission}, certId: ${certId}`);
     
     return true;
   } catch (error) {
-    logger.error('PayPal webhook: Verification failed', { error });
+    logger.error('PayPal webhook: Verification failed', error as Error);
     return false;
   }
 }
@@ -39,14 +34,7 @@ export async function POST(request: NextRequest) {
     const payload = await request.text();
     const headers = Object.fromEntries(request.headers.entries());
     
-    logger.info('PayPal webhook: Received webhook', {
-      headers: {
-        'paypal-auth-algo': headers['paypal-auth-algo'],
-        'paypal-transmission-id': headers['paypal-transmission-id'],
-        'paypal-cert-id': headers['paypal-cert-id'],
-        'paypal-transmission-time': headers['paypal-transmission-time']
-      }
-    });
+    logger.info(`PayPal webhook: Received webhook - auth-algo: ${headers['paypal-auth-algo']}, transmission-id: ${headers['paypal-transmission-id']}, cert-id: ${headers['paypal-cert-id']}, transmission-time: ${headers['paypal-transmission-time']}`);
 
     // Verify webhook signature
     if (!verifyPayPalWebhook(payload, headers)) {
@@ -62,7 +50,7 @@ export async function POST(request: NextRequest) {
     try {
       event = JSON.parse(payload);
     } catch (parseError) {
-      logger.error('PayPal webhook: Failed to parse payload', { parseError });
+      logger.error('PayPal webhook: Failed to parse payload', parseError as Error);
       return NextResponse.json(
         { error: 'Invalid JSON payload' },
         { status: 400 }
@@ -72,11 +60,7 @@ export async function POST(request: NextRequest) {
     const eventType = event.event_type;
     const resource = event.resource;
 
-    logger.info('PayPal webhook: Processing event', {
-      eventType,
-      resourceId: resource?.id,
-      resourceStatus: resource?.status
-    });
+    logger.info(`PayPal webhook: Processing event ${eventType} - resourceId: ${resource?.id}, status: ${resource?.status}`);
 
     // Handle different webhook events
     switch (eventType) {
@@ -101,14 +85,14 @@ export async function POST(request: NextRequest) {
         break;
         
       default:
-        logger.info('PayPal webhook: Unhandled event type', { eventType });
+        logger.info(`PayPal webhook: Unhandled event type ${eventType}`);
         break;
     }
 
     return NextResponse.json({ received: true });
     
   } catch (error) {
-    logger.error('PayPal webhook: Error processing webhook', { error });
+    logger.error('PayPal webhook: Error processing webhook', error as Error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -125,12 +109,7 @@ async function handlePaymentCaptureCompleted(event: any) {
     const amount = capture.amount;
     const status = capture.status;
     
-    logger.info('PayPal webhook: Payment capture completed', {
-      orderId,
-      captureId,
-      amount,
-      status
-    });
+    logger.info(`PayPal webhook: Payment capture completed - orderId: ${orderId}, captureId: ${captureId}, amount: ${amount}, status: ${status}`);
     
     // Here you would typically:
     // 1. Update the booking status in your database
@@ -140,7 +119,7 @@ async function handlePaymentCaptureCompleted(event: any) {
     // TODO: Implement booking confirmation logic
     
   } catch (error) {
-    logger.error('PayPal webhook: Error handling payment capture completed', { error });
+    logger.error('PayPal webhook: Error handling payment capture completed', error as Error);
   }
 }
 
@@ -152,11 +131,7 @@ async function handlePaymentCaptureDenied(event: any) {
     const captureId = capture.id;
     const reason = capture.status_details?.reason;
     
-    logger.warn('PayPal webhook: Payment capture denied', {
-      orderId,
-      captureId,
-      reason
-    });
+    logger.warn(`PayPal webhook: Payment capture denied - orderId: ${orderId}, captureId: ${captureId}, reason: ${reason}`);
     
     // Here you would typically:
     // 1. Update the booking status to failed/cancelled
@@ -166,7 +141,7 @@ async function handlePaymentCaptureDenied(event: any) {
     // TODO: Implement booking cancellation logic
     
   } catch (error) {
-    logger.error('PayPal webhook: Error handling payment capture denied', { error });
+    logger.error('PayPal webhook: Error handling payment capture denied', error as Error);
   }
 }
 
@@ -178,11 +153,7 @@ async function handlePaymentCapturePending(event: any) {
     const captureId = capture.id;
     const reason = capture.status_details?.reason;
     
-    logger.info('PayPal webhook: Payment capture pending', {
-      orderId,
-      captureId,
-      reason
-    });
+    logger.info(`PayPal webhook: Payment capture pending - orderId: ${orderId}, captureId: ${captureId}, reason: ${reason}`);
     
     // Here you would typically:
     // 1. Update the booking status to pending
@@ -192,7 +163,7 @@ async function handlePaymentCapturePending(event: any) {
     // TODO: Implement pending payment logic
     
   } catch (error) {
-    logger.error('PayPal webhook: Error handling payment capture pending', { error });
+    logger.error('PayPal webhook: Error handling payment capture pending', error as Error);
   }
 }
 
@@ -203,10 +174,7 @@ async function handleOrderApproved(event: any) {
     const orderId = order.id;
     const status = order.status;
     
-    logger.info('PayPal webhook: Order approved', {
-      orderId,
-      status
-    });
+    logger.info(`PayPal webhook: Order approved - orderId: ${orderId}, status: ${status}`);
     
     // Here you would typically:
     // 1. Log the approval for tracking
@@ -215,7 +183,7 @@ async function handleOrderApproved(event: any) {
     // TODO: Implement order approval logic
     
   } catch (error) {
-    logger.error('PayPal webhook: Error handling order approved', { error });
+    logger.error('PayPal webhook: Error handling order approved', error as Error);
   }
 }
 
@@ -226,10 +194,7 @@ async function handleOrderCompleted(event: any) {
     const orderId = order.id;
     const status = order.status;
     
-    logger.info('PayPal webhook: Order completed', {
-      orderId,
-      status
-    });
+    logger.info(`PayPal webhook: Order completed - orderId: ${orderId}, status: ${status}`);
     
     // Here you would typically:
     // 1. Final confirmation of the order
@@ -238,7 +203,7 @@ async function handleOrderCompleted(event: any) {
     // TODO: Implement order completion logic
     
   } catch (error) {
-    logger.error('PayPal webhook: Error handling order completed', { error });
+    logger.error('PayPal webhook: Error handling order completed', error as Error);
   }
 }
 

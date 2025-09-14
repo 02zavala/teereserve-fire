@@ -2,15 +2,22 @@
 "use client";
 
 import { Suspense } from 'react';
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import dynamic from 'next/dynamic';
 import { createPaymentIntent } from '@/ai/flows/create-payment-intent';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
-import { LazyCheckoutForm } from '@/components/LazyComponents';
 import { Loader2 } from 'lucide-react';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+// Dynamic import with SSR disabled to prevent hydration issues
+const PaymentClient = dynamic(() => import('@/components/PaymentClient'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <p className="ml-4 text-muted-foreground">Loading payment system...</p>
+    </div>
+  ),
+});
 
 const TAX_RATE = 0.16; // 16%
 
@@ -18,15 +25,17 @@ function ConfirmPageContent() {
     const searchParams = useSearchParams();
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isInitialized, setIsInitialized] = useState(false);
     
     // useMemo to prevent re-running on every render
     const params = useMemo(() => ({
-      price: searchParams.get('price'),
+      price: searchParams?.get('price'),
     }), [searchParams]);
 
 
     useEffect(() => {
-        if (params.price) {
+        if (params.price && !isInitialized) {
+            setIsInitialized(true);
             const subtotal = parseFloat(params.price);
             const tax = subtotal * TAX_RATE;
             const total = subtotal + tax;
@@ -38,9 +47,10 @@ function ConfirmPageContent() {
                 .catch(err => {
                     console.error("Failed to create payment intent:", err);
                     setError("Could not initialize payment. Please try again.");
+                    setIsInitialized(false); // Allow retry
                 });
         }
-    }, [params]);
+    }, [params, isInitialized]);
 
     if (error) {
         return <div className="text-center text-destructive">{error}</div>;
@@ -55,19 +65,7 @@ function ConfirmPageContent() {
         );
     }
 
-    const appearance = {
-        theme: 'stripe' as const,
-    };
-    const options = {
-        clientSecret,
-        appearance,
-    };
-
-    return (
-        <Elements options={options} stripe={stripePromise}>
-            <LazyCheckoutForm />
-        </Elements>
-    );
+    return <PaymentClient clientSecret={clientSecret} />;
 }
 
 export default function ConfirmPage() {

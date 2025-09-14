@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     try {
       decodedToken = await auth.verifyIdToken(idToken);
     } catch (authError) {
-      logger.error('PayPal order creation: Authentication failed', { error: authError });
+      logger.error('PayPal order creation: Authentication failed', authError as Error);
       return NextResponse.json(
         { error: 'Authentication failed' },
         { status: 401 }
@@ -61,12 +61,7 @@ export async function POST(request: NextRequest) {
     const userId = decodedToken.uid;
     const userEmail = decodedToken.email;
 
-    logger.info('PayPal order creation: Starting order creation', {
-      userId,
-      courseId,
-      amount,
-      currency
-    });
+    logger.info(`PayPal order creation: Starting order creation for user ${userId}, course ${courseId}, amount ${amount} ${currency}`);
 
     // Get PayPal access token
     const accessToken = await getPayPalAccessToken();
@@ -119,11 +114,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      logger.error('PayPal order creation: Failed to create order', {
-        userId,
-        courseId,
-        error: errorData
-      });
+      logger.error(`PayPal order creation: Failed to create order for user ${userId}, course ${courseId}: ${JSON.stringify(errorData)}`);
       
       return NextResponse.json(
         { error: 'Failed to create PayPal order', details: errorData },
@@ -133,12 +124,7 @@ export async function POST(request: NextRequest) {
 
     const orderResult = await response.json();
     
-    logger.info('PayPal order creation: Order created successfully', {
-      userId,
-      courseId,
-      orderId: orderResult.id,
-      status: orderResult.status
-    });
+    logger.info(`PayPal order creation: Order created successfully for user ${userId}, course ${courseId}, order ${orderResult.id}, status ${orderResult.status}`);
 
     return NextResponse.json({
       success: true,
@@ -148,7 +134,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    logger.error('PayPal order creation: Unexpected error', { error });
+    logger.error('PayPal order creation: Unexpected error', error as Error);
     
     return NextResponse.json(
       { 
@@ -177,7 +163,7 @@ export async function PUT(request: NextRequest) {
     try {
       decodedToken = await auth.verifyIdToken(idToken);
     } catch (authError) {
-      logger.error('PayPal order capture: Authentication failed', { error: authError });
+      logger.error('PayPal order capture: Authentication failed', authError as Error);
       return NextResponse.json(
         { error: 'Authentication failed' },
         { status: 401 }
@@ -186,10 +172,7 @@ export async function PUT(request: NextRequest) {
 
     const userId = decodedToken.uid;
 
-    logger.info('PayPal order capture: Starting order capture', {
-      userId,
-      orderId
-    });
+    logger.info(`PayPal order capture: Starting order capture for user ${userId}, order ${orderId}`);
 
     // Get PayPal access token
     const accessToken = await getPayPalAccessToken();
@@ -206,11 +189,7 @@ export async function PUT(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      logger.error('PayPal order capture: Failed to capture order', {
-        userId,
-        orderId,
-        error: errorData
-      });
+      logger.error(`PayPal order capture: Failed to capture order for user ${userId}, order ${orderId}: ${JSON.stringify(errorData)}`);
       
       return NextResponse.json(
         { error: 'Failed to capture PayPal order', details: errorData },
@@ -220,12 +199,7 @@ export async function PUT(request: NextRequest) {
 
     const captureResult = await response.json();
     
-    logger.info('PayPal order capture: Order captured successfully', {
-      userId,
-      orderId,
-      captureId: captureResult.purchase_units?.[0]?.payments?.captures?.[0]?.id,
-      status: captureResult.status
-    });
+    logger.info(`PayPal order capture: Order captured successfully for user ${userId}, order ${orderId}, capture ${captureResult.purchase_units?.[0]?.payments?.captures?.[0]?.id}, status ${captureResult.status}`);
 
     // Extract payment details
     const capture = captureResult.purchase_units?.[0]?.payments?.captures?.[0];
@@ -251,7 +225,7 @@ export async function PUT(request: NextRequest) {
     });
 
   } catch (error) {
-    logger.error('PayPal order capture: Unexpected error', { error });
+    logger.error('PayPal order capture: Unexpected error', error as Error);
     
     return NextResponse.json(
       { 

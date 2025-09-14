@@ -166,6 +166,7 @@ export function HeroImageManager({ initialImages }: HeroImageManagerProps) {
                             src={previews[slot.id]!} 
                             alt={`${slot.label} preview`} 
                             fill 
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover" 
                           />
                         ) : (
@@ -174,6 +175,7 @@ export function HeroImageManager({ initialImages }: HeroImageManagerProps) {
                               src={slot.currentUrl} 
                               alt={`Current ${slot.label}`} 
                               fill 
+                              sizes="(max-width: 768px) 100vw, 50vw"
                               className="object-cover opacity-50" 
                             />
                             <div className="absolute inset-0 bg-black/20 flex items-center justify-center">

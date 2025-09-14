@@ -167,15 +167,11 @@ async function performRestore(
       sendProgress({ stage: 'Creating backup before restore', progress: 5 });
       
       const preRestoreBackup = await backupService.createBackup({
-        includeCollections: options.collections,
-        metadata: {
-          type: 'pre-restore-backup',
-          originalBackup: backupData.metadata
-        }
+        includeCollections: options.collections
       });
       
       backupCreated = {
-        filename: preRestoreBackup.filename,
+        filename: `backup-${preRestoreBackup.timestamp.replace(/[:.]/g, '-')}.json`,
         timestamp: preRestoreBackup.timestamp
       };
       result.backupCreated = backupCreated;

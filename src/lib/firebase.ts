@@ -59,7 +59,6 @@ if (isConfigValid) {
         try {
             db = initializeFirestore(app, {
                 experimentalAutoDetectLongPolling: true,
-                useFetchStreams: false,
             });
         } catch (error: any) {
             // Si ya está inicializado, usar la instancia existente
@@ -81,8 +80,35 @@ if (isConfigValid) {
         }
         
         if (typeof window !== 'undefined') {
-            analytics = isSupported().then(yes => (yes ? getAnalytics(app as FirebaseApp) : null));
-            messaging = isMessagingSupported().then(yes => (yes ? getMessaging(app as FirebaseApp) : null));
+            analytics = isSupported().then(async (yes) => {
+                if (yes) {
+                    try {
+                        return getAnalytics(app as FirebaseApp);
+                    } catch (error) {
+                        console.warn('Failed to initialize Firebase Analytics (script loading failed):', error);
+                        return null;
+                    }
+                }
+                return null;
+            }).catch((error) => {
+                console.warn('Analytics support check failed:', error);
+                return null;
+            });
+            
+            messaging = isMessagingSupported().then(async (yes) => {
+                if (yes) {
+                    try {
+                        return getMessaging(app as FirebaseApp);
+                    } catch (error) {
+                        console.warn('Failed to initialize Firebase Messaging:', error);
+                        return null;
+                    }
+                }
+                return null;
+            }).catch((error) => {
+                console.warn('Messaging support check failed:', error);
+                return null;
+            });
         }
     } catch (e) {
          console.error("Error initializing Firebase:", e);

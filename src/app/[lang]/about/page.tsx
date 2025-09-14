@@ -57,6 +57,7 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
                     alt={t.hero.imageAlt}
                     data-ai-hint="golf course team"
                     fill
+                    sizes="100vw"
                     className="object-cover opacity-20"
                 />
                 <div className="relative z-10 px-4">
@@ -87,6 +88,7 @@ export default async function AboutPage({ params: paramsProp }: AboutPageProps) 
                             alt={t.mission.imageAlt}
                             data-ai-hint="golf course detail"
                             fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover rounded-xl shadow-lg"
                         />
                     </div>

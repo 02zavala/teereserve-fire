@@ -54,6 +54,9 @@ export class OptimizedFirebaseService {
     }
 
     try {
+      if (!db) {
+        throw new Error('Firebase not initialized');
+      }
       const coursesRef = collection(db, 'courses');
       const q = query(coursesRef, orderBy('name'));
       const snapshot = await getDocs(q);
@@ -86,6 +89,9 @@ export class OptimizedFirebaseService {
     }
 
     try {
+      if (!db) {
+        throw new Error('Firebase not initialized');
+      }
       const courseRef = doc(db, 'courses', courseId);
       const snapshot = await getDoc(courseRef);
       
@@ -129,6 +135,9 @@ export class OptimizedFirebaseService {
     }
 
     try {
+      if (!db) {
+        throw new Error('Firebase not initialized');
+      }
       const coursesRef = collection(db, 'courses');
       const constraints: QueryConstraint[] = [];
 
@@ -200,6 +209,9 @@ export class OptimizedFirebaseService {
     }
 
     try {
+      if (!db) {
+        throw new Error('Firebase not initialized');
+      }
       const bookingsRef = collection(db, 'bookings');
       const q = query(
         bookingsRef,
@@ -236,6 +248,9 @@ export class OptimizedFirebaseService {
     }
 
     try {
+      if (!db) {
+        throw new Error('Firebase not initialized');
+      }
       const reviewsRef = collection(db, 'reviews');
       const q = query(
         reviewsRef,
@@ -268,6 +283,9 @@ export class OptimizedFirebaseService {
     const { pageSize = 10 } = pagination;
     
     try {
+      if (!db) {
+        throw new Error('Firebase not initialized');
+      }
       const coursesRef = collection(db, 'courses');
       const constraints: QueryConstraint[] = [orderBy('name'), limit(pageSize + 1)];
       

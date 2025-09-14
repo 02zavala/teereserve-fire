@@ -38,7 +38,7 @@ function BookingConfirmContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const bookingId = searchParams.get('id');
+  const bookingId = searchParams?.get('id');
   const lang = 'es' as Locale; // You might want to get this from the URL
 
   useEffect(() => {
@@ -49,6 +49,9 @@ function BookingConfirmContent() {
 
     const fetchBooking = async () => {
       try {
+        if (!db) {
+          throw new Error('Firebase not initialized');
+        }
         const bookingDoc = await getDoc(doc(db, 'bookings', bookingId));
         
         if (!bookingDoc.exists()) {
@@ -127,8 +130,25 @@ function BookingConfirmContent() {
   const formatAmount = (amount: number, currency: string) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
-      currency: currency.toUpperCase()
+      currency: currency.toUpperCase(),
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(amount / 100);
+  };
+
+  // Calcular desglose de precios
+  const calculatePriceBreakdown = (totalAmount: number) => {
+    // El total ya incluye impuestos, calculamos hacia atrás
+    const subtotal = totalAmount / 1.16; // Dividir por 1.16 para obtener el subtotal
+    const tax = totalAmount - subtotal; // La diferencia son los impuestos
+    const discount = 0; // Por ahora no hay descuentos implementados
+    
+    return {
+      subtotal: Math.round(subtotal), // Redondear a centavos
+      tax: Math.round(tax),
+      discount: Math.round(discount),
+      total: totalAmount
+    };
   };
 
   return (
@@ -221,13 +241,40 @@ function BookingConfirmContent() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Pagado</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {formatAmount(booking.amount, booking.currency)}
-                </p>
-              </div>
+            {/* Price Breakdown */}
+            <div className="space-y-3 mb-4">
+              {(() => {
+                const priceBreakdown = calculatePriceBreakdown(booking.amount);
+                return (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Subtotal:</span>
+                      <span className="font-medium">{formatAmount(priceBreakdown.subtotal, booking.currency)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Impuestos (16%):</span>
+                      <span className="font-medium">{formatAmount(priceBreakdown.tax, booking.currency)}</span>
+                    </div>
+                    {priceBreakdown.discount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Descuento:</span>
+                        <span className="font-medium text-green-600">-{formatAmount(priceBreakdown.discount, booking.currency)}</span>
+                      </div>
+                    )}
+                    <div className="border-t pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-semibold">Total Pagado:</span>
+                        <span className="text-2xl font-bold text-green-600">
+                          {formatAmount(priceBreakdown.total, booking.currency)}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+            
+            <div className="flex justify-between items-center pt-4 border-t">
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Estado</p>
                 <p className="font-medium text-green-600 capitalize">{booking.status}</p>

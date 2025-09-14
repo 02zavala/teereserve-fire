@@ -16,7 +16,7 @@ interface FooterProps {
 export function SecondaryFooter({ dictionary }: FooterProps) {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
   const pathname = usePathname();
-  const lang = (pathname.split('/')[1] || 'en') as Locale;
+  const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
   useEffect(() => {
     // This effect runs only on the client, after hydration

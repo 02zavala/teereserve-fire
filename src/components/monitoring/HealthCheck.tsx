@@ -70,7 +70,7 @@ export const HealthCheck: React.FC<HealthCheckProps> = ({
       // Check Firebase Auth
       try {
         // Simple check to see if Firebase is initialized
-        if (typeof window !== 'undefined' && window.firebase) {
+        if (typeof window !== 'undefined' && (window as any).firebase) {
           checks.auth = true;
         } else {
           // Check if we can import Firebase
@@ -145,17 +145,17 @@ export const HealthCheck: React.FC<HealthCheckProps> = ({
 
       // Log health status
       if (status === 'error') {
-        logger.error('Health check failed', { healthStatus });
+        logger.error('Health check failed', undefined, 'health-check', healthStatus);
       } else if (status === 'warning') {
-        logger.warn('Health check warning', { healthStatus });
+        logger.warn('Health check warning', 'health-check', healthStatus);
       } else {
-        logger.info('Health check passed', { healthStatus });
+        logger.info('Health check passed', 'health-check', healthStatus);
       }
 
       return healthStatus;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      logger.error('Health check system error', { error: errorMessage });
+      logger.error('Health check system error', error instanceof Error ? error : new Error(errorMessage), 'health-check');
       captureException(error instanceof Error ? error : new Error(errorMessage));
       
       return {
@@ -180,7 +180,7 @@ export const HealthCheck: React.FC<HealthCheckProps> = ({
       setHealthStatus(status);
       onStatusChange?.(status);
     } catch (error) {
-      logger.error('Failed to run health check', { error });
+      logger.error('Failed to run health check', error instanceof Error ? error : new Error(String(error)), 'health-check');
     } finally {
       setIsChecking(false);
     }

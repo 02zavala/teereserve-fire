@@ -67,8 +67,8 @@ export default function ReviewDetailClient({ reviewId, dict, lang }: ReviewDetai
           courseId: 'course1',
           courseName: 'Cabo del Sol Golf Club',
           rating: 5,
-          title: 'Experiencia increíble en Los Cabos',
-          content: 'El campo de golf es simplemente espectacular. Las vistas al océano son impresionantes y el mantenimiento del campo es de primera clase. El personal fue muy amable y profesional. Definitivamente regresaré.',
+          title: lang === 'es' ? 'Experiencia increíble en Los Cabos' : 'Amazing Experience in Los Cabos',
+          content: lang === 'es' ? 'El campo de golf es simplemente espectacular. Las vistas al océano son impresionantes y el mantenimiento del campo es de primera clase. El personal fue muy amable y profesional. Definitivamente regresaré.' : 'The golf course is simply spectacular. The ocean views are breathtaking and the course maintenance is first class. The staff was very friendly and professional. I will definitely return.',
           images: [],
           likes: 12,
           isLiked: false,
@@ -78,7 +78,7 @@ export default function ReviewDetailClient({ reviewId, dict, lang }: ReviewDetai
               id: 'comment1',
               userId: 'user2',
               userName: 'María González',
-              content: '¡Totalmente de acuerdo! Ese campo es increíble.',
+              content: lang === 'es' ? '¡Totalmente de acuerdo! Ese campo es increíble.' : 'Totally agree! That course is incredible.',
               createdAt: new Date().toISOString()
             }
           ]
@@ -235,7 +235,7 @@ export default function ReviewDetailClient({ reviewId, dict, lang }: ReviewDetai
           {user && (
             <div className="mb-6 p-4 border rounded-lg bg-gray-50">
               <Textarea
-                placeholder="Escribe un comentario..."
+                placeholder={lang === 'es' ? 'Escribe un comentario...' : 'Write a comment...'}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="mb-3"

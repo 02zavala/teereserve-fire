@@ -1,29 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { auth, db } from '@/lib/firebase-admin';
 import Stripe from 'stripe';
 
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    }
-  } catch (error) {
-    // During build time, Firebase initialization might fail
-    console.warn('Firebase initialization failed during build:', error);
-  }
-}
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-02-24.acacia',
 });
 
 interface GuestBookingRequest {
@@ -50,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     
     // Verify user is anonymous
     if (!decodedToken.firebase.sign_in_provider || decodedToken.firebase.sign_in_provider !== 'anonymous') {
@@ -71,7 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = getFirestore();
+    // db is already imported from firebase-admin config
     
     // Get course data to calculate price
     const courseDoc = await db.collection('courses').doc(courseId).get();

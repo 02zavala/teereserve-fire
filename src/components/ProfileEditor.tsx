@@ -55,7 +55,7 @@ export function ProfileEditor({ user, userProfile, children, onProfileUpdate }: 
     resolver: zodResolver(formSchema),
     defaultValues: {
       displayName: userProfile.displayName || "",
-      handicap: userProfile.handicap || "",
+      handicap: userProfile.handicap || undefined,
     },
   });
 

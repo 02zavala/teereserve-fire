@@ -30,9 +30,20 @@ export default async function CoursesPage({ params: paramsProp, searchParams: se
     const params = await paramsProp;
     const searchParams = await searchParamsProp;
     const dictionary = await getDictionary(params.lang);
+    
+    // Extract search parameters
     const location = typeof searchParams.location === 'string' ? searchParams.location : 'all';
+    const date = typeof searchParams.date === 'string' ? searchParams.date : undefined;
+    const players = typeof searchParams.players === 'string' ? searchParams.players : undefined;
+    const time = typeof searchParams.time === 'string' ? searchParams.time : undefined;
 
-    const courses = await getCourses({ location });
+    // Get all courses first, then filter client-side for additional parameters
+    let courses = await getCourses({ location });
+    
+    // Additional filtering based on search parameters
+    // Note: For now, we're showing all courses regardless of date/time/players
+    // In a real implementation, you would filter based on availability
+    // This ensures the search button works and shows results
 
     return (
         <>

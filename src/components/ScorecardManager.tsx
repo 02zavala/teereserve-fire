@@ -123,14 +123,14 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
     const { toast } = useToast();
     const { handleAsyncError } = useErrorHandler();
     const pathname = usePathname();
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     const form = useForm<ScorecardFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             courseName: "",
             date: "",
-            score: "",
+            score: 0,
             notes: "",
         },
     });
@@ -219,7 +219,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
                 courseName: values.courseName.trim(),
                 date: values.date,
                 score: values.score,
-                notes: values.notes?.trim() || undefined
+                ...(values.notes?.trim() && { notes: values.notes.trim() })
             };
             
             await addUserScorecard(input);
@@ -238,7 +238,7 @@ export function ScorecardManager({ user }: ScorecardManagerProps) {
         });
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         handleAsyncError(async () => {
             console.log('Deleting scorecard with ID:', id);
             

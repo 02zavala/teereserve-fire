@@ -21,6 +21,11 @@ const SendBookingConfirmationEmailInputSchema = z.object({
   time: z.string().describe('The time of the booking (HH:mm).'),
   players: z.number().describe('The number of players for the booking.'),
   totalPrice: z.number().describe('The total price of the booking.'),
+  subtotal: z.number().optional().describe('The subtotal before discounts and taxes.'),
+  discount: z.number().optional().describe('The discount amount applied.'),
+  discountCode: z.string().optional().describe('The discount code used.'),
+  taxes: z.number().optional().describe('The tax amount.'),
+  taxRate: z.number().optional().describe('The tax rate percentage.'),
   locale: z.enum(['en', 'es']).default('en').describe('The locale for email content.'),
 });
 
@@ -49,11 +54,26 @@ const sendBookingConfirmationEmailFlow = ai.defineFlow(
       time,
       players,
       totalPrice,
+      subtotal,
+      discount,
+      discountCode,
+      taxes,
+      taxRate,
       locale,
     } = input;
 
     const dateLocale = locale === 'es' ? es : enUS;
     const formattedDate = format(new Date(date), "PPP", { locale: dateLocale });
+    
+    // Función para formatear moneda correctamente
+    const formatCurrency = (amount: number): string => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount);
+    };
     
     const content = locale === 'es' ? {
         subject: `Tu reserva en ${courseName} está confirmada`,
@@ -65,7 +85,11 @@ const sendBookingConfirmationEmailFlow = ai.defineFlow(
         dateLabel: 'Fecha:',
         timeLabel: 'Hora:',
         playersLabel: 'Jugadores:',
-        totalLabel: 'Total Pagado:',
+        priceBreakdownTitle: 'Desglose de Precios',
+        subtotalLabel: 'Subtotal:',
+        discountLabel: 'Descuento',
+        taxesLabel: 'Impuestos',
+        totalLabel: 'Total Final:',
         importantInfoTitle: 'Información Importante',
         arrival: 'Por favor, llega al campo 30 minutos antes de tu hora de salida.',
         cancellation: 'Para cambios o cancelaciones, contacta directamente con el campo. Aplican políticas de cancelación.',
@@ -80,7 +104,11 @@ const sendBookingConfirmationEmailFlow = ai.defineFlow(
         dateLabel: 'Date:',
         timeLabel: 'Time:',
         playersLabel: 'Players:',
-        totalLabel: 'Total Paid:',
+        priceBreakdownTitle: 'Price Breakdown',
+        subtotalLabel: 'Subtotal:',
+        discountLabel: 'Discount',
+        taxesLabel: 'Taxes',
+        totalLabel: 'Total Final:',
         importantInfoTitle: 'Important Information',
         arrival: 'Please arrive at the course 30 minutes before your tee time.',
         cancellation: 'For changes or cancellations, please contact the course directly. Cancellation policies apply.',
@@ -118,7 +146,16 @@ const sendBookingConfirmationEmailFlow = ai.defineFlow(
                     <p><strong>${content.dateLabel}</strong> ${formattedDate}</p>
                     <p><strong>${content.timeLabel}</strong> ${time}</p>
                     <p><strong>${content.playersLabel}</strong> ${players}</p>
-                    <p style="font-size: 1.2em;"><strong>${content.totalLabel}</strong> <span style="color: #059669; font-weight: bold;">$${totalPrice.toFixed(2)} USD</span></p>
+                    
+                    ${subtotal ? `
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd;">
+                        <h3 style="margin-top: 0; font-size: 18px; color: #333;">${content.priceBreakdownTitle}</h3>
+                        <p><strong>${content.subtotalLabel}</strong> ${formatCurrency(subtotal)}</p>
+                        ${discount ? `<p><strong>${content.discountLabel} ${discountCode ? '(' + discountCode + ')' : ''}:</strong> <span style="color: #059669;">-${formatCurrency(discount)}</span></p>` : ''}
+                        ${taxes ? `<p><strong>${content.taxesLabel} ${taxRate ? '(' + taxRate + '%)' : ''}:</strong> ${formatCurrency(taxes)}</p>` : ''}
+                        <p style="font-size: 1.2em; margin-top: 10px;"><strong>${content.totalLabel}</strong> <span style="color: #059669; font-weight: bold;">${formatCurrency(totalPrice)}</span></p>
+                    </div>
+                    ` : `<p style="font-size: 1.2em;"><strong>${content.totalLabel}</strong> <span style="color: #059669; font-weight: bold;">${formatCurrency(totalPrice)}</span></p>`}
                 </div>
                 <div style="border-top: 1px solid #eee; padding-top: 20px;">
                     <h3 style="font-size: 18px;">${content.importantInfoTitle}</h3>

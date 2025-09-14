@@ -195,7 +195,7 @@ export function MyReviews({ userId, lang }: MyReviewsProps) {
                     {review.experienceType && (
                       <Badge variant="outline" className="text-xs">
                         {review.experienceType === 'overall' ? 'Overall' :
-                         review.experienceType === 'course_conditions' ? 'Course' :
+                         review.experienceType === 'green' ? 'Green' :
                          review.experienceType === 'service' ? 'Service' :
                          review.experienceType === 'facilities' ? 'Facilities' :
                          review.experienceType}

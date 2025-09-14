@@ -503,5 +503,70 @@
             "notFound": "No se encontró ninguna reserva con esos detalles. Por favor, verifica tu información e inténtalo de nuevo.",
             "generic": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde."
         }
+    },
+    "reviewsPage": {
+        "writeNewReview": "Escribir Nueva Reseña",
+        "golfCourse": "Campo de Golf",
+        "selectCourse": "Selecciona un campo",
+        "rating": "Calificación",
+        "experienceType": "Tipo de Experiencia",
+        "experienceTypes": {
+            "overall": "General",
+            "service": "Servicio",
+            "facilities": "Instalaciones",
+            "green": "Green"
+        },
+        "yourReview": "Tu Reseña",
+        "reviewPlaceholder": "Comparte tu experiencia en este campo de golf...",
+        "publishReview": "Publicar Reseña",
+        "success": {
+            "likeAdded": "Like agregado",
+            "likeRegistered": "Tu like ha sido registrado",
+            "commentAdded": "Comentario agregado",
+            "commentPublished": "Tu comentario ha sido publicado",
+            "linkCopied": "Enlace copiado",
+            "linkCopiedToClipboard": "El enlace ha sido copiado al portapapeles",
+            "reviewSubmitted": "Reseña enviada",
+            "reviewPendingApproval": "Tu reseña está pendiente de aprobación"
+        },
+        "errors": {
+            "loadReviews": "No se pudieron cargar las reseñas",
+            "signInToLike": "Debes iniciar sesión para dar like",
+            "addLike": "No se pudo agregar el like",
+            "addComment": "No se pudo agregar el comentario",
+            "shareReview": "No se pudo compartir la reseña",
+            "signInToReview": "Debes iniciar sesión para escribir una reseña",
+            "requiredFields": "Campos requeridos",
+            "completeAllFields": "Por favor completa todos los campos",
+            "submitReview": "No se pudo enviar la reseña"
+        }
+    },
+    "courseDetail": {
+        "bookTeeTime": "Reservar Tee Time",
+        "perPlayer": "por jugador"
+    },
+    "common": {
+        "cancel": "Cancelar",
+        "error": "Error",
+        "signIn": "Inicia sesión"
+    },
+    "booking": {
+        "title": "Hacer una Reserva",
+        "loadingCourse": "Cargando campo...",
+        "duration": "Duración",
+        "price": "Precio",
+        "description": "Descripción",
+        "bookingDetails": "Detalles de la Reserva",
+        "selectCourse": "Seleccionar Campo",
+        "courseIdPlaceholder": "Ingresa el ID del campo",
+        "selectDate": "Seleccionar Fecha",
+        "pickDate": "Elige una fecha",
+        "selectTime": "Seleccionar Hora",
+        "selectTimePlaceholder": "Selecciona una hora",
+        "participants": "Número de Participantes",
+        "specialRequests": "Solicitudes Especiales",
+        "specialRequestsPlaceholder": "Cualquier requerimiento o solicitud especial...",
+        "processing": "Procesando...",
+        "confirmBooking": "Confirmar Reserva"
     }
 }

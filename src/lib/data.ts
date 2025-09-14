@@ -43,7 +43,7 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       description: "Este campo inspirado en links compara con ninguno, con vistas impresionantes del Pacífico en cada hoyo. Diseñado por Greg Norman en 2020, abarca tres paisajes distintos: dunas de arena estilo links, bosques de cactus y proximidad al mar. Ofrece 18 hoyos con un sentimiento de la era dorada del golf, similar a Ballybunion en Irlanda. Incluye clubhouse estilo rancho con vistas dramáticas.",
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 150,
-      teeTimeInterval: 12,
+      teeTimeInterval: 10,
       operatingHours: {
         openingTime: "07:00",
         closingTime: "18:00"
@@ -67,7 +67,7 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
       description: "Conocido como la \"Gran Dama de Los Cabos\", este club ofrece 27 hoyos diseñados por Jack Nicklaus, con vistas al Mar de Cortés desde 12 hoyos. Incluye cursos Arroyo, Mountain y Ocean, con fairways ondulantes, bunkers esculpidos y lagos. Clubhouse inspirado en México, pro shop y staff profesional. Reconocido como uno de los top en Los Cabos por su elegancia y desafío.",
       rules: "Standard golf etiquette and club rules apply.",
       basePrice: 250,
-      teeTimeInterval: 15,
+      teeTimeInterval: 10,
       operatingHours: {
         openingTime: "06:30",
         closingTime: "18:30"
@@ -117,7 +117,7 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Instalación de 27 hoyos con tres combinaciones de 18, diseñadas por Jack Nicklaus y Greg Norman. Fairways ondulantes, greens elevados y vistas al Mar de Cortés. Incluye comida/drink stations gratuitas cada pocos hoyos. Ubicado en una comunidad planificada de 2,000 acres.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 180,
-        teeTimeInterval: 20,
+        teeTimeInterval: 10,
         operatingHours: {
           openingTime: "06:00",
           closingTime: "19:00"
@@ -142,7 +142,7 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Curso original de 9 hoyos en Los Cabos, con 3,000 yardas de verde bordeado por el Mar de Cortés y las montañas Sierra de La Laguna. Diseñado para juego suave en terreno parcialmente plano, con oportunidades para drives y putts creativos. Clubhouse elevado para vistas.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 220,
-        teeTimeInterval: 30,
+        teeTimeInterval: 10,
         operatingHours: {
           openingTime: "08:00",
           closingTime: "17:00"
@@ -163,11 +163,13 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Diseñado por Robert Trent Jones Jr., estilo target con fairways multi-temáticos en 2,800 acres de resort con playa. Hoyos tallados en desierto y montañas, con vistas al Mar de Cortés. Anfitrión de torneos PGA.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 190,
-        teeTimeInterval: 12,
+        teeTimeInterval: 10,
         operatingHours: {
           openingTime: "07:00",
           closingTime: "18:00"
         },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 22.955, lng: -109.789 }
     },
@@ -178,11 +180,13 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Diseñado por Jack Nicklaus, usa pasto Paspalum resistente al agua salada. Fairways verdes en colinas de Sierra de la Laguna, con vistas al Mar de Cortés. Terreno desértico rodante, greens elevados.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 100,
-        teeTimeInterval: 15,
+        teeTimeInterval: 10,
         operatingHours: {
           openingTime: "07:30",
           closingTime: "17:30"
         },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 23.078, lng: -109.735 }
     },
@@ -198,6 +202,8 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
           openingTime: "06:30",
           closingTime: "18:30"
         },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 22.898, lng: -109.897 }
     },
@@ -208,11 +214,13 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Dunes por Davis Love III, estilo links con vistas al Pacífico y arroyos nativos; Cardonal por Tiger Woods, con fairways anchos y greens slick. Vistas largas al océano y dunas.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 300,
-        teeTimeInterval: 20,
+        teeTimeInterval: 10,
         operatingHours: {
           openingTime: "06:00",
           closingTime: "19:00"
         },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 22.951, lng: -110.021 }
     },
@@ -223,6 +231,13 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Firma de Gary Player, 18 hoyos con vistas panorámicas al Mar de Cortés. Cambios de elevación dramáticos, desierto y mar, con practice range y halfway house escénica.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 80,
+        teeTimeInterval: 10,
+        operatingHours: {
+          openingTime: "07:00",
+          closingTime: "18:00"
+        },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 24.195, lng: -110.320 }
     },
@@ -233,6 +248,13 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Diseñado por Arthur Hills, estilo links oceánico de 18 hoyos en 7,039 yardas. Paisaje de dunas reminiscentes de Escocia, con vistas al Golfo de California.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 90,
+        teeTimeInterval: 10,
+        operatingHours: {
+          openingTime: "07:00",
+          closingTime: "18:00"
+        },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 24.237, lng: -110.334 }
     },
@@ -243,6 +265,13 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: '18 hoyos multi-temáticos por Rees Jones, con valles, arroyos, dunas y colinas. Vistas panorámicas a Danzante Bay y Mar de Cortés, greens slick y vientos desafiantes.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 150,
+        teeTimeInterval: 10,
+        operatingHours: {
+          openingTime: "06:30",
+          closingTime: "18:30"
+        },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 25.828, lng: -111.306 }
     },
@@ -253,6 +282,13 @@ export const initialCourses: Omit<GolfCourse, 'reviews'>[] = [
         description: 'Diseñado por Robert Trent Jones II, links-like con fairways anchos, condiciones firmes y rápidas. Vistas de desierto y mar, terreno divertido para todos los niveles.',
         rules: 'Standard golf etiquette and club rules apply.',
         basePrice: 250,
+        teeTimeInterval: 10,
+        operatingHours: {
+          openingTime: "06:00",
+          closingTime: "19:00"
+        },
+        availableHoles: [18],
+        par: 72,
         imageUrls: ['/images/fallback.svg'],
         latLng: { lat: 23.633, lng: -109.689 }
     },
@@ -263,10 +299,11 @@ const uploadImages = async (courseName: string, files: File[]): Promise<string[]
         console.warn("Firebase Storage is not initialized. Skipping image upload.");
         return [];
     }
+    const storageInstance = storage; // Create a non-null reference
     const uploadPromises = files.map(file => {
         // Sanitize file name
         const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
-        const storageRef = ref(storage, `courses/${courseName.toLowerCase().replace(/\s+/g, '-')}/${Date.now()}-${cleanFileName}`);
+        const storageRef = ref(storageInstance, `courses/${courseName.toLowerCase().replace(/\s+/g, '-')}/${Date.now()}-${cleanFileName}`);
         return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
     });
     return Promise.all(uploadPromises);
@@ -554,41 +591,54 @@ export const updateCourseFeaturedStatus = async (courseId: string, isFeatured: b
 const generateDefaultTeeTimes = (basePrice: number, course?: GolfCourse, date?: Date): Omit<TeeTime, 'id' | 'date'>[] => {
     const times: Omit<TeeTime, 'id' | 'date'>[] = [];
     
-    // Get interval from course configuration or default to 12 minutes
-    const intervalMinutes = course?.teeTimeInterval || 12;
+    // Get interval from course configuration or default to 10 minutes for exact timing
+    const intervalMinutes = course?.teeTimeInterval || 10;
     
     // Get operating hours from course configuration or use defaults
     const openingTime = course?.operatingHours?.openingTime ? 
-        parseTimeToDecimal(course.operatingHours.openingTime) : 7.5; // 07:30
+        parseTimeToDecimal(course.operatingHours.openingTime) : 7.0; // 07:00
     const lastTeeTime = course?.operatingHours?.closingTime ? 
-        parseTimeToDecimal(course.operatingHours.closingTime) : 18.5; // 18:30
+        parseTimeToDecimal(course.operatingHours.closingTime) : 18.0; // 18:00
     
     // Check if this is today's date for auto-blocking past times
     const now = new Date();
     const isToday = date ? date.toDateString() === now.toDateString() : false;
-    const currentTimeDecimal = isToday ? now.getHours() + (now.getMinutes() / 60) : 0;
+    const nowTimeDecimal = isToday ? now.getHours() + (now.getMinutes() / 60) : 0;
 
-    let currentTime = openingTime;
-    while (currentTime <= lastTeeTime) {
-        const hour = Math.floor(currentTime);
-        const minute = Math.floor((currentTime - hour) * 60);
+    // Start with exact minutes based on interval
+    let currentTimeMinutes = Math.floor(openingTime * 60);
+    const lastTeeTimeMinutes = Math.floor(lastTeeTime * 60);
+    
+    // Ensure we start on exact interval boundaries
+    const remainder = currentTimeMinutes % intervalMinutes;
+    if (remainder !== 0) {
+        currentTimeMinutes += (intervalMinutes - remainder);
+    }
+    
+    while (currentTimeMinutes <= lastTeeTimeMinutes) {
+        const hour = Math.floor(currentTimeMinutes / 60);
+        const minute = currentTimeMinutes % 60;
         
         const formattedTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        const currentTimeDecimal = hour + (minute / 60);
         
         const priceMultiplier = (hour < 9 || hour >= 15) ? 0.9 : 1.2;
         
         // Auto-block past times if it's today
-        const status = isToday && currentTime <= currentTimeDecimal ? 'blocked' : 'available';
+        const status = isToday && currentTimeDecimal <= nowTimeDecimal ? 'blocked' : 'available';
         
         times.push({
             time: formattedTime,
             status,
             price: Math.round(basePrice * priceMultiplier),
+            maxPlayers: 4, // Máximo estándar de 4 jugadores por tee time
+            bookedPlayers: 0, // Inicialmente sin jugadores reservados
+            availableSpots: 4, // Todos los espacios disponibles inicialmente
+            bookingIds: [] // Sin reservas inicialmente
         });
 
-        // Increment time by the interval
-        const totalMinutes = currentTime * 60 + intervalMinutes;
-        currentTime = totalMinutes / 60;
+        // Increment by exact interval minutes
+        currentTimeMinutes += intervalMinutes;
     }
     return times;
 };
@@ -662,7 +712,11 @@ export const getTeeTimesForCourse = async (courseId: string, date: Date, basePri
                     date: newTeeTime.date,
                     time: newTeeTime.time,
                     price: newTeeTime.price,
-                    status: newTeeTime.status
+                    status: newTeeTime.status,
+                    maxPlayers: newTeeTime.maxPlayers,
+                    bookedPlayers: newTeeTime.bookedPlayers,
+                    availableSpots: newTeeTime.availableSpots,
+                    bookingIds: newTeeTime.bookingIds
                 });
                 newTimesWithIds.push(newTeeTime);
             });
@@ -723,25 +777,41 @@ function generateConfirmationNumber(): string {
 
 export async function createBooking(bookingData: BookingInput, lang: Locale): Promise<string> {
     if (!db) throw new Error("Firestore is not initialized.");
-    const bookingsCol = collection(db, 'bookings');
+    const dbInstance = db; // Create a non-null reference
+    const bookingsCol = collection(dbInstance, 'bookings');
     const bookingDocRef = doc(bookingsCol);
-    const teeTimeDocRef = doc(db, 'courses', bookingData.courseId, 'teeTimes', bookingData.teeTimeId);
+    const teeTimeDocRef = doc(dbInstance, 'courses', bookingData.courseId, 'teeTimes', bookingData.teeTimeId);
 
-    let userProfile: UserProfile | null = null;
+    let userProfile: UserProfile | undefined = undefined;
     const confirmationNumber = generateConfirmationNumber();
     const isGuestBooking = bookingData.userId === 'guest';
 
-    const bookingId = await runTransaction(db, async (transaction) => {
+    const bookingId = await runTransaction(dbInstance, async (transaction) => {
         const teeTimeDoc = await transaction.get(teeTimeDocRef);
 
         if (!teeTimeDoc.exists()) throw new Error("Tee time not found. It may have been booked by someone else.");
         
         const teeTimeData = teeTimeDoc.data() as TeeTime;
-        if (teeTimeData.status !== 'available') throw new Error("This tee time is no longer available.");
+        
+        // Check if tee time has enough available spots
+        const currentAvailableSpots = teeTimeData.availableSpots ?? (teeTimeData.maxPlayers ?? 4);
+        const requestedPlayers = bookingData.players;
+        
+        if (teeTimeData.status === 'blocked') {
+            throw new Error("This tee time is blocked and not available for booking.");
+        }
+        
+        if (teeTimeData.status === 'booked' && currentAvailableSpots === 0) {
+            throw new Error("This tee time is fully booked.");
+        }
+        
+        if (requestedPlayers > currentAvailableSpots) {
+            throw new Error(`Only ${currentAvailableSpots} spots available for this tee time.`);
+        }
 
         // Only get user profile for registered users
         if (!isGuestBooking) {
-            const userDocRef = doc(db, 'users', bookingData.userId);
+            const userDocRef = doc(dbInstance, 'users', bookingData.userId);
             const userDoc = await transaction.get(userDocRef);
             if (!userDoc.exists()) throw new Error("User does not exist!");
             userProfile = userDoc.data() as UserProfile;
@@ -750,7 +820,7 @@ export async function createBooking(bookingData: BookingInput, lang: Locale): Pr
         let finalPrice = bookingData.totalPrice;
         
         if (bookingData.couponCode) {
-            const couponRef = doc(db, 'coupons', bookingData.couponCode);
+            const couponRef = doc(dbInstance, 'coupons', bookingData.couponCode);
             const couponSnap = await transaction.get(couponRef);
             if (!couponSnap.exists()) throw new Error("Coupon is not valid.");
             
@@ -769,14 +839,32 @@ export async function createBooking(bookingData: BookingInput, lang: Locale): Pr
             totalPrice: finalPrice, 
             createdAt: new Date().toISOString() 
         });
-        transaction.update(teeTimeDocRef, { status: 'booked' });
+        
+        // Update tee time with partial booking logic
+        const newBookedPlayers = (teeTimeData.bookedPlayers ?? 0) + requestedPlayers;
+        const newAvailableSpots = (teeTimeData.maxPlayers ?? 4) - newBookedPlayers;
+        const newBookingIds = [...(teeTimeData.bookingIds ?? []), bookingDocRef.id];
+        
+        let newStatus: 'available' | 'partial' | 'booked' = 'available';
+        if (newAvailableSpots === 0) {
+            newStatus = 'booked'; // Completamente reservado
+        } else if (newBookedPlayers > 0) {
+            newStatus = 'partial'; // Parcialmente reservado
+        }
+        
+        transaction.update(teeTimeDocRef, { 
+            status: newStatus,
+            bookedPlayers: newBookedPlayers,
+            availableSpots: newAvailableSpots,
+            bookingIds: newBookingIds
+        });
 
         // Only update user profile for registered users
         if (!isGuestBooking && userProfile) {
             const newAchievements: AchievementId[] = [...userProfile.achievements];
             if (!userProfile.achievements.includes('firstBooking')) newAchievements.push('firstBooking');
             
-            const userDocRef = doc(db, 'users', bookingData.userId);
+            const userDocRef = doc(dbInstance, 'users', bookingData.userId);
             transaction.update(userDocRef, {
                 xp: increment(150),
                 achievements: newAchievements,
@@ -787,7 +875,7 @@ export async function createBooking(bookingData: BookingInput, lang: Locale): Pr
     });
 
     // Send confirmation email after transaction is successful
-    const emailToUse = userProfile?.email || bookingData.userEmail;
+    const emailToUse = (userProfile as UserProfile | undefined)?.email || bookingData.userEmail;
     if (bookingId && emailToUse) {
         try {
             
@@ -805,7 +893,11 @@ export async function createBooking(bookingData: BookingInput, lang: Locale): Pr
                         date: bookingData.date,
                         time: bookingData.time,
                         players: bookingData.players,
-                        totalPrice: bookingData.totalPrice.toString()
+                        totalPrice: bookingData.totalPrice.toString(),
+                        discountCode: bookingData.couponCode,
+                        discountAmount: 0, // Por ahora 0, se calculará en el backend
+                        // Include pricing_snapshot if available
+                        ...(bookingData as any).pricing_snapshot && { pricing_snapshot: (bookingData as any).pricing_snapshot }
                     }
                 })
             });
@@ -821,7 +913,7 @@ export async function createBooking(bookingData: BookingInput, lang: Locale): Pr
     }
 
     // Send WhatsApp notification if phone number is available
-    const phoneToUse = userProfile?.phoneNumber || bookingData.userPhone;
+    const phoneToUse = bookingData.userPhone;
     if (bookingId && phoneToUse) {
         try {
             const response = await fetch('/api/send-whatsapp-notification', {
@@ -910,68 +1002,118 @@ export async function getGuestBookingDraft(draftId: string): Promise<any | null>
 }
 
 export async function getBookingByIdAndLastName(bookingId: string, email: string): Promise<Booking> {
+    console.log('🔍 Iniciando búsqueda de reserva:', { bookingId, email });
+    
     if (!db) throw new Error("Database service is not available.");
+    const dbInstance = db; // Create a non-null reference
 
     let booking: Booking | null = null;
     const trimmedBookingId = bookingId.trim();
+    console.log('📋 ID de reserva procesado:', trimmedBookingId);
 
     // First, try to find by document ID (for existing bookings)
     if (trimmedBookingId.length >= 10) {
+        console.log('🔎 Buscando por ID de documento...');
         try {
-            const bookingDocRef = doc(db, 'bookings', trimmedBookingId);
+            const bookingDocRef = doc(dbInstance, 'bookings', trimmedBookingId);
             const docSnap = await getDoc(bookingDocRef);
             
             if (docSnap.exists()) {
                 booking = { id: docSnap.id, ...docSnap.data() } as Booking;
+                console.log('✅ Reserva encontrada por ID de documento:', { id: booking.id, userId: booking.userId, isGuest: booking.isGuest });
+            } else {
+                console.log('❌ No se encontró reserva por ID de documento');
             }
         } catch (error) {
             // If document ID lookup fails, continue to confirmation number search
-            console.log('Document ID lookup failed, trying confirmation number search');
+            console.log('⚠️ Error en búsqueda por ID de documento:', error);
         }
     }
 
     // If not found by document ID, try to find by confirmation number
     if (!booking) {
-        const bookingsCol = collection(db, 'bookings');
+        console.log('🔎 Buscando por número de confirmación...');
+        const bookingsCol = collection(dbInstance, 'bookings');
         const q = query(bookingsCol, where('confirmationNumber', '==', trimmedBookingId));
         const querySnapshot = await getDocs(q);
         
         if (!querySnapshot.empty) {
             const doc = querySnapshot.docs[0];
             booking = { id: doc.id, ...doc.data() } as Booking;
+            console.log('✅ Reserva encontrada por número de confirmación:', { id: booking.id, userId: booking.userId, isGuest: booking.isGuest });
+        } else {
+            console.log('❌ No se encontró reserva por número de confirmación');
         }
     }
 
     if (!booking) {
+        console.log('❌ Reserva no encontrada');
         throw new Error("Booking not found. Please check your Booking ID or Confirmation Number.");
     }
+
+    console.log('📊 Datos de la reserva encontrada:', {
+        id: booking.id,
+        userId: booking.userId,
+        isGuest: booking.isGuest,
+        hasGuestObject: !!booking.guest,
+        userEmail: booking.userEmail,
+        guestEmail: booking.guest?.email
+    });
 
     // Verify email based on booking type
     let bookingEmail: string;
     
     if (booking.isGuest && booking.guest?.email) {
-        // For guest bookings, use the email stored in the guest object
+        // For guest bookings with guest object, use the email stored in the guest object
         bookingEmail = booking.guest.email;
-    } else if (booking.userId) {
+        console.log('✅ Usando email del objeto guest:', bookingEmail);
+    } else if (booking.userId === 'guest') {
+        // For legacy guest bookings with userId='guest' but no guest object
+        // We need to find the email in the booking data itself
+        console.log('🔍 Reserva legacy con userId="guest"');
+        if (booking.userEmail) {
+            bookingEmail = booking.userEmail;
+            console.log('✅ Usando userEmail para reserva legacy:', bookingEmail);
+        } else {
+            console.log('❌ Reserva legacy sin userEmail disponible');
+            throw new Error("Guest booking found but no email information available. Please contact support.");
+        }
+    } else if (booking.userId && booking.userId !== 'guest') {
         // For registered user bookings, get email from user profile
-        const userDocRef = doc(db, 'users', booking.userId);
+        console.log('🔍 Buscando perfil de usuario registrado:', booking.userId);
+        const userDocRef = doc(dbInstance, 'users', booking.userId);
         const userDoc = await getDoc(userDocRef);
         
         if (!userDoc.exists()) {
+            console.log('❌ Perfil de usuario no encontrado para userId:', booking.userId);
             throw new Error("User profile not found for this booking.");
         }
         
         const userProfile = userDoc.data() as UserProfile;
+        if (!userProfile.email) {
+            console.log('❌ Usuario registrado sin email disponible');
+            throw new Error("User profile found but no email available. Please contact support.");
+        }
         bookingEmail = userProfile.email;
+        console.log('✅ Email obtenido del perfil de usuario:', bookingEmail);
     } else {
+        console.log('❌ Datos de reserva inválidos - información de usuario faltante');
         throw new Error("Invalid booking data: missing user information.");
     }
     
     // Check if the email matches the booking record, case-insensitively
+    console.log('🔍 Verificando coincidencia de emails:', {
+        emailIngresado: email.trim().toLowerCase(),
+        emailReserva: bookingEmail.toLowerCase(),
+        coincide: bookingEmail.toLowerCase() === email.trim().toLowerCase()
+    });
+    
     if (bookingEmail.toLowerCase() !== email.trim().toLowerCase()) {
+        console.log('❌ Los emails no coinciden');
         throw new Error("Email does not match the booking record.");
     }
 
+    console.log('✅ Búsqueda de reserva exitosa');
     return booking;
 }
 
@@ -1087,13 +1229,15 @@ export async function getUsers(): Promise<UserProfile[]> {
 
 export async function updateUserRole(uid: string, role: UserProfile['role']): Promise<void> {
     if (!db) throw new Error("Firestore is not initialized.");
-    const userDocRef = doc(db, 'users', uid);
+    const dbInstance = db; // Create a non-null reference
+    const userDocRef = doc(dbInstance, 'users', uid);
     await updateDoc(userDocRef, { role });
 }
 
 export async function updateUserProfile(uid: string, data: Partial<UserProfile>): Promise<void> {
     if (!db) throw new Error("Firestore is not initialized.");
-    const userDocRef = doc(db, 'users', uid);
+    const dbInstance = db; // Create a non-null reference
+    const userDocRef = doc(dbInstance, 'users', uid);
     await updateDoc(userDocRef, data);
 }
 
@@ -1140,17 +1284,23 @@ export async function getDashboardStats() {
         const bookingsCol = collection(db, 'bookings');
         const usersCol = collection(db, 'users');
         
-        // Execute all queries in parallel with timeouts
-        const [revenueSnapshot, usersSnapshot, bookingsSnapshot, recentBookingsSnapshot] = await Promise.all([
-            // Get completed bookings for revenue calculation (limit to recent ones for performance)
-            getDocs(query(bookingsCol, where('status', '==', 'Completed'), limit(1000))),
-            // Get users count (limit for performance)
-            getDocs(query(usersCol, limit(1000))),
-            // Get total bookings count (limit for performance)
-            getDocs(query(bookingsCol, limit(1000))),
-            // Get recent bookings
-            getDocs(query(bookingsCol, orderBy('createdAt', 'desc'), limit(5)))
-        ]);
+        // Execute queries with reduced limits for better performance
+        const [revenueSnapshot, usersSnapshot, bookingsSnapshot, recentBookingsSnapshot] = await Promise.race([
+            Promise.all([
+                // Get completed bookings for revenue calculation (reduced limit)
+                getDocs(query(bookingsCol, where('status', '==', 'Completed'), limit(200))),
+                // Get users count (reduced limit)
+                getDocs(query(usersCol, limit(200))),
+                // Get total bookings count (reduced limit)
+                getDocs(query(bookingsCol, limit(200))),
+                // Get recent bookings
+                getDocs(query(bookingsCol, orderBy('createdAt', 'desc'), limit(5)))
+            ]),
+            // Add timeout promise
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Dashboard stats query timeout')), 8000)
+            )
+        ]) as any;
         
         // Calculate revenue and hole statistics from completed bookings
         let totalRevenue = 0;
@@ -1214,25 +1364,36 @@ export async function getRevenueLast7Days(): Promise<{ date: string; revenue: nu
 
     if (!db) return Object.entries(dailyRevenue).map(([date, revenue]) => ({ date, revenue }));
     
-    const bookingsCol = collection(db, 'bookings');
-    const q = query(
-        bookingsCol, 
-        where('status', '==', 'Completed'),
-        where('createdAt', '>=' , sevenDaysAgo.toISOString())
-    );
-    
-    const snapshot = await getDocs(q);
+    try {
+        const bookingsCol = collection(db, 'bookings');
+        const q = query(
+            bookingsCol, 
+            where('status', '==', 'Completed'),
+            where('createdAt', '>=' , sevenDaysAgo.toISOString()),
+            limit(100) // Add limit for better performance
+        );
+        
+        const snapshot = await Promise.race([
+            getDocs(q),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Revenue query timeout')), 5000)
+            )
+        ]) as any;
 
-    snapshot.docs.forEach(doc => {
-        const booking = doc.data() as Booking;
-        const bookingDate = new Date(booking.createdAt);
-        if (isAfter(bookingDate, sevenDaysAgo)) {
-            const dateStr = format(bookingDate, 'MMM d');
-            if (dailyRevenue.hasOwnProperty(dateStr)) {
-                dailyRevenue[dateStr] += booking.totalPrice;
+        snapshot.docs.forEach(doc => {
+            const booking = doc.data() as Booking;
+            const bookingDate = new Date(booking.createdAt);
+            if (isAfter(bookingDate, sevenDaysAgo)) {
+                const dateStr = format(bookingDate, 'MMM d');
+                if (dailyRevenue.hasOwnProperty(dateStr)) {
+                    dailyRevenue[dateStr] += booking.totalPrice;
+                }
             }
-        }
-    });
+        });
+    } catch (error) {
+        console.error('Error fetching revenue data:', error);
+        // Return default data on error
+    }
 
     return Object.entries(dailyRevenue)
         .map(([date, revenue]) => ({ date, revenue }))
@@ -1893,8 +2054,8 @@ export async function sendReviewInvitationForCompletedBooking(
         // Send review invitation email
         const emailResult = await sendReviewInvitationEmail({
             bookingId: booking.id || bookingId,
-            userName: booking.userName || user.name || 'Golfista',
-            userEmail: user.email,
+            userName: booking.userName || user.displayName || 'Golfista',
+            userEmail: user.email || '',
             courseName: booking.courseName,
             courseId: booking.courseId,
             date: booking.date,

@@ -52,7 +52,7 @@ export function WelcomeOnboarding({ isOpen, onClose, dictionary }: WelcomeOnboar
   const { userProfile } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const lang = (pathname.split('/')[1] || 'en') as Locale;
+  const lang = (pathname?.split('/')[1] || 'en') as Locale;
   const { go } = useStableNavigation();
 
   const steps: OnboardingStep[] = [

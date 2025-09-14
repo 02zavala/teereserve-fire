@@ -66,8 +66,12 @@ export interface TeeTime {
   id: string;
   date: string; // YYYY-MM-DD
   time: string; // HH:mm
-  status: 'available' | 'booked' | 'blocked';
+  status: 'available' | 'booked' | 'blocked' | 'partial';
   price: number;
+  maxPlayers?: number; // Máximo de jugadores permitidos (default: 4)
+  bookedPlayers?: number; // Jugadores ya reservados
+  availableSpots?: number; // Espacios disponibles restantes
+  bookingIds?: string[]; // IDs de las reservas asociadas a este tee time
 }
 
 // This represents the data stored in the main "courses" collection document
@@ -122,7 +126,8 @@ export type PaymentStatus =
   | 'captured'
   | 'partially_refunded'
   | 'refunded'
-  | 'failed';
+  | 'failed'
+  | 'disputed';
 
 export interface BookingInput {
     userId: string;
@@ -175,6 +180,8 @@ export interface Booking extends BookingInput {
         email: string;
         phone: string;
     };
+    reschedulesUsed?: number; // Track number of times booking has been rescheduled
+    pricing_snapshot?: PricingSnapshot; // Immutable pricing breakdown from checkout
 }
 
 export interface BookingAddOn {
@@ -473,4 +480,44 @@ export interface PriceCalculationInput {
   players: number;
   leadTimeHours?: number; // Calculado automáticamente si no se proporciona
   occupancyPercent?: number; // % de ocupación actual
+}
+
+// Pricing Snapshot interfaces for checkout system
+export interface PricingSnapshot {
+  currency: string;
+  tax_rate: number; // e.g., 0.16 for 16%
+  subtotal_cents: number;
+  discount_cents: number;
+  tax_cents: number;
+  total_cents: number;
+  quote_id?: string;
+  quote_hash?: string;
+  createdAt: string; // ISO string
+  promoCode?: string;
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+}
+
+export interface QuoteRequest {
+  courseId: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:mm
+  players: number;
+  holes: number;
+  basePrice: number;
+  promoCode?: string;
+}
+
+export interface QuoteResponse {
+  currency: string;
+  tax_rate: number;
+  subtotal_cents: number;
+  discount_cents: number;
+  tax_cents: number;
+  total_cents: number;
+  quote_hash: string;
+  expires_at: string; // ISO string
+  promoCode?: string;
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
 }

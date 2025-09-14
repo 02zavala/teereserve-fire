@@ -1,44 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { auth, db } from '@/lib/firebase-admin';
 import { FirestoreMigrationService } from '@/lib/firestore-migration';
-
-// Helper functions to safely initialize and get Firebase services
-function initializeFirebaseIfNeeded() {
-  if (typeof window !== 'undefined') {
-    throw new Error('Firebase Admin cannot be used on client side');
-  }
-  
-  if (!getApps().length) {
-    try {
-      if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-        initializeApp({
-          credential: cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-          }),
-        });
-      } else {
-        throw new Error('Firebase environment variables not configured');
-      }
-    } catch (error) {
-      console.error('Firebase initialization failed:', error);
-      throw error;
-    }
-  }
-}
-
-function getFirebaseAuth() {
-  initializeFirebaseIfNeeded();
-  return getAuth();
-}
-
-function getFirebaseFirestore() {
-  initializeFirebaseIfNeeded();
-  return getFirestore();
-}
 
 interface LinkGuestBookingsRequest {
   guestUserId: string;
@@ -57,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getFirebaseAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
 
     const body: LinkGuestBookingsRequest = await request.json();
     const { guestUserId, authenticatedUserId, bookingIds = [] } = body;
@@ -77,7 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = getFirebaseFirestore();
+    // db is already imported from firebase-admin config
 
     // Link guest bookings to authenticated user using enhanced migration service
     const migrationService = new FirestoreMigrationService(db);
@@ -307,7 +269,7 @@ async function updateUserWithLinkedBookings(
       };
       
       // If user document doesn't exist, create it
-      if (!userDoc.exists()) {
+      if (!userDoc.exists) {
         updateData.createdAt = new Date();
         updateData.accountType = 'linked_guest_bookings';
       }
@@ -360,7 +322,7 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getFirebaseAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     
     const { searchParams } = new URL(request.url);
     const guestUserId = searchParams.get('guestUserId');
@@ -372,7 +334,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const db = getFirebaseFirestore();
+    // db is already imported from firebase-admin config
     
     // Get guest bookings
     const bookingsQuery = db.collection('bookings')

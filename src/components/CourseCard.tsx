@@ -6,11 +6,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button'
 import { MapPin, Star } from 'lucide-react'
 import { StarRating } from './StarRating'
-import SafeImage from '@/components/SafeImage'
+import { FirebaseImage } from '@/components/FirebaseImage'
 import { normalizeImageUrl } from '@/lib/normalize'
 import type { getDictionary } from '@/lib/get-dictionary'
 import type { Locale } from '@/i18n-config'
 import Link from 'next/link'
+import { pricingEngine } from '@/lib/pricing-engine'
 
 interface CourseCardProps {
   course: GolfCourse,
@@ -20,21 +21,23 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course, dictionary, lang, asLink = false }: CourseCardProps) {
-  const avgRating = course.reviews.length > 0
-    ? course.reviews.reduce((acc, r) => acc + r.rating, 0) / course.reviews.length
+  const avgRating = course.reviews.length > 0 
+    ? course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length 
     : 0;
+
+  const minPrice = pricingEngine.getMinimumPrice(course.id);
 
   const content = (
     <Card className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
       <CardHeader className="p-0">
         <div className="relative h-56 w-full overflow-hidden rounded-t-lg">
-          <SafeImage
+          <FirebaseImage
             src={normalizeImageUrl(course.imageUrls?.[0]) ?? '/images/fallback.svg'}
             alt={`Vista del campo de golf ${course.name}`}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="transition-transform duration-300 group-hover:scale-110 object-cover"
             priority={false}
-            quality={85}
           />
         </div>
       </CardHeader>
@@ -53,7 +56,7 @@ export function CourseCard({ course, dictionary, lang, asLink = false }: CourseC
       </CardContent>
       <CardFooter className="flex items-center justify-between bg-card p-4">
         <div className="text-lg font-bold">
-            {dictionary.from} <span className="text-accent">${course.basePrice}</span>
+            {dictionary.from} <span className="text-accent">${minPrice}</span>
         </div>
         <Button>
           {dictionary.bookNow}

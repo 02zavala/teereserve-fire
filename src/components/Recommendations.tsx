@@ -2,10 +2,10 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { recommendGolfCourses } from '@/ai/flows/recommend-golf-courses';
+// Removed direct import of server function
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import SafeImage from '@/components/SafeImage';
+import { FirebaseImage } from '@/components/FirebaseImage';
 import { normalizeImageUrl } from '@/lib/normalize';
 import Link from 'next/link';
 import LinkComponent from './LinkComponent';
@@ -41,13 +41,25 @@ export function Recommendations({ courseId, userId, dictionary, lang }: Recommen
       setLoading(true);
       setError(null);
       try {
-        const recommendationInput = {
-          userId: userId || 'anonymous-user-123',
-          courseId: courseId,
-          location: 'Los Cabos',
-        };
-        const result = await recommendGolfCourses(recommendationInput);
-        setRecommendations(result.recommendations || []);
+        const response = await fetch('/api/recommendations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: userId || 'anonymous-user-123',
+            courseId: courseId,
+            location: 'Los Cabos',
+          }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setRecommendations(result.recommendations || []);
+        } else {
+          throw new Error(result.error || 'Failed to get recommendations');
+        }
       } catch (err) {
         console.error("Failed to get AI recommendations:", err);
         setError("Could not load recommendations at this time.");
@@ -101,11 +113,12 @@ export function Recommendations({ courseId, userId, dictionary, lang }: Recommen
             <Card className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
               <CardHeader className="p-0">
                 <div className="relative h-56 w-full">
-                  <SafeImage
+                  <FirebaseImage
                     src={normalizeImageUrl(rec.imageUrl) ?? '/images/fallback.svg'}
                     alt={`Image of ${rec.name}`}
                     data-ai-hint="golf course aerial"
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
                   {rec.tags && rec.tags.length > 0 && (

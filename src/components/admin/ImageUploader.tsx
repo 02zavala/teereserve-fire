@@ -60,6 +60,7 @@ export function ImageUploader({ newFiles, setNewFiles, existingImageUrls, setExi
                 src={image.value}
                 alt={image.name || 'Course image'}
                 fill
+                sizes="200px"
                 className="object-cover rounded-md"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

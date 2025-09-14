@@ -24,7 +24,7 @@ export function Footer({ dictionary, lang }: FooterProps) {
     setCurrentYear(new Date().getFullYear());
   }, []);
 
-  if (pathname.includes('/admin')) {
+  if (pathname?.includes('/admin')) {
     return null;
   }
 

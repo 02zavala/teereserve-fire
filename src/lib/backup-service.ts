@@ -1,5 +1,4 @@
 import { db } from './firebase-admin';
-import { collection, getDocs, doc, getDoc, query, orderBy, where, limit } from 'firebase/firestore';
 import { format } from 'date-fns';
 import type { Booking, GolfCourse, UserProfile, PriceRule, Season, TimeBand, SpecialOverride, BaseProduct, Coupon } from '@/types';
 
@@ -132,23 +131,21 @@ class BackupService {
    * Backup bookings with optional date filtering
    */
   private async backupBookings(options: BackupOptions): Promise<Booking[]> {
-    const bookingsRef = collection(db, 'bookings');
-    let bookingsQuery = query(bookingsRef, orderBy('createdAt', 'desc'));
+    const bookingsRef = db.collection('bookings');
+    let bookingsQuery = bookingsRef.orderBy('createdAt', 'desc');
 
     if (options.dateRange) {
-      bookingsQuery = query(
-        bookingsRef,
-        where('createdAt', '>=', options.dateRange.start.toISOString()),
-        where('createdAt', '<=', options.dateRange.end.toISOString()),
-        orderBy('createdAt', 'desc')
-      );
+      bookingsQuery = bookingsRef
+        .where('createdAt', '>=', options.dateRange.start.toISOString())
+        .where('createdAt', '<=', options.dateRange.end.toISOString())
+        .orderBy('createdAt', 'desc');
     }
 
     if (options.maxRecords) {
-      bookingsQuery = query(bookingsQuery, limit(options.maxRecords));
+      bookingsQuery = bookingsQuery.limit(options.maxRecords);
     }
 
-    const snapshot = await getDocs(bookingsQuery);
+    const snapshot = await bookingsQuery.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
   }
 
@@ -156,8 +153,8 @@ class BackupService {
    * Backup courses and their subcollections
    */
   private async backupCourses(options: BackupOptions): Promise<GolfCourse[]> {
-    const coursesRef = collection(db, 'courses');
-    const snapshot = await getDocs(coursesRef);
+    const coursesRef = db.collection('courses');
+    const snapshot = await coursesRef.get();
     
     const courses: GolfCourse[] = [];
     
@@ -165,8 +162,8 @@ class BackupService {
       const courseData = { id: courseDoc.id, ...courseDoc.data() } as Omit<GolfCourse, 'reviews'>;
       
       // Backup reviews for this course
-      const reviewsRef = collection(db, 'courses', courseDoc.id, 'reviews');
-      const reviewsSnapshot = await getDocs(reviewsRef);
+      const reviewsRef = db.collection('courses').doc(courseDoc.id).collection('reviews');
+      const reviewsSnapshot = await reviewsRef.get();
       const reviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       
       courses.push({ ...courseData, reviews } as GolfCourse);
@@ -179,14 +176,14 @@ class BackupService {
    * Backup user profiles
    */
   private async backupUsers(options: BackupOptions): Promise<UserProfile[]> {
-    const usersRef = collection(db, 'users');
-    let usersQuery = query(usersRef, orderBy('createdAt', 'desc'));
+    const usersRef = db.collection('users');
+    let usersQuery = usersRef.orderBy('createdAt', 'desc');
 
     if (options.maxRecords) {
-      usersQuery = query(usersQuery, limit(options.maxRecords));
+      usersQuery = usersQuery.limit(options.maxRecords);
     }
 
-    const snapshot = await getDocs(usersQuery);
+    const snapshot = await usersQuery.get();
     return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as UserProfile));
   }
 
@@ -194,8 +191,8 @@ class BackupService {
    * Backup price rules
    */
   private async backupPriceRules(options: BackupOptions): Promise<PriceRule[]> {
-    const priceRulesRef = collection(db, 'priceRules');
-    const snapshot = await getDocs(priceRulesRef);
+    const priceRulesRef = db.collection('priceRules');
+    const snapshot = await priceRulesRef.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PriceRule));
   }
 
@@ -203,8 +200,8 @@ class BackupService {
    * Backup seasons
    */
   private async backupSeasons(options: BackupOptions): Promise<Season[]> {
-    const seasonsRef = collection(db, 'seasons');
-    const snapshot = await getDocs(seasonsRef);
+    const seasonsRef = db.collection('seasons');
+    const snapshot = await seasonsRef.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Season));
   }
 
@@ -212,8 +209,8 @@ class BackupService {
    * Backup time bands
    */
   private async backupTimeBands(options: BackupOptions): Promise<TimeBand[]> {
-    const timeBandsRef = collection(db, 'timeBands');
-    const snapshot = await getDocs(timeBandsRef);
+    const timeBandsRef = db.collection('timeBands');
+    const snapshot = await timeBandsRef.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TimeBand));
   }
 
@@ -221,8 +218,8 @@ class BackupService {
    * Backup special overrides
    */
   private async backupSpecialOverrides(options: BackupOptions): Promise<SpecialOverride[]> {
-    const overridesRef = collection(db, 'specialOverrides');
-    const snapshot = await getDocs(overridesRef);
+    const overridesRef = db.collection('specialOverrides');
+    const snapshot = await overridesRef.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SpecialOverride));
   }
 
@@ -230,8 +227,8 @@ class BackupService {
    * Backup base products
    */
   private async backupBaseProducts(options: BackupOptions): Promise<BaseProduct[]> {
-    const baseProductsRef = collection(db, 'baseProducts');
-    const snapshot = await getDocs(baseProductsRef);
+    const baseProductsRef = db.collection('baseProducts');
+    const snapshot = await baseProductsRef.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BaseProduct));
   }
 
@@ -239,8 +236,8 @@ class BackupService {
    * Backup coupons
    */
   private async backupCoupons(options: BackupOptions): Promise<Coupon[]> {
-    const couponsRef = collection(db, 'coupons');
-    const snapshot = await getDocs(couponsRef);
+    const couponsRef = db.collection('coupons');
+    const snapshot = await couponsRef.get();
     return snapshot.docs.map(doc => ({ code: doc.id, ...doc.data() } as Coupon));
   }
 

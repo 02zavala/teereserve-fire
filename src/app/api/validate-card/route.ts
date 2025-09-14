@@ -4,7 +4,7 @@ import { auth } from '@/lib/firebase-admin';
 import { logger } from '@/lib/logger';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-02-24.acacia',
 });
 
 export async function POST(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     try {
       decodedToken = await auth.verifyIdToken(idToken);
     } catch (authError) {
-      logger.error('Card validation: Authentication failed', { error: authError });
+      logger.error('Card validation: Authentication failed', authError as Error);
       return NextResponse.json(
         { error: 'Authentication failed' },
         { status: 401 }
@@ -31,10 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = decodedToken.uid;
-    logger.info('Card validation: Starting validation charge', {
-      userId,
-      paymentMethodId
-    });
+    logger.info(`Card validation: Starting validation charge - userId: ${userId}, paymentMethodId: ${paymentMethodId}`);
 
     // Create a $1 USD validation charge
     const paymentIntent = await stripe.paymentIntents.create({
@@ -57,11 +54,7 @@ export async function POST(request: NextRequest) {
       return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/validation-complete`
     });
 
-    logger.info('Card validation: Payment intent created', {
-      userId,
-      paymentIntentId: paymentIntent.id,
-      status: paymentIntent.status
-    });
+    logger.info(`Card validation: Payment intent created - userId: ${userId}, paymentIntentId: ${paymentIntent.id}, status: ${paymentIntent.status}`);
 
     // If the payment requires additional action (3D Secure)
     if (paymentIntent.status === 'requires_action') {
@@ -87,12 +80,7 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        logger.info('Card validation: Validation charge refunded', {
-          userId,
-          paymentIntentId: paymentIntent.id,
-          refundId: refund.id,
-          refundStatus: refund.status
-        });
+        logger.info(`Card validation: Validation charge refunded - userId: ${userId}, paymentIntentId: ${paymentIntent.id}, refundId: ${refund.id}, refundStatus: ${refund.status}`);
 
         return NextResponse.json({
           success: true,
@@ -102,11 +90,7 @@ export async function POST(request: NextRequest) {
           message: 'Card validated successfully. The $1 charge has been refunded.'
         });
       } catch (refundError) {
-        logger.error('Card validation: Refund failed', {
-          userId,
-          paymentIntentId: paymentIntent.id,
-          error: refundError
-        });
+        logger.error(`Card validation: Refund failed - userId: ${userId}, paymentIntentId: ${paymentIntent.id}`, refundError as Error);
 
         return NextResponse.json({
           success: true,
@@ -120,11 +104,7 @@ export async function POST(request: NextRequest) {
 
     // If the payment failed
     if (paymentIntent.status === 'requires_payment_method') {
-      logger.warn('Card validation: Payment failed', {
-        userId,
-        paymentIntentId: paymentIntent.id,
-        status: paymentIntent.status
-      });
+      logger.warn(`Card validation: Payment failed - userId: ${userId}, paymentIntentId: ${paymentIntent.id}, status: ${paymentIntent.status}`);
 
       return NextResponse.json({
         success: false,
@@ -134,11 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle other statuses
-    logger.warn('Card validation: Unexpected payment status', {
-      userId,
-      paymentIntentId: paymentIntent.id,
-      status: paymentIntent.status
-    });
+    logger.warn(`Card validation: Unexpected payment status - userId: ${userId}, paymentIntentId: ${paymentIntent.id}, status: ${paymentIntent.status}`);
 
     return NextResponse.json({
       success: false,
@@ -148,7 +124,7 @@ export async function POST(request: NextRequest) {
     }, { status: 400 });
 
   } catch (error) {
-    logger.error('Card validation: Unexpected error', { error });
+    logger.error('Card validation: Unexpected error', error as Error);
     
     return NextResponse.json(
       { 
@@ -177,7 +153,7 @@ export async function PUT(request: NextRequest) {
     try {
       decodedToken = await auth.verifyIdToken(idToken);
     } catch (authError) {
-      logger.error('Card validation completion: Authentication failed', { error: authError });
+      logger.error('Card validation completion: Authentication failed', authError as Error);
       return NextResponse.json(
         { error: 'Authentication failed' },
         { status: 401 }
@@ -189,11 +165,7 @@ export async function PUT(request: NextRequest) {
     // Retrieve the payment intent to check its status
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     
-    logger.info('Card validation completion: Checking payment status', {
-      userId,
-      paymentIntentId,
-      status: paymentIntent.status
-    });
+    logger.info(`Card validation completion: Checking payment status - userId: ${userId}, paymentIntentId: ${paymentIntentId}, status: ${paymentIntent.status}`);
 
     if (paymentIntent.status === 'succeeded') {
       // Refund the validation charge
@@ -208,12 +180,7 @@ export async function PUT(request: NextRequest) {
           }
         });
 
-        logger.info('Card validation completion: Validation charge refunded', {
-          userId,
-          paymentIntentId,
-          refundId: refund.id,
-          refundStatus: refund.status
-        });
+        logger.info(`Card validation completion: Validation charge refunded - userId: ${userId}, paymentIntentId: ${paymentIntentId}, refundId: ${refund.id}, refundStatus: ${refund.status}`);
 
         return NextResponse.json({
           success: true,
@@ -223,11 +190,7 @@ export async function PUT(request: NextRequest) {
           message: 'Card validated successfully. The $1 charge has been refunded.'
         });
       } catch (refundError) {
-        logger.error('Card validation completion: Refund failed', {
-          userId,
-          paymentIntentId,
-          error: refundError
-        });
+        logger.error(`Card validation completion: Refund failed - userId: ${userId}, paymentIntentId: ${paymentIntentId}`, refundError as Error);
 
         return NextResponse.json({
           success: true,
@@ -247,7 +210,7 @@ export async function PUT(request: NextRequest) {
     }
 
   } catch (error) {
-    logger.error('Card validation completion: Unexpected error', { error });
+    logger.error('Card validation completion: Unexpected error', error as Error);
     
     return NextResponse.json(
       { 

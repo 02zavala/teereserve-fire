@@ -65,7 +65,7 @@ export function CourseSearchForm({ dictionary }: CourseSearchFormProps) {
         getCourseLocations().then(setLocations);
     }, []);
 
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
 
     const form = useForm<z.infer<typeof formSchema>>({

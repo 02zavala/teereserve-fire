@@ -120,7 +120,7 @@ export function AuditHistoryDialog({ booking, open, onOpenChange }: AuditHistory
           id: booking.userId,
           name: booking.userName,
           role: 'customer' as const,
-          email: booking.customerEmail,
+          email: booking.userEmail,
         },
         changes: [
           {

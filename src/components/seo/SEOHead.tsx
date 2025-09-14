@@ -7,7 +7,7 @@ interface SEOProps {
   keywords?: string;
   image?: string;
   url?: string;
-  type?: 'website' | 'article' | 'product';
+  type?: 'website' | 'article';
   locale?: string;
   alternateLocales?: { locale: string; url: string }[];
   noIndex?: boolean;
@@ -21,7 +21,7 @@ interface GenerateMetadataProps {
   keywords?: string;
   image?: string;
   url?: string;
-  type?: 'website' | 'article' | 'product';
+  type?: 'website' | 'article';
   locale?: string;
   alternateLocales?: { locale: string; url: string }[];
   noIndex?: boolean;
@@ -228,7 +228,7 @@ export function generateStructuredData({
   address?: object;
   additionalData?: object;
 } = {}) {
-  const baseStructure = {
+  const baseStructure: any = {
     '@context': 'https://schema.org',
     '@type': type,
     name,

@@ -60,18 +60,18 @@ export function AccountLinkingModal({
     setError('');
 
     try {
-      const result = await upgradeGuestAccount({
-        email: guestEmail,
-        password: password,
-        displayName: guestName,
-        bookingId: bookingId
-      });
+      const result = await upgradeGuestAccount(
+        guestEmail,
+        password,
+        guestName,
+        [bookingId]
+      );
 
-      if (result.success) {
+      if (result.userId) {
         setSuccess(true);
         toast({
           title: '¡Cuenta creada exitosamente!',
-          description: 'Tu reserva ha sido vinculada a tu nueva cuenta.',
+          description: `Tu reserva ha sido vinculada a tu nueva cuenta. ${result.migratedBookings} reserva(s) migrada(s).`,
         });
         
         // Redirect to profile after a short delay
@@ -80,7 +80,7 @@ export function AccountLinkingModal({
           onClose();
         }, 2000);
       } else {
-        throw new Error(result.error || 'Error al crear la cuenta');
+        throw new Error('Error al crear la cuenta');
       }
     } catch (error: any) {
       console.error('Error upgrading guest account:', error);

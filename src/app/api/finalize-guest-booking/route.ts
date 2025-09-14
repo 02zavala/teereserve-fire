@@ -1,29 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { auth, db } from '@/lib/firebase-admin';
 import Stripe from 'stripe';
 
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    }
-  } catch (error) {
-    // During build time, Firebase initialization might fail
-    console.warn('Firebase initialization failed during build:', error);
-  }
-}
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-02-24.acacia',
 });
 
 interface FinalizeBookingRequest {
@@ -43,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
 
     const body: FinalizeBookingRequest = await request.json();
     const { draftId, paymentIntentId, userIdToLink } = body;
@@ -55,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = getFirestore();
+    // db is already imported from firebase-admin config
     
     // Get draft booking
     const draftDoc = await db.collection('guestBookingDrafts').doc(draftId).get();
@@ -85,6 +65,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get pricing snapshot from temp_bookings
+    const tempBookingDoc = await db.collection('temp_bookings').doc(paymentIntentId).get();
+    let pricingSnapshot = null;
+    
+    if (tempBookingDoc.exists) {
+      const tempData = tempBookingDoc.data()!;
+      pricingSnapshot = tempData.pricing_snapshot;
+      // Clean up temp booking
+      await tempBookingDoc.ref.delete();
+    }
+
     // Create confirmed booking
     const bookingRef = db.collection('bookings').doc();
     const bookingId = bookingRef.id;
@@ -101,6 +92,7 @@ export async function POST(request: NextRequest) {
       isGuest: !userIdToLink,
       userId: userIdToLink || null,
       guest: draftData.guest,
+      pricing_snapshot: pricingSnapshot, // Store immutable pricing snapshot
       createdAt: new Date(),
       updatedAt: new Date(),
     };

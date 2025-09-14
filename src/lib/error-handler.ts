@@ -73,13 +73,16 @@ export class GlobalErrorHandler {
   private handleResourceError(event: Event): void {
     const target = event.target as HTMLElement;
     
-    if (target && target !== window) {
+    if (target && target !== (window as any)) {
       const tagName = target.tagName?.toLowerCase();
       const src = (target as any).src || (target as any).href;
       
+      // Create a proper error object for resource loading failures
+      const resourceError = new Error(`Failed to load ${tagName} resource: ${src || 'unknown source'}`);
+      
       logger.error(
         `Resource loading failed: ${tagName}`,
-        undefined,
+        resourceError,
         'GlobalErrorHandler',
         {
           tagName,

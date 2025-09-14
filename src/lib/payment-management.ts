@@ -542,7 +542,7 @@ export const PaymentUtils = {
       
       // Refund Status
       'pending': 'Reembolso pendiente',
-      'succeeded': 'Reembolsado',
+      'refund_succeeded': 'Reembolsado',
       'failed': 'Reembolso fallido',
       
       // Dispute Status

@@ -8,11 +8,12 @@ import { useStableNavigation, useValidatedNavigation } from '@/hooks/useStableNa
 import { useFetchWithAbort } from '@/hooks/useFetchWithAbort';
 import Link from 'next/link';
 import { getCourseById, validateCoupon, getGuestBookingDraft } from '@/lib/data';
-import type { GolfCourse, Coupon } from '@/types';
+import type { GolfCourse, Coupon, QuoteRequest, QuoteResponse } from '@/types';
+import { PriceBreakdown } from '@/components/PriceBreakdown';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, User, Calendar, Clock, Users, ArrowLeft, MessageSquare, Lock, TicketPercent, XCircle } from 'lucide-react';
-import SafeImage from '@/components/SafeImage';
+import { Loader2, User, Calendar, Clock, Users, ArrowLeft, MessageSquare, Lock, TicketPercent, XCircle, Shield } from 'lucide-react';
+import { FirebaseImage } from '@/components/FirebaseImage';
 import { normalizeImageUrl } from '@/lib/normalize';
 import { useToast } from '@/hooks/use-toast';
 import { useErrorHandler, commonValidators } from '@/hooks/useErrorHandler';
@@ -77,6 +78,12 @@ export default function CheckoutForm() {
         phone: ''
     });
 
+    // Quote system state
+    const [currentQuote, setCurrentQuote] = useState<QuoteResponse | null>(null);
+    const [isQuoteLoading, setIsQuoteLoading] = useState(false);
+    const [quoteError, setQuoteError] = useState<string | null>(null);
+    
+    // Legacy price details for backward compatibility
     const [priceDetails, setPriceDetails] = useState({
         subtotal: 0,
         tax: 0,
@@ -84,22 +91,79 @@ export default function CheckoutForm() {
         discount: 0,
     });
 
-    const courseId = searchParams.get('courseId');
-    const date = searchParams.get('date');
-    const time = searchParams.get('time');
-    const players = searchParams.get('players');
-    const holes = searchParams.get('holes');
-    const price = searchParams.get('price'); // This is the subtotal
-    const teeTimeId = searchParams.get('teeTimeId');
-    const comments = searchParams.get('comments');
+    const courseId = searchParams?.get('courseId');
+    const date = searchParams?.get('date');
+    const time = searchParams?.get('time');
+    const players = searchParams?.get('players');
+    const holes = searchParams?.get('holes');
+    const price = searchParams?.get('price'); // This is the subtotal
+    const teeTimeId = searchParams?.get('teeTimeId');
+    const comments = searchParams?.get('comments');
     
     // Guest booking parameters
-    const clientSecret = searchParams.get('client_secret');
-    const draftId = searchParams.get('draft_id');
+    const clientSecret = searchParams?.get('client_secret');
+    const draftId = searchParams?.get('draft_id');
     
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     const baseSubtotal = useMemo(() => parseFloat(price || '0'), [price]);
+    
+    // Use useMemo to prevent paymentElementOptions from changing on every render
+    // IMPORTANT: This must be declared BEFORE any conditional returns to avoid hook order issues
+    const paymentElementOptions = useMemo(() => ({
+        layout: "tabs" as const,
+    }), []);
+    
+    // Function to fetch quote from server
+    const fetchQuote = async (promoCode?: string) => {
+        if (!courseId || !date || !time || !players || !holes || !price) {
+            return;
+        }
+        
+        setIsQuoteLoading(true);
+        setQuoteError(null);
+        
+        try {
+            const quoteRequest: QuoteRequest = {
+                courseId,
+                date,
+                time,
+                players: parseInt(players),
+                holes: parseInt(holes),
+                basePrice: parseFloat(price),
+                promoCode
+            };
+            
+            const response = await fetch('/api/checkout/quote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(quoteRequest),
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch quote');
+            }
+            
+            const quote: QuoteResponse = await response.json();
+            setCurrentQuote(quote);
+            
+            // Update legacy priceDetails for backward compatibility
+            setPriceDetails({
+                subtotal: quote.subtotal_cents / 100,
+                tax: quote.tax_cents / 100,
+                total: quote.total_cents / 100,
+                discount: quote.discount_cents / 100,
+            });
+            
+        } catch (error) {
+            console.error('Error fetching quote:', error);
+            setQuoteError('Error al calcular el precio. Por favor, intenta de nuevo.');
+        } finally {
+            setIsQuoteLoading(false);
+        }
+    };
 
     useEffect(() => {
         setIsClient(true);
@@ -138,27 +202,13 @@ export default function CheckoutForm() {
         loadGuestDraft();
     }, [draftId, user]);
 
+    // Fetch quote whenever relevant data changes
     useEffect(() => {
-        let discount = 0;
-        if (appliedCoupon) {
-            if (appliedCoupon.discountType === 'percentage') {
-                discount = baseSubtotal * (appliedCoupon.discountValue / 100);
-            } else {
-                discount = appliedCoupon.discountValue;
-            }
-        }
-
-        const newSubtotal = Math.max(0, baseSubtotal - discount);
-        const taxNum = newSubtotal * TAX_RATE;
-        const totalNum = newSubtotal + taxNum;
-
-        setPriceDetails({
-            subtotal: baseSubtotal,
-            tax: taxNum,
-            total: totalNum,
-            discount
-        });
-    }, [baseSubtotal, appliedCoupon]);
+        if (!price || !players || !holes || !courseId || !date || !time) return;
+        
+        const promoCode = appliedCoupon?.code;
+        fetchQuote(promoCode);
+    }, [price, players, holes, appliedCoupon, courseId, date, time]);
 
 
     useEffect(() => {
@@ -257,23 +307,21 @@ export default function CheckoutForm() {
                 userName: user ? (user.displayName || user.email || 'User') : `${guestInfo.firstName} ${guestInfo.lastName}`,
                 userEmail: user?.email || guestInfo.email,
                 userPhone: guestInfo.phone || '',
-                courseId,
-                courseName: course.name,
-                date,
-                time,
-                players: parseInt(players),
+                courseId: courseId || '',
+                courseName: course?.name || '',
+                date: date || '',
+                time: time || '',
+                players: parseInt(players || '1'),
                 holes: holes ? parseInt(holes) : 18,
                 totalPrice: priceDetails.total,
-                status: 'Confirmed',
-                teeTimeId,
+                status: 'confirmed',
+                teeTimeId: teeTimeId || '',
                 comments: comments || '',
-                couponCode: appliedCoupon?.code || '',
-                paymentMethod: 'paypal',
-                paymentId: details.id
+                couponCode: appliedCoupon?.code || ''
             }, lang);
             
             const successUrl = new URL(`${window.location.origin}/${lang}/book/success`);
-                    searchParams.forEach((value, key) => successUrl.searchParams.append(key, value));
+                    searchParams?.forEach((value, key) => successUrl.searchParams.append(key, value));
                     successUrl.searchParams.append('bookingId', bookingId);
                     go(successUrl.toString());
         } catch (error) {
@@ -338,17 +386,16 @@ export default function CheckoutForm() {
                         players: parseInt(players),
                         holes: holes ? parseInt(holes) : 18,
                         totalPrice: priceDetails.total,
-                        status: 'Confirmed',
+                        status: 'confirmed',
                         teeTimeId,
                         comments: comments || '',
                         couponCode: appliedCoupon?.code || '',
-                    },
-                    lang
+                    }
                 );
 
                 if (result.success) {
                     const successUrl = new URL(`${window.location.origin}/${lang}/book/success`);
-                    searchParams.forEach((value, key) => successUrl.searchParams.append(key, value));
+                    searchParams?.forEach((value, key) => successUrl.searchParams.append(key, value));
                     go(successUrl.toString());
                 } else {
                     setErrorMessage(result.error || "Payment failed. Please try again.");
@@ -368,16 +415,36 @@ export default function CheckoutForm() {
                     return;
                 }
                 
-                // Create a new payment intent for this transaction
+                // Create a new payment intent using the quote system
                 try {
-                    const response = await fetchWithAbort('/api/create-payment-intent', {
+                    if (!currentQuote) {
+                        setErrorMessage("Price quote not available. Please refresh and try again.");
+                        setIsProcessing(false);
+                        return;
+                    }
+                    
+                    const response = await fetchWithAbort('/api/checkout/create-intent', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            amount: Math.round(priceDetails.total * 100), // Convert to cents
-                            currency: 'usd',
+                            courseId,
+                            date,
+                            time,
+                            players: parseInt(players),
+                            holes: parseInt(holes || '18'),
+                            currency: currentQuote.currency,
+                            tax_rate: currentQuote.tax_rate,
+                            subtotal_cents: currentQuote.subtotal_cents,
+                            discount_cents: currentQuote.discount_cents,
+                            tax_cents: currentQuote.tax_cents,
+                            total_cents: currentQuote.total_cents,
+                            quote_hash: currentQuote.quote_hash,
+                            expires_at: currentQuote.expires_at,
+                            promoCode: appliedCoupon?.code,
+                            guestEmail: user?.email || guestInfo.email,
+                            guestName: user ? (user.displayName || user.email || 'User') : `${guestInfo.firstName} ${guestInfo.lastName}`,
                             setup_future_usage: savePaymentMethod ? 'off_session' : undefined,
                         }),
                     });
@@ -386,7 +453,8 @@ export default function CheckoutForm() {
                         throw new Error('Failed to create payment intent');
                     }
                     
-                    const { clientSecret } = await response.json();
+                    const responseData = await response.json();
+                    const clientSecret = responseData.client_secret || responseData.clientSecret;
                     
                     if (!clientSecret) {
                         setErrorMessage("Failed to initialize payment. Please try again.");
@@ -457,15 +525,15 @@ export default function CheckoutForm() {
                         time,
                         players: parseInt(players),
                         holes: holes ? parseInt(holes) : 18,
-                        totalPrice: priceDetails.total,
-                        status: 'Confirmed',
+                        totalPrice: currentQuote ? currentQuote.total_cents / 100 : priceDetails.total,
+                        status: 'confirmed',
                         teeTimeId,
                         comments: comments || '',
-                        couponCode: appliedCoupon?.code || '',
+                        couponCode: appliedCoupon?.code || ''
                     }, lang);
                     
                     const successUrl = new URL(`${window.location.origin}/${lang}/book/success`);
-                    searchParams.forEach((value, key) => successUrl.searchParams.append(key, value));
+                    searchParams?.forEach((value, key) => successUrl.searchParams.append(key, value));
                     successUrl.searchParams.append('bookingId', bookingId);
                     go(successUrl.toString());
                 }
@@ -506,8 +574,6 @@ export default function CheckoutForm() {
     if (!course) {
         return <div className="text-center py-12">Course not found.</div>;
     }
-    
-    const paymentElementOptions = { layout: "tabs" as const };
 
     return (
         <div className="container mx-auto max-w-4xl px-4 py-12">
@@ -523,10 +589,11 @@ export default function CheckoutForm() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="relative aspect-video w-full rounded-lg overflow-hidden mb-4">
-                            <SafeImage
+                            <FirebaseImage
                                 src={normalizeImageUrl(course.imageUrls?.[0]) ?? '/images/fallback.svg'}
                                 alt={course.name}
                                 fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                 className="object-cover"
                                 data-ai-hint="golf course"
                             />
@@ -550,28 +617,33 @@ export default function CheckoutForm() {
                             )}
                         </div>
                          <Separator />
-                         <div className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Subtotal</span>
-                                <span>${priceDetails.subtotal.toFixed(2)}</span>
-                            </div>
-                             {appliedCoupon && (
-                                <div className="flex justify-between text-green-600">
-                                    <span className="flex items-center gap-1">
-                                        <TicketPercent className="h-4 w-4"/> Coupon "{appliedCoupon.code}"
-                                    </span>
-                                    <span>-${priceDetails.discount.toFixed(2)}</span>
-                                </div>
-                             )}
-                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Taxes (16%)</span>
-                                <span>${priceDetails.tax.toFixed(2)}</span>
-                            </div>
-                        </div>
+                         {/* Price Breakdown */}
+                         {isQuoteLoading ? (
+                             <div className="space-y-2">
+                                 <Skeleton className="h-4 w-full" />
+                                 <Skeleton className="h-4 w-full" />
+                                 <Skeleton className="h-4 w-full" />
+                             </div>
+                         ) : quoteError ? (
+                             <div className="text-red-600 text-sm p-2 bg-red-50 rounded">
+                                 {quoteError}
+                             </div>
+                         ) : currentQuote ? (
+                             <PriceBreakdown
+                                 pricing={currentQuote}
+                                 className="text-sm"
+                             />
+                         ) : (
+                             <div className="text-muted-foreground text-sm">
+                                 Calculando precio...
+                             </div>
+                         )}
                     </CardContent>
                     <CardFooter className="bg-card flex justify-between items-center p-6 border-t">
                         <span className="text-lg">Total Price:</span>
-                        <span className="text-2xl font-bold text-accent">${priceDetails.total.toFixed(2)}</span>
+                        <span className="text-2xl font-bold text-accent">
+                            {currentQuote ? `$${(currentQuote.total_cents / 100).toFixed(2)}` : `$${priceDetails.total.toFixed(2)}`}
+                        </span>
                     </CardFooter>
                 </Card>
 

@@ -25,11 +25,16 @@ export function useCardValidation() {
   const validateCard = async (paymentMethodId: string): Promise<CardValidationResult> => {
     if (!stripe || !elements || !user) {
       const error = 'Stripe not loaded or user not authenticated';
-      logger.error('Card validation: Prerequisites not met', { 
-        hasStripe: !!stripe, 
-        hasElements: !!elements, 
-        hasUser: !!user 
-      });
+      logger.error(
+        'Card validation: Prerequisites not met',
+        undefined,
+        'useCardValidation',
+        {
+          hasStripe: !!stripe,
+          hasElements: !!elements,
+          hasUser: !!user
+        }
+      );
       return { success: false, validated: false, error };
     }
 
@@ -39,10 +44,14 @@ export function useCardValidation() {
       // Get the user's ID token for authentication
       const idToken = await user.getIdToken();
       
-      logger.info('Card validation: Starting validation process', {
-        userId: user.uid,
-        paymentMethodId
-      });
+      logger.info(
+        'Card validation: Starting validation process',
+        'useCardValidation',
+        {
+          userId: user.uid,
+          paymentMethodId
+        }
+      );
 
       // Call the validation API
       const response = await fetch('/api/validate-card', {
@@ -59,11 +68,16 @@ export function useCardValidation() {
       const result: CardValidationResult = await response.json();
 
       if (!response.ok) {
-        logger.error('Card validation: API request failed', {
-          userId: user.uid,
-          status: response.status,
-          error: result.error
-        });
+        logger.error(
+          'Card validation: API request failed',
+          undefined,
+          'useCardValidation',
+          {
+            userId: user.uid,
+            status: response.status,
+            error: result.error
+          }
+        );
         return {
           success: false,
           validated: false,
@@ -73,10 +87,14 @@ export function useCardValidation() {
 
       // Handle case where 3D Secure authentication is required
       if (result.requiresAction && result.clientSecret) {
-        logger.info('Card validation: 3D Secure authentication required', {
-          userId: user.uid,
-          paymentIntentId: result.paymentIntentId
-        });
+        logger.info(
+          'Card validation: 3D Secure authentication required',
+          'useCardValidation',
+          {
+            userId: user.uid,
+            paymentIntentId: result.paymentIntentId
+          }
+        );
 
         toast.info('Autenticación 3D Secure requerida', {
           description: 'Tu banco requiere verificación adicional para validar la tarjeta.'
@@ -88,10 +106,15 @@ export function useCardValidation() {
         );
 
         if (confirmError) {
-          logger.error('Card validation: 3D Secure confirmation failed', {
-            userId: user.uid,
-            error: confirmError
-          });
+          logger.error(
+            'Card validation: 3D Secure confirmation failed',
+            undefined,
+            'useCardValidation',
+            {
+              userId: user.uid,
+              error: confirmError
+            }
+          );
           
           return {
             success: false,
@@ -116,11 +139,15 @@ export function useCardValidation() {
           const completionResult: CardValidationResult = await completionResponse.json();
 
           if (completionResponse.ok && completionResult.success) {
-            logger.info('Card validation: Completed successfully after 3D Secure', {
-              userId: user.uid,
-              paymentIntentId: paymentIntent.id,
-              refundId: completionResult.refundId
-            });
+            logger.info(
+              'Card validation: Completed successfully after 3D Secure',
+              'useCardValidation',
+              {
+                userId: user.uid,
+                paymentIntentId: paymentIntent.id,
+                refundId: completionResult.refundId
+              }
+            );
 
             toast.success('Tarjeta validada exitosamente', {
               description: 'El cargo de $1 USD ha sido reembolsado automáticamente.'
@@ -128,10 +155,15 @@ export function useCardValidation() {
 
             return completionResult;
           } else {
-            logger.error('Card validation: Completion failed after 3D Secure', {
-              userId: user.uid,
-              error: completionResult.error
-            });
+            logger.error(
+              'Card validation: Completion failed after 3D Secure',
+              undefined,
+              'useCardValidation',
+              {
+                userId: user.uid,
+                error: completionResult.error
+              }
+            );
             
             return {
               success: false,
@@ -144,11 +176,15 @@ export function useCardValidation() {
 
       // Handle immediate success (no 3D Secure required)
       if (result.success && result.validated) {
-        logger.info('Card validation: Completed successfully without 3D Secure', {
-          userId: user.uid,
-          paymentIntentId: result.paymentIntentId,
-          refundId: result.refundId
-        });
+        logger.info(
+          'Card validation: Completed successfully without 3D Secure',
+          'useCardValidation',
+          {
+            userId: user.uid,
+            paymentIntentId: result.paymentIntentId,
+            refundId: result.refundId
+          }
+        );
 
         if (result.warning) {
           toast.warning('Tarjeta validada con advertencia', {
@@ -164,10 +200,14 @@ export function useCardValidation() {
       }
 
       // Handle validation failure
-      logger.warn('Card validation: Validation failed', {
-        userId: user.uid,
-        result
-      });
+      logger.warn(
+        'Card validation: Validation failed',
+        'useCardValidation',
+        {
+          userId: user.uid,
+          result
+        }
+      );
       
       return {
         success: false,
@@ -176,10 +216,15 @@ export function useCardValidation() {
       };
 
     } catch (error) {
-      logger.error('Card validation: Unexpected error', {
-        userId: user?.uid,
-        error
-      });
+      logger.error(
+        'Card validation: Unexpected error',
+        error instanceof Error ? error : undefined,
+        'useCardValidation',
+        {
+          userId: user?.uid,
+          error
+        }
+      );
       
       return {
         success: false,

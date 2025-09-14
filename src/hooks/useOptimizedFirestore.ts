@@ -75,6 +75,9 @@ export function useOptimizedFirestore<T = DocumentData>(
       }
 
       // Construir query
+      if (!db) {
+        throw new Error('Firestore database not initialized');
+      }
       const collectionRef = collection(db, collectionName);
       const q = constraints.length > 0 
         ? query(collectionRef, ...constraints)

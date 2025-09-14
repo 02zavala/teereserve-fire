@@ -1,27 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { auth, db } from '@/lib/firebase-admin';
 import { getFriendlyErrorMessage } from '@/lib/auth-utils';
 import { FirestoreMigrationService } from '@/lib/firestore-migration';
-
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    }
-  } catch (error) {
-    // During build time, Firebase initialization might fail
-    console.warn('Firebase initialization failed during build:', error);
-  }
-}
 
 interface UpgradeGuestAccountRequest {
   email: string;
@@ -41,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     
     // Verify this is an anonymous user
     if (!decodedToken.firebase.sign_in_provider || decodedToken.firebase.sign_in_provider !== 'anonymous') {
@@ -61,8 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const auth = getAuth();
-    const db = getFirestore();
+    // Using imported auth and db instances
     const anonymousUid = decodedToken.uid;
 
     try {
@@ -187,7 +166,7 @@ export async function POST(request: NextRequest) {
 // Helper function to get authentication methods for an email
 async function getAuthMethodsForEmail(email: string): Promise<string[]> {
   try {
-    const auth = getAuth();
+    // Using imported auth instance
     const user = await auth.getUserByEmail(email);
     
     const methods: string[] = [];

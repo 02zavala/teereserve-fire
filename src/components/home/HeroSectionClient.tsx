@@ -40,6 +40,7 @@ export function HeroSectionClient({ dictionary, lang, heroImages }: HeroSectionC
                     alt={`Hero background image ${index + 1}`}
                     data-ai-hint="golf course sunrise"
                     fill
+                    sizes="100vw"
                     className="object-cover object-center"
                     priority={true}
                 />

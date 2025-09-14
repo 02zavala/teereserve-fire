@@ -88,7 +88,10 @@ export function TeeTimePicker({ courseId, basePrice, teeTimeInterval, operatingH
         }
     }
     
-    const availableTimes = teeTimes.filter(t => t.status === 'available');
+    const availableTimes = teeTimes.filter(t => {
+        const availableSpots = t.availableSpots ?? (t.maxPlayers ?? 4);
+        return (t.status === 'available' || t.status === 'partial') && availableSpots >= players;
+    });
     
     // Calculate price based on holes selected
     const getHoleMultiplier = (holes: number) => {
@@ -207,7 +210,7 @@ export function TeeTimePicker({ courseId, basePrice, teeTimeInterval, operatingH
                                     <SelectContent>
                                         {availableHoles.map(h => {
                                             const holeKey = `holes${h}` as keyof typeof holeDetails;
-                                            const details = holeDetails?.[holeKey];
+                                            const details = holeDetails?.[holeKey] as { yards?: number; par?: number } | undefined;
                                             return (
                                                 <SelectItem key={h} value={h.toString()}>
                                                     {h} Holes
@@ -265,15 +268,28 @@ export function TeeTimePicker({ courseId, basePrice, teeTimeInterval, operatingH
                                     // Expanded view - show all available times
                                     <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2">
                                         {availableTimes.map(teeTime => {
+                                            const availableSpots = teeTime.availableSpots ?? (teeTime.maxPlayers ?? 4);
+                                            const canBook = (teeTime.status === 'available' || teeTime.status === 'partial') && availableSpots >= players;
+                                            const isPartial = teeTime.status === 'partial';
+                                            
                                             return (
                                                 <Button 
                                                     key={teeTime.id} 
-                                                    variant={teeTime.status === 'available' ? 'outline' : 'secondary'}
-                                                    className="flex flex-col h-auto"
-                                                    disabled={teeTime.status !== 'available'}
+                                                    variant={canBook ? (isPartial ? 'default' : 'outline') : 'secondary'}
+                                                    className={cn(
+                                                        "flex flex-col h-auto relative",
+                                                        isPartial && canBook && "border-orange-300 bg-orange-50 hover:bg-orange-100",
+                                                        !canBook && "opacity-50"
+                                                    )}
+                                                    disabled={!canBook}
                                                     onClick={() => setSelectedTeeTime(teeTime)}
                                                 >
                                                     <span className="font-semibold text-base">{teeTime.time}</span>
+                                                    {isPartial && (
+                                                        <span className="text-xs text-orange-600 font-medium">
+                                                            {availableSpots} spots left
+                                                        </span>
+                                                    )}
                                                 </Button>
                                             )
                                         })}

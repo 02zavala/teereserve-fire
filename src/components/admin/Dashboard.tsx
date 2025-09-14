@@ -54,7 +54,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
     useEffect(() => {
         if (isClient && booking.date) {
             try {
-                const bookingDate = booking.date instanceof Date ? booking.date : new Date(booking.date);
+                const bookingDate = typeof booking.date === 'string' ? new Date(booking.date) : booking.date;
                 const locale = dateLocales[lang] || dateLocales.en;
                 setFormattedDate(format(bookingDate, 'PPP', { locale }));
             } catch (error) {
@@ -79,7 +79,7 @@ function RecentBookingRow({ booking, lang }: { booking: Booking, lang: Locale })
     return (
         <TableRow>
             <TableCell className="font-medium">{booking.id}</TableCell>
-            <TableCell>{booking.customerName}</TableCell>
+            <TableCell>{booking.userName}</TableCell>
             <TableCell>{formattedDate}</TableCell>
             <TableCell>${booking.totalPrice?.toFixed(2) || '0.00'}</TableCell>
             <TableCell>
@@ -96,7 +96,7 @@ export function Dashboard() {
     const [revenueData, setRevenueData] = useState<{ date: string; revenue: number }[]>([]);
     const [loading, setLoading] = useState(true);
     const pathname = usePathname();
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -104,7 +104,7 @@ export function Dashboard() {
             try {
                 // Add timeout to prevent infinite loading
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Dashboard data fetch timeout')), 15000)
+                    setTimeout(() => reject(new Error('Dashboard data fetch timeout')), 10000)
                 );
                 
                 const dataPromise = Promise.all([
@@ -238,11 +238,7 @@ export function Dashboard() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <HoleDistributionChart data={[
-                            { name: '9 Holes', value: stats.holeStats.holes9, revenue: stats.revenueByHoles.holes9 },
-                            { name: '18 Holes', value: stats.holeStats.holes18, revenue: stats.revenueByHoles.holes18 },
-                            { name: '27 Holes', value: stats.holeStats.holes27, revenue: stats.revenueByHoles.holes27 },
-                        ]} />
+                        <HoleDistributionChart data={stats.holeStats} />
                     </CardContent>
                 </Card>
             </div>

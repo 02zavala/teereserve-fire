@@ -28,11 +28,23 @@ export function usePaymentMethods() {
     setLoading(true);
     try {
       const token = await user.getIdToken();
-      const response = await fetchWithAbort('/api/payment-methods', {
+      const response = await fetch('/api/payment-methods', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
+
+      if (!response) {
+        throw new Error('No response received from server');
+      }
+
+      // Check if response is HTML (error page) instead of JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error({ scope: 'fetchPaymentMethods', err: 'Received HTML instead of JSON', contentType, responseText: text.substring(0, 200) });
+        throw new Error('Server returned an error page. Please try again.');
+      }
 
       const data = await response.json();
       
@@ -50,11 +62,15 @@ export function usePaymentMethods() {
       setPaymentMethods(data.data?.paymentMethods || []);
     } catch (error: any) {
       console.error({ scope: 'fetchPaymentMethods', err: error });
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to load saved payment methods',
-        variant: 'destructive',
-      });
+      
+      // Only show toast for non-AbortError cases to avoid spam
+      if (error.name !== 'AbortError') {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to load saved payment methods',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }

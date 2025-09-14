@@ -59,7 +59,7 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
     } catch (error) {
       console.error('Error loading reviews:', error);
       setReviews([]);
-      toast({ title: 'Error', description: 'No se pudieron cargar las reseñas', variant: 'destructive' });
+      toast({ title: dict.common?.error || 'Error', description: dict.reviewsPage?.errors?.loadReviews || 'Could not load reviews', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -131,7 +131,7 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
 
   const handleLike = async (reviewId: string) => {
     if (!user) {
-      toast({ title: 'Inicia sesión', description: 'Debes iniciar sesión para dar like', variant: 'destructive' });
+      toast({ title: dict.common?.signIn || 'Sign In', description: dict.reviewsPage?.errors?.signInToLike || 'You must sign in to like', variant: 'destructive' });
       return;
     }
 
@@ -143,10 +143,10 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
           ? { ...review, likesCount: review.likesCount + 1 }
           : review
       ));
-      toast({ title: 'Like agregado', description: 'Tu like ha sido registrado' });
+      toast({ title: dict.reviewsPage?.success?.likeAdded || 'Like added', description: dict.reviewsPage?.success?.likeRegistered || 'Your like has been registered' });
     } catch (error) {
       console.error('Error liking review:', error);
-      toast({ title: 'Error', description: 'No se pudo agregar el like', variant: 'destructive' });
+      toast({ title: dict.common?.error || 'Error', description: dict.reviewsPage?.errors?.addLike || 'Could not add like', variant: 'destructive' });
     }
   };
 
@@ -175,10 +175,10 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
       ));
 
       setCommentText('');
-      toast({ title: 'Comentario agregado', description: 'Tu comentario ha sido publicado' });
+      toast({ title: dict.reviewsPage?.success?.commentAdded || 'Comment added', description: dict.reviewsPage?.success?.commentPublished || 'Your comment has been published' });
     } catch (error) {
       console.error('Error adding comment:', error);
-      toast({ title: 'Error', description: 'No se pudo agregar el comentario', variant: 'destructive' });
+      toast({ title: dict.common?.error || 'Error', description: dict.reviewsPage?.errors?.addComment || 'Could not add comment', variant: 'destructive' });
     }
   };
 
@@ -193,22 +193,22 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
       } else {
         // Fallback to clipboard
         await navigator.clipboard.writeText(`${window.location.origin}/${lang}/reviews?review=${review.id}`);
-        toast({ title: 'Enlace copiado', description: 'El enlace ha sido copiado al portapapeles' });
+        toast({ title: dict.reviewsPage?.success?.linkCopied || 'Link copied', description: dict.reviewsPage?.success?.linkCopiedToClipboard || 'The link has been copied to clipboard' });
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      toast({ title: 'Error', description: 'No se pudo compartir la reseña', variant: 'destructive' });
+      toast({ title: dict.common?.error || 'Error', description: dict.reviewsPage?.errors?.shareReview || 'Could not share review', variant: 'destructive' });
     }
   };
 
   const handleSubmitReview = async () => {
     if (!user) {
-      toast({ title: 'Inicia sesión', description: 'Debes iniciar sesión para escribir una reseña', variant: 'destructive' });
+      toast({ title: dict.common?.signIn || 'Sign In', description: dict.reviewsPage?.errors?.signInToReview || 'You must sign in to write a review', variant: 'destructive' });
       return;
     }
 
     if (!newReview.text.trim() || !newReview.courseId) {
-      toast({ title: 'Campos requeridos', description: 'Por favor completa todos los campos', variant: 'destructive' });
+      toast({ title: dict.reviewsPage?.errors?.requiredFields || 'Required fields', description: dict.reviewsPage?.errors?.completeAllFields || 'Please complete all fields', variant: 'destructive' });
       return;
     }
 
@@ -241,10 +241,10 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
       setReviews(prev => [reviewToAdd, ...prev]);
       setShowNewReviewDialog(false);
       setNewReview({ rating: 5, text: '', courseId: '', experienceType: 'overall' });
-      toast({ title: 'Reseña enviada', description: 'Tu reseña está pendiente de aprobación' });
+      toast({ title: dict.reviewsPage?.success?.reviewSubmitted || 'Review submitted', description: dict.reviewsPage?.success?.reviewPendingApproval || 'Your review is pending approval' });
     } catch (error) {
       console.error('Error submitting review:', error);
-      toast({ title: 'Error', description: 'No se pudo enviar la reseña', variant: 'destructive' });
+      toast({ title: dict.common?.error || 'Error', description: dict.reviewsPage?.errors?.submitReview || 'Could not submit review', variant: 'destructive' });
     }
   };
 
@@ -309,14 +309,14 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
-                    <DialogTitle>Escribir Nueva Reseña</DialogTitle>
+                    <DialogTitle>{dict.reviewsPage?.writeNewReview || 'Write New Review'}</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Campo de Golf</label>
+                      <label className="text-sm font-medium mb-2 block">{dict.reviewsPage?.golfCourse || 'Golf Course'}</label>
                       <Select value={newReview.courseId} onValueChange={(value) => setNewReview({...newReview, courseId: value})}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un campo" />
+                          <SelectValue placeholder={dict.reviewsPage?.selectCourse || 'Select a course'} />
                         </SelectTrigger>
                         <SelectContent>
                           {courses && courses.map(course => (
@@ -327,7 +327,7 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
                     </div>
                     
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Calificación</label>
+                      <label className="text-sm font-medium mb-2 block">{dict.reviewsPage?.rating || 'Rating'}</label>
                       <StarRating 
                         rating={newReview.rating} 
                         onRatingChange={(rating) => setNewReview({...newReview, rating})} 
@@ -336,24 +336,24 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
                     </div>
                     
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Tipo de Experiencia</label>
+                      <label className="text-sm font-medium mb-2 block">{dict.reviewsPage?.experienceType || 'Experience Type'}</label>
                       <Select value={newReview.experienceType} onValueChange={(value) => setNewReview({...newReview, experienceType: value as any})}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="overall">General</SelectItem>
-                          <SelectItem value="service">Servicio</SelectItem>
-                          <SelectItem value="facilities">Instalaciones</SelectItem>
-                          <SelectItem value="green">Green</SelectItem>
+                          <SelectItem value="overall">{dict.reviewsPage?.experienceTypes?.overall || 'Overall'}</SelectItem>
+                          <SelectItem value="service">{dict.reviewsPage?.experienceTypes?.service || 'Service'}</SelectItem>
+                          <SelectItem value="facilities">{dict.reviewsPage?.experienceTypes?.facilities || 'Facilities'}</SelectItem>
+                          <SelectItem value="green">{dict.reviewsPage?.experienceTypes?.green || 'Green'}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Tu Reseña</label>
+                      <label className="text-sm font-medium mb-2 block">{dict.reviewsPage?.yourReview || 'Your Review'}</label>
                       <Textarea 
-                        placeholder="Comparte tu experiencia en este campo de golf..."
+                        placeholder={dict.reviewsPage?.reviewPlaceholder || 'Share your experience at this golf course...'}
                         value={newReview.text}
                         onChange={(e) => setNewReview({...newReview, text: e.target.value})}
                         className="min-h-[120px]"
@@ -362,10 +362,10 @@ export default function ReviewsPageClient({ dict, lang }: ReviewsPageClientProps
                     
                     <div className="flex justify-end space-x-2">
                       <Button variant="outline" onClick={() => setShowNewReviewDialog(false)}>
-                        Cancelar
+                        {dict.common?.cancel || 'Cancel'}
                       </Button>
                       <Button onClick={handleSubmitReview}>
-                        Publicar Reseña
+                        {dict.reviewsPage?.publishReview || 'Publish Review'}
                       </Button>
                     </div>
                   </div>

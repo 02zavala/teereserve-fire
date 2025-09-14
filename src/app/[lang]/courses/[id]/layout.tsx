@@ -4,6 +4,7 @@ import { generateSEOMetadata, generateGolfCourseStructuredData } from '@/compone
 import type { Metadata } from 'next';
 import type { Locale } from '@/i18n-config';
 import { notFound } from 'next/navigation';
+import { pricingEngine } from '@/lib/pricing-engine';
 
 interface CourseLayoutProps {
   children: React.ReactNode;
@@ -27,13 +28,15 @@ export async function generateMetadata({ params: paramsProp }: { params: Promise
       });
     }
 
+    const minPrice = pricingEngine.getMinimumPrice(course.id);
+    
     const title = lang === 'es'
       ? `${course.name} - Reserva Golf en Los Cabos | TeeReserve`
       : `${course.name} - Golf Booking in Los Cabos | TeeReserve`;
       
     const description = lang === 'es'
-      ? `Reserva tu tee time en ${course.name}, ${course.location}. ${course.description} Desde $${course.basePrice} USD. Reserva ahora con TeeReserve Golf.`
-      : `Book your tee time at ${course.name}, ${course.location}. ${course.description} Starting from $${course.basePrice} USD. Book now with TeeReserve Golf.`;
+      ? `Reserva tu tee time en ${course.name}, ${course.location}. ${course.description} Desde $${minPrice} USD. Reserva ahora con TeeReserve Golf.`
+        : `Book your tee time at ${course.name}, ${course.location}. ${course.description} Starting from $${minPrice} USD. Book now with TeeReserve Golf.`;
       
     const keywords = lang === 'es'
       ? `${course.name}, golf ${course.location}, reserva golf, tee time, campo golf Los Cabos, ${course.name} reservas`
@@ -112,22 +115,22 @@ export default async function CourseLayout({ children, params: paramsProp }: Cou
                 addressLocality: course.location,
                 addressCountry: 'Mexico'
               },
-              geo: course.coordinates ? {
+              geo: course.latLng ? {
                 '@type': 'GeoCoordinates',
-                latitude: course.coordinates.lat,
-                longitude: course.coordinates.lng
+                latitude: course.latLng.lat,
+                longitude: course.latLng.lng
               } : undefined,
-              priceRange: `$${course.basePrice} - $${course.basePrice * 2}`,
-              telephone: course.contactInfo?.phone,
+              priceRange: `$195 - $295`,
+              // telephone: course.contactInfo?.phone, // contactInfo not available in GolfCourse type
               url: `https://teereserve.golf/${lang}/courses/${id}`,
-              sameAs: course.website ? [course.website] : undefined,
-              aggregateRating: course.averageRating ? {
-                '@type': 'AggregateRating',
-                ratingValue: course.averageRating,
-                reviewCount: course.reviewCount || 0,
-                bestRating: 5,
-                worstRating: 1
-              } : undefined,
+              // sameAs: course.website ? [course.website] : undefined, // website not available in GolfCourse type
+              // aggregateRating: course.averageRating ? {
+              //   '@type': 'AggregateRating',
+              //   ratingValue: course.averageRating,
+              //   reviewCount: course.reviewCount || 0,
+              //   bestRating: 5,
+              //   worstRating: 1
+              // } : undefined, // averageRating and reviewCount not available in GolfCourse type
               offers: {
                 '@type': 'Offer',
                 price: course.basePrice,

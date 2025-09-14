@@ -99,7 +99,7 @@ export default function BookingsAdminPage() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const pathname = usePathname();
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     useEffect(() => {
         getBookings().then(fetchedBookings => {

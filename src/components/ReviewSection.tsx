@@ -6,7 +6,8 @@ import type { GolfCourse, Review } from '@/types';
 import { StarRating } from './StarRating';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback } from './ui/avatar';
+import { FirebaseAvatar } from '@/components/FirebaseAvatar';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Label } from './ui/label';
@@ -52,7 +53,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
 
     const loadUserBadges = async () => {
         try {
-            const stats = await getUserReviewStats(review.user.id || review.userId);
+            const stats = await getUserReviewStats(review.userId);
             setUserBadges(stats.badges || []);
         } catch (error) {
             console.error('Error loading user badges:', error);
@@ -138,10 +139,12 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
         <Card className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
-                    <Avatar>
-                        <AvatarImage src={review.user.avatarUrl} alt={review.user.name} />
-                        <AvatarFallback>{review.user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <FirebaseAvatar 
+                        src={review.user.avatarUrl} 
+                        alt={review.user.name}
+                        fallback={review.user.name.substring(0, 2).toUpperCase()}
+                        className="h-10 w-10"
+                    />
                     <div className="flex-1 space-y-3">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -204,7 +207,7 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                                                 </div>
                                             </div>
                                         )}
-                                        {review.media.length > 6 && index === 5 && (
+                                        {review.media && review.media.length > 6 && index === 5 && (
                                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-semibold">
                                                 +{review.media.length - 6}
                                             </div>
@@ -265,10 +268,12 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                             <div className="space-y-3 pt-3 border-t bg-muted/20 rounded-lg p-4">
                                 {user && (
                                     <div className="flex space-x-2">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-                                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                                        </Avatar>
+                                        <FirebaseAvatar 
+                                            src={user.photoURL || ''} 
+                                            alt={user.displayName || ''}
+                                            fallback={user.displayName?.substring(0, 2).toUpperCase() || 'U'}
+                                            className="h-8 w-8"
+                                        />
                                         <div className="flex-1 space-y-2">
                                             <Textarea 
                                                 placeholder="Escribe un comentario..."
@@ -292,10 +297,12 @@ function ReviewCard({ review, lang }: { review: Review, lang: Locale }) {
                                         <h4 className="font-medium text-sm">Comentarios</h4>
                                         {review.comments.map((comment) => (
                                             <div key={comment.id} className="flex space-x-2">
-                                                <Avatar className="h-8 w-8">
-                                                    <AvatarImage src={comment.userAvatar || ''} alt={comment.userName} />
-                                                    <AvatarFallback>{comment.userName.charAt(0)}</AvatarFallback>
-                                                </Avatar>
+                                                <FirebaseAvatar 
+                                                    src={comment.userAvatar || ''} 
+                                                    alt={comment.userName}
+                                                    fallback={comment.userName.substring(0, 2).toUpperCase()}
+                                                    className="h-8 w-8"
+                                                />
                                                 <div className="flex-1">
                                                     <div className="bg-background rounded-lg p-3">
                                                         <p className="font-medium text-sm">{comment.userName}</p>
@@ -323,7 +330,7 @@ export default ReviewSection;
 export function ReviewSection({ course }: ReviewSectionProps) {
     const [reviews, setReviews] = useState<Review[]>(course.reviews);
     const pathname = usePathname();
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
     
     // Reload reviews when component mounts and periodically
     useEffect(() => {
@@ -419,7 +426,7 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
     };
 
     const uploadMediaFiles = async (files: any[]) => {
-        const uploadedMedia = [];
+        const uploadedMedia: any[] = [];
         
         for (const mediaFile of files) {
             try {
@@ -461,7 +468,7 @@ function AddReviewForm({ courseId, onReviewSubmitted }: AddReviewFormProps) {
             }
 
             // Handle new media upload system
-            let uploadedMedia = [];
+            let uploadedMedia: any[] = [];
             if (mediaFiles.length > 0) {
                 uploadedMedia = await uploadMediaFiles(mediaFiles);
             }

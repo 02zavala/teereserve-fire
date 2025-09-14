@@ -237,7 +237,7 @@ export function LoadingButton({
   size?: LoadingSize;
   variant?: 'primary' | 'secondary' | 'outline';
   className?: string;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'>) {
   const baseClasses = 'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const sizeClasses = {

@@ -1,6 +1,6 @@
 import { backupService, type BackupData, type BackupOptions } from './backup-service';
 import { format, subDays, isAfter } from 'date-fns';
-import cron from 'node-cron';
+import cron, { type ScheduledTask } from 'node-cron';
 
 export interface BackupScheduleConfig {
   enabled: boolean;
@@ -24,7 +24,7 @@ export interface BackupJob {
 
 class BackupScheduler {
   private jobs: Map<string, BackupJob> = new Map();
-  private scheduledTasks: Map<string, cron.ScheduledTask> = new Map();
+  private scheduledTasks: Map<string, ScheduledTask> = new Map();
   private backupHistory: Map<string, BackupData[]> = new Map();
 
   /**
@@ -108,7 +108,6 @@ class BackupScheduler {
       const task = cron.schedule(job.config.schedule, async () => {
         await this.executeBackup(job.id);
       }, {
-        scheduled: false,
         timezone: 'America/Mexico_City' // Adjust timezone as needed
       });
 
@@ -293,7 +292,7 @@ class BackupScheduler {
     try {
       // This is a simplified implementation
       // In production, you might want to use a proper cron parser
-      const task = cron.schedule(schedule, () => {}, { scheduled: false });
+      const task = cron.schedule(schedule, () => {});
       // For now, return a placeholder - implement proper next run calculation
       return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     } catch {

@@ -17,10 +17,15 @@ export function installResourceErrorHandlers(logger: { error: (m: string, meta?:
     // Apply fallback for images
     if (tag === 'img') {
       const img = t as HTMLImageElement;
-      if (!img.dataset.fallbackApplied) {
+      // Prevent infinite loop if fallback image itself fails
+      if (!img.dataset.fallbackApplied && !img.src.includes('fallback.svg')) {
         img.dataset.fallbackApplied = '1';
         img.src = '/images/fallback.svg';
         img.srcset = '';
+      } else if (img.src.includes('fallback.svg')) {
+        // If fallback itself fails, remove the image to prevent infinite loops
+        img.style.display = 'none';
+        img.dataset.fallbackFailed = '1';
       }
     }
 

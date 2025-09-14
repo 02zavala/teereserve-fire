@@ -86,7 +86,7 @@ export const modalContent = {
     scale: 1, 
     y: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 300,
       damping: 30
     }
@@ -134,7 +134,7 @@ export const loadingSpinner = {
     transition: {
       duration: 1,
       repeat: Infinity,
-      ease: "linear"
+      ease: "linear" as const
     }
   }
 };
@@ -159,7 +159,7 @@ export const notificationSlideIn = {
     x: 0, 
     scale: 1,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 500,
       damping: 30
     }
@@ -205,7 +205,7 @@ export const skeletonPulse = {
     transition: {
       duration: 1.5,
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: "easeInOut" as const
     }
   }
 };

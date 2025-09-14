@@ -16,10 +16,12 @@ import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Locale } from '@/i18n-config';
-import { Course } from '@/types/course';
+import { GolfCourse } from '@/types/index';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
+import { PriceBreakdown } from '@/components/PriceBreakdown';
+import { usePriceBreakdown } from '@/components/PriceBreakdown';
 
 interface BookingPageClientProps {
   dictionary: any;
@@ -38,7 +40,7 @@ interface BookingForm {
 export function BookingPageClient({ dictionary, lang, courseId }: BookingPageClientProps) {
   const { user } = useAuth();
   const router = useRouter();
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourse] = useState<GolfCourse | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingCourse, setLoadingCourse] = useState(!!courseId);
   const [form, setForm] = useState<BookingForm>({
@@ -66,9 +68,12 @@ export function BookingPageClient({ dictionary, lang, courseId }: BookingPageCli
   const loadCourse = async (id: string) => {
     try {
       setLoadingCourse(true);
+      if (!db) {
+        throw new Error('Firebase not initialized');
+      }
       const courseDoc = await getDoc(doc(db, 'courses', id));
       if (courseDoc.exists()) {
-        setCourse({ id: courseDoc.id, ...courseDoc.data() } as Course);
+        setCourse({ id: courseDoc.id, ...courseDoc.data() } as GolfCourse);
       } else {
         toast.error(dictionary.booking?.courseNotFound || 'Course not found');
       }
@@ -142,17 +147,33 @@ export function BookingPageClient({ dictionary, lang, courseId }: BookingPageCli
               <div className="lg:col-span-1">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{course.title}</CardTitle>
+                    <CardTitle>{course.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">{dictionary.booking?.duration || 'Duration'}</p>
-                        <p className="font-medium">{course.duration}</p>
+                        <p className="text-sm text-muted-foreground">{dictionary.booking?.location || 'Location'}</p>
+                        <p className="font-medium">{course.location}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">{dictionary.booking?.price || 'Price'}</p>
-                        <p className="font-medium text-lg">${course.price}</p>
+                        <PriceBreakdown 
+                          pricing={{
+                            currency: 'USD',
+                            tax_rate: 16,
+                            subtotal_cents: Math.round((course.basePrice || 0) * 100),
+                            tax_cents: Math.round((course.basePrice || 0) * 100 * 0.16),
+                            discount_cents: 0,
+                            total_cents: Math.round((course.basePrice || 0) * 100 * 1.16)
+                          }}
+                          locale="es-MX"
+                          labels={{
+                            subtotal: "Subtotal",
+                            tax: "Impuestos (16%)",
+                            discount: "Descuento",
+                            total: "Total"
+                          }}
+                        />
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">{dictionary.booking?.description || 'Description'}</p>

@@ -5,10 +5,23 @@ import { getDictionary } from '@/lib/get-dictionary';
 import { Locale } from '@/i18n-config';
 import ReviewsPageClient from './ReviewsPageClient';
 
-export const metadata: Metadata = {
-  title: 'Reseñas de Golfistas | TeeReserve',
-  description: 'Descubre las experiencias de otros golfistas en Los Cabos. Lee reseñas auténticas y comparte tu propia experiencia.',
-};
+// Metadata will be generated dynamically in generateMetadata function
+export async function generateMetadata({ params }: ReviewsPageProps): Promise<Metadata> {
+  const { lang } = await params;
+  
+  const title = lang === 'es'
+    ? 'Reseñas de Golfistas | TeeReserve'
+    : 'Golfer Reviews | TeeReserve';
+    
+  const description = lang === 'es'
+    ? 'Descubre las experiencias de otros golfistas en Los Cabos. Lee reseñas auténticas y comparte tu propia experiencia.'
+    : 'Discover the experiences of other golfers in Los Cabos. Read authentic reviews and share your own experience.';
+  
+  return {
+    title,
+    description,
+  };
+}
 
 interface ReviewsPageProps {
   params: Promise<{

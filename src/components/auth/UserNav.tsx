@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { FirebaseAvatar } from "@/components/FirebaseAvatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,7 +23,7 @@ export function UserNav() {
   const { user, userProfile, loading, logout } = useAuth();
   const { toast } = useToast();
   const pathname = usePathname();
-  const lang = pathname.split('/')[1] || 'en';
+  const lang = pathname?.split('/')[1] || 'en';
 
   const handleLogout = async () => {
     try {
@@ -89,10 +90,12 @@ export function UserNav() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-            <AvatarFallback>{user.displayName ? user.displayName.substring(0,2).toUpperCase() : user.email?.substring(0,2).toUpperCase()}</AvatarFallback>
-          </Avatar>
+          <FirebaseAvatar 
+            src={user.photoURL} 
+            alt={user.displayName || 'User'}
+            fallback={user.displayName ? user.displayName.substring(0,2).toUpperCase() : user.email?.substring(0,2).toUpperCase()}
+            className="h-8 w-8"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

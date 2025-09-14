@@ -3,6 +3,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
+// import { Replay } from '@sentry/replay';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -16,28 +17,28 @@ Sentry.init({
   environment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || process.env.NODE_ENV,
   release: process.env.NEXT_PUBLIC_SENTRY_RELEASE || '1.0.0',
   
-  replaysOnErrorSampleRate: 1.0,
+  // replaysOnErrorSampleRate: 1.0,
   
   // This sets the sample rate to be 10%. You may want this to be 100% while
   // in development and sample at a lower rate in production
-  replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0.1,
+  // replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0.1,
   
   // You can remove this option if you're not planning to use the Sentry Session Replay feature:
-  integrations: [
-    new Sentry.Replay({
-      // Additional Replay configuration goes in here, for example:
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-    new Sentry.BrowserTracing({
+  // integrations: [
+    // new Replay({
+    //   // Additional Replay configuration goes in here, for example:
+    //   maskAllText: true,
+    //   blockAllMedia: true,
+    // }),
+    // new Sentry.BrowserTracing({
       // Set sampling rate for performance monitoring
-      tracePropagationTargets: [
-        'localhost',
-        /^https:\/\/teereserve\.golf/,
-        /^https:\/\/api\.teereserve\.golf/,
-      ],
-    }),
-  ],
+      // tracePropagationTargets: [
+        // 'localhost',
+        // /^https:\/\/teereserve\.golf/,
+        // /^https:\/\/api\.teereserve\.golf/,
+      // ],
+    // }),
+  // ],
   
   beforeSend(event, hint) {
     // Filter out development errors in production

@@ -147,6 +147,10 @@ function AuthDebugComponent() {
       if (error.code === 'auth/email-already-in-use') {
         addLog('📝 Usuario ya existe, intentando login directo...');
         try {
+          if (!auth) {
+            addLog('❌ Auth no está disponible');
+            return;
+          }
           const loginResult = await signInWithEmailAndPassword(auth, testEmail, testPassword);
           addLog('✅ Login directo exitoso con usuario existente!');
         } catch (loginError: any) {
@@ -306,7 +310,7 @@ function AuthDebugComponent() {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>Solución recomendada:</strong> Si el error persiste, crear un nuevo usuario con el botón "Crear Usuario" 
-              o verificar que el usuario existe en Firebase Console > Authentication > Users.
+              o verificar que el usuario existe en Firebase Console {'>'}  Authentication {'>'} Users.
             </AlertDescription>
           </Alert>
         </CardContent>

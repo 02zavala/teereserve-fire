@@ -9,6 +9,7 @@ export function Logo({ className }: { className?: string }) {
                 src="/logo.svg"
                 alt="TeeReserve Logo"
                 fill
+                sizes="(max-width: 640px) 120px, 150px"
                 className="object-contain dark:invert"
                 priority
             />

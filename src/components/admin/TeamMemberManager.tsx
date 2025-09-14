@@ -33,6 +33,7 @@ import { useErrorHandler, commonValidators } from '@/hooks/useErrorHandler';
 import { ValidationError } from '@/lib/error-handling';
 import { Loader2, PlusCircle, Trash2, Edit, XCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { FirebaseAvatar } from '@/components/FirebaseAvatar';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -330,10 +331,12 @@ export function TeamMemberManager({ initialTeamMembers }: TeamMemberManagerProps
                     className="flex items-center justify-between p-2 rounded-md hover:bg-muted"
                   >
                     <div className="flex items-center gap-4">
-                      <Avatar>
-                        <AvatarImage src={member.avatarUrl} />
-                        <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
+                          <FirebaseAvatar 
+                        src={member.avatarUrl} 
+                        alt={member.name}
+                        fallback={member.name.substring(0, 2).toUpperCase()}
+                        className="h-12 w-12"
+                      />
                       <div>
                         <p className="font-semibold">{member.name}</p>
                         <p className="text-sm text-muted-foreground">

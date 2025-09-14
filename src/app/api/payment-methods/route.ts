@@ -1,57 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !process.env.FIREBASE_PRIVATE_KEY) {
-      console.error('Missing Firebase Admin SDK environment variables');
-      throw new Error('Firebase Admin SDK not configured');
-    }
-    
-    initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      }),
-    });
-  } catch (error) {
-    console.error('Failed to initialize Firebase Admin:', error);
-  }
-}
+import { auth, db } from '@/lib/firebase-admin';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
 });
 
-const db = getFirestore();
-
 // GET - Obtener métodos de pago guardados del usuario
 export async function GET(request: NextRequest) {
   try {
-    // Check if Firebase Admin is properly initialized
-    if (!getApps().length) {
-      console.warn('Firebase Admin not initialized - returning empty payment methods');
-      return NextResponse.json({ ok: true, data: { paymentMethods: [] } });
-    }
-
-    // Check if Firebase Admin environment variables are configured
-    if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !process.env.FIREBASE_PRIVATE_KEY) {
-      console.warn('Firebase Admin SDK not configured - returning empty payment methods');
-      return NextResponse.json({ ok: true, data: { paymentMethods: [] } });
-    }
-
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
     // Obtener el Stripe Customer ID del usuario
@@ -98,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
     const { paymentMethodId } = await request.json();
 
@@ -250,7 +214,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     const { paymentMethodId } = await request.json();
 
     if (!paymentMethodId) {

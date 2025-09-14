@@ -155,7 +155,7 @@ function ComponentLoading({ name }: { name: string }) {
 }
 
 // Generic lazy wrapper for components
-export function createLazyComponent<T extends object>(
+export function createLazyComponent<T extends Record<string, any>>(
   importFn: () => Promise<{ default: ComponentType<T> }>,
   fallback?: ComponentType,
   componentName?: string
@@ -167,7 +167,7 @@ export function createLazyComponent<T extends object>(
     
     return (
       <Suspense fallback={<FallbackComponent />}>
-        <LazyComponent {...props} />
+        <LazyComponent {...(props as any)} />
       </Suspense>
     );
   };
@@ -193,7 +193,7 @@ export const LazyCourseMap = createLazyComponent(
 );
 
 export const LazyPricingCalendar = createLazyComponent(
-  () => import('./admin/PricingCalendar'),
+  () => import('./admin/PricingCalendar').then(module => ({ default: module.PricingCalendar })),
   PricingCalendarSkeleton,
   'PricingCalendar'
 );

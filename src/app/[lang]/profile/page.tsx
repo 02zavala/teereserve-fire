@@ -198,7 +198,7 @@ export default function ProfilePage() {
     const { startOnboarding } = useOnboarding();
     const router = useRouter();
     const pathname = usePathname();
-    const lang = (pathname.split('/')[1] || 'en') as Locale;
+    const lang = (pathname?.split('/')[1] || 'en') as Locale;
 
     const [bookings, setBookings] = useState<FormattedBooking[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(true);
@@ -443,7 +443,6 @@ export default function ProfilePage() {
             <div id="payment-methods" className="mt-12">
                  <h2 className="font-headline text-3xl font-bold text-primary mb-6">Payment Methods</h2>
                  <SavedPaymentMethods 
-                     userId={user.uid} 
                      onAddNewMethod={handleAddNewPaymentMethod}
                      showAddButton={true}
                  />

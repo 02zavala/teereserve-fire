@@ -318,6 +318,7 @@ export class AuditService {
         name: 'System',
         role: 'system'
       },
+      changes: [], // No hay cambios de campos para exportación de datos
       metadata: {
         recordCount: entries.length,
         filter

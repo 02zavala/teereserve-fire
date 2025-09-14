@@ -18,8 +18,8 @@ const fontBody = PT_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'TeeTime Concierge',
-  description: 'Book your next golf adventure in Los Cabos.',
+  title: 'TeeReserve Golf - Premium Golf Booking in Los Cabos',
+  description: 'Book premium golf courses in Los Cabos, Mexico. Discover the best tee times, exclusive courses, and unforgettable golf experiences.',
   manifest: '/manifest.webmanifest',
   icons: {
     icon: ['/favicon.ico', '/favicon.svg'],
@@ -36,15 +36,16 @@ export const viewport: Viewport = {
 
 interface RootLayoutProps {
   children: React.ReactNode;
-  params: { lang: Locale };
+  params: Promise<{ lang: Locale }>;
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params,
 }: RootLayoutProps) {
+  const { lang } = await params;
   return (
-    <html lang={params.lang} suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body
         className={cn(
           'min-h-screen bg-background font-body antialiased',
@@ -52,7 +53,7 @@ export default function RootLayout({
           fontBody.variable
         )}
       >
-        <ClientLayout lang={params.lang}>
+        <ClientLayout lang={lang}>
             {children}
         </ClientLayout>
       </body>

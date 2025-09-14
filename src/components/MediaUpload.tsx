@@ -295,6 +295,7 @@ export function MediaUpload({
                         src={mediaFile.preview}
                         alt="Preview"
                         fill
+                        sizes="200px"
                         className="object-cover"
                       />
                     ) : (
@@ -304,6 +305,7 @@ export function MediaUpload({
                             src={mediaFile.preview}
                             alt="Video thumbnail"
                             fill
+                            sizes="200px"
                             className="object-cover"
                           />
                         ) : (

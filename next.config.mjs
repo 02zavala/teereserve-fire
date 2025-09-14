@@ -1,11 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Build optimizations for Firebase Hosting
+  output: 'standalone',
+  trailingSlash: false,
+  
+  // TypeScript and ESLint configuration
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true, // Temporarily disable for deployment
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true, // Temporarily disable for deployment
   },
+  
+  // External packages for server-side rendering
   serverExternalPackages: [
     'firebase-admin',
     '@google-cloud/firestore',
@@ -13,10 +20,22 @@ const nextConfig = {
     'nodemailer',
     'sharp',
     'canvas',
-    'jsdom'
+    'jsdom',
+    '@sentry/node',
+    '@sentry/nextjs'
   ],
+  
+  // Experimental features for Next.js 15
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    optimizePackageImports: [
+      'lucide-react', 
+      '@radix-ui/react-icons',
+      '@radix-ui/react-slot',
+      'class-variance-authority'
+    ],
+    // Disable CSS optimization to avoid critters issues
+    optimizeCss: false,
+    webVitalsAttribution: ['CLS', 'LCP'],
   },
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -110,7 +129,7 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'SAMEORIGIN',
           },
           {
             key: 'X-Content-Type-Options',
@@ -119,6 +138,20 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://m.stripe.network https://api.stripe.com",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' https://*.stripe.com https://m.stripe.network data: blob:",
+              "connect-src 'self' https://api.stripe.com https://m.stripe.network https://firestore.googleapis.com https://identitytoolkit.googleapis.com",
+              "frame-src https://js.stripe.com https://m.stripe.network https://hooks.stripe.com https://api.stripe.com",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'"
+            ].join('; ')
           },
         ],
       },

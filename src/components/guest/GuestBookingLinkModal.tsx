@@ -91,17 +91,18 @@ export function GuestBookingLinkModal({
     setError('');
 
     try {
-      const result = await linkGuestBookings({
-        guestEmail,
-        bookingIds: guestBookings.map(b => b.id)
-      });
+      const result = await linkGuestBookings(
+        guestEmail, // This will be used as guestUserId
+        user?.uid || '', // authenticatedUserId
+        guestBookings.map(b => b.id) // bookingIds
+      );
 
-      if (result.success) {
+      if (result.linkedBookings !== undefined) {
         setSuccess(true);
-        setLinkedCount(result.linkedCount || guestBookings.length);
+        setLinkedCount(result.linkedBookings);
         toast({
           title: '¡Reservas vinculadas exitosamente!',
-          description: `Se vincularon ${result.linkedCount || guestBookings.length} reservas a tu cuenta.`,
+          description: `Se han vinculado ${result.linkedBookings} reserva(s) a tu cuenta.`,
         });
         
         // Close modal after a short delay
@@ -109,7 +110,7 @@ export function GuestBookingLinkModal({
           onClose();
         }, 3000);
       } else {
-        throw new Error(result.error || 'Error al vincular las reservas');
+        throw new Error('Error al vincular las reservas');
       }
     } catch (error: any) {
       console.error('Error linking guest bookings:', error);

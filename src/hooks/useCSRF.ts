@@ -59,7 +59,7 @@ export function useCSRF() {
   };
 
   // Función para obtener headers seguros
-  const getSecureHeaders = () => {
+  const getSecureHeaders = (): Record<string, string> => {
     if (!csrfToken) {
       return {};
     }
@@ -87,8 +87,9 @@ export function useSecureForm() {
       throw new Error('CSRF token no disponible');
     }
 
+    const secureHeaders = getSecureHeaders();
     const headers: Record<string, string> = {
-      ...getSecureHeaders()
+      ...secureHeaders
     };
 
     let body: string | FormData;
