@@ -70,7 +70,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Payment method ID is required' }, { status: 400 });
     }
 
-
+    // Check for idempotency key
+    const idempotencyKey = request.headers.get('idempotency-key');
     
     // Obtener o crear Stripe Customer
     const userDoc = await db.collection('users').doc(userId).get();
@@ -128,6 +129,7 @@ export async function POST(request: NextRequest) {
       confirm: true,
       capture_method: 'automatic',
       description: 'Verification charge (non-refundable)',
+      ...(idempotencyKey && { idempotency_key: idempotencyKey }),
     });
 
     // Verificar que el pago fue exitoso
@@ -168,19 +170,7 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error: any) {
-    // Enhanced error logging
-    const errorDetails = {
-      scope: 'savePaymentMethod_API',
-      error: error?.message || 'Unknown error',
-      errorType: error?.constructor?.name || 'Unknown',
-      errorCode: error?.code,
-      stripeErrorType: error?.type,
-      declineCode: error?.decline_code,
-      timestamp: new Date().toISOString(),
-      stack: error?.stack
-    };
-    
-    console.error('SavePaymentMethod API Error Details:', errorDetails);
+    console.error({ scope: 'savePaymentMethod', err: error, userId: request.headers.get('authorization')?.split(' ')[1] });
     
     // Handle specific Stripe errors
     if (error.type === 'StripeCardError') {
